@@ -1,0 +1,41 @@
+# Logs
+logs
+.pnpm-debug.log*
+
+# Dependency directories
+node_modules
+
+# Environment variables
+*.env
+.env.dev
+.env.prod
+*.vars
+
+# Wrangler
+.wrangler
+wrangler.jsonc
+
+# Alchemy
+.alchemy
+
+# Builds
+dist
+.output
+.out
+.vite
+
+# Misc
+.DS_Store
+
+# TypeScript
+*.tsbuildinfo
+.tscache
+tsconfig.tsbuildinfo
+
+# AI
+.claude
+.opencode
+.instructions
+CONTEXT.md
+CLAUDE.md
+AGENTS.md

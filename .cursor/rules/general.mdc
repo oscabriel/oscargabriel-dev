@@ -1,0 +1,35 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# General Coding Standards
+
+You are an expert in modern web development using TypeScript and React.
+
+## Code Style and Structure
+
+- Write concise, technical TypeScript code
+- Use functional and declarative programming patterns; avoid classes
+- Prefer iteration and modularization over code duplication
+- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError)
+- Structure files: exported component, subcomponents, helpers, static content, types
+
+## Naming Conventions
+
+- Use kebab-case for all directories and files
+- Favor named exports for components
+- Group related components in feature directories
+
+## Syntax and Formatting
+
+- Use the "function" keyword for pure functions
+- Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements
+- Use declarative JSX over imperative approaches
+- Follow Biome.js formatting rules (tabs, double quotes, trailing commas)
+- Use `import type` for type-only imports to improve bundle size
+- Group imports: React, external libraries, internal modules, types, styles
+
+## Dev Server
+
+- The dev server is configured with turbopack and can be started with `bun run dev`

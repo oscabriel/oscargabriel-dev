@@ -1,0 +1,40 @@
+{
+	"name": "oscar-gabriel-dev",
+	"version": "1.0.0",
+	"description": "Oscar Gabriel",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "vite build",
+		"dev": "bun vite dev",
+		"check": "biome check --write src --verbose",
+		"check:unsafe": "biome check --write src --unsafe --verbose",
+		"infra:destroy": "bun alchemy.run.ts destroy",
+		"infra:up": "bun alchemy.run.ts up",
+		"preview": "bun build && bun vite preview",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@biomejs/biome": "2.0.6",
+		"@tailwindcss/vite": "^4.1.11",
+		"class-variance-authority": "^0.7.1",
+		"clsx": "^2.1.1",
+		"lucide-react": "^0.525.0",
+		"radix-ui": "^1.4.2",
+		"rwsdk": "^0.1.10",
+		"tailwind-merge": "^3.3.1",
+		"tailwindcss": "^4.1.11",
+		"vite": "6.3.5"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20250705.0",
+		"@types/node": "^24.0.10",
+		"@types/react": "^19.1.8",
+		"@types/react-dom": "^19.1.6",
+		"alchemy": "^0.45.6",
+		"tw-animate-css": "^1.3.5",
+		"typescript": "^5.8.3",
+		"wrangler": "^4.23.0"
+	},
+	"packageManager": "bun@1.2.17"
+}

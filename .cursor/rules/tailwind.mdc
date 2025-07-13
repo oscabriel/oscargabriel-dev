@@ -1,0 +1,78 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Tailwind v4 and UI Component Guidelines
+
+You are an expert in Tailwind CSS v4 and shadcn/ui components for styling.
+
+## Tailwind v4 Usage
+
+- Use Tailwind v4's modern features including:
+  - The new simplified color palette system
+  - Container queries with @container
+  - Cascade layers with @layer
+  - Style linting with Biome.js integration
+  - CSS variables for theming
+- Implement responsive design using Tailwind's mobile-first approach
+- Use arbitrary value syntax when needed: `[width:calc(100%-2rem)]`
+- Use Tailwind's utility composition with @apply sparingly
+- Leverage Tailwind's logical properties for RTL support
+
+## Shadcn UI Implementation
+
+- Use shadcn/ui components in directory listed in `components.json` 
+- Do not attempt to create new shadcn/ui components from scratch on your own
+- Only add new shadcn/ui components using the command `bunx --bun shadcn@latest add [component]`
+- Customize shadcn/ui components via our `styles.css` file
+- Use the proper component variant API
+- Extend shadcn/ui components through composition rather than modification
+- Use the proper form input components with validation
+- Use the `cn` utility from the utils file listed in `components.json`
+
+## Component Styling
+
+- Use Tailwind's group and peer modifiers for relational styling
+- Implement proper focus, hover, and active states
+- Use Tailwind's motion-safe and motion-reduce for accessibility
+- Implement proper color contrast for accessibility
+- Use CSS Grid with Tailwind for complex layouts
+- Use aspect-ratio utilities for responsive media
+
+## Example Pattern
+
+```typescript
+"use client";
+
+import { Button } from "@/app/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/app/components/ui/card";
+import { Input } from "@/app/components/ui/input";
+import { Label } from "@/app/components/ui/label";
+import { cn } from "@/app/components/utils";
+
+export function SubscriptionCard() {
+  return (
+    <Card className={cn("w-full max-w-md mx-auto")}>
+      <CardHeader>
+        <CardTitle className="text-xl font-bold text-primary">
+          Subscribe to Newsletter
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="email">Email address</Label>
+          <Input 
+            id="email" 
+            type="email" 
+            placeholder="email@example.com" 
+            className="w-full"
+          />
+        </div>
+      </CardContent>
+      <CardFooter>
+        <Button className="w-full">Subscribe</Button>
+      </CardFooter>
+    </Card>
+  );
+}

@@ -1,0 +1,40 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Tooling Guidelines
+
+You are an expert in modern JavaScript tooling, focusing on Bun.sh and Biome.js.
+
+## Bun as Package Manager and Runtime
+
+- Use Bun 1.2.12 for package management instead of npm or yarn
+- Utilize Bun's lockfile for dependency versioning
+- Leverage Bun for running scripts and tasks
+- Use Bun for environment variable loading with --env-file flag
+- The project uses Bun as package manager as specified in package.json
+
+## Bun Usage Requirements
+
+- **Always use Bun** for all package management and runtime operations
+- Never use npm, yarn, or pnpm commands in this codebase
+- You DO NOT have to add `cd <codebase_directory>` before executing a command; you are already in the intended directory.
+- Convert all terminal commands to use the Bun equivalent:
+  - Use `bun install` to install package.json
+  - Use `bun add` to add a new package
+  - Use `bun remove` to remove a package
+  - Use `bun run` for executing scripts (or the shorthand `bun name-of-script`)
+  - Use `bunx` for executing packages without installing (equivalent of npx)
+  - Use `bunx --bun shadcn@latest add name-of-component` to install new shadcn components
+- Format package.json scripts to work with Bun's script runner
+
+## Biome.js for Formatting and Linting
+
+- Use Biome.js 1.9.4 for code formatting and linting
+- Follow Biome.js configured rules in biome.json:
+  - Tab indentation style
+  - Double quotes for strings
+  - Trailing commas enabled
+  - Semicolons always required
+- Run our check with `bun run check`
