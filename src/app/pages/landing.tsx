@@ -18,6 +18,13 @@ export function Landing() {
 						>
 							Stumptown Coffee Roasters
 						</a>{" "}
+						<span className="text-muted-foreground">in</span>{" "}
+						<a
+							href="https://pdx.com"
+							className="text-foreground underline decoration-muted-foreground transition-colors hover:decoration-foreground"
+						>
+							PDX
+						</a>{" "}
 						<span className="text-muted-foreground">
 							doing planning and analysis
 						</span>
@@ -39,7 +46,7 @@ export function Landing() {
 					<div>
 						<span className="text-muted-foreground">Building with</span>{" "}
 						<a
-							href="https://cloudflare.com"
+							href="https://developers.cloudflare.com"
 							className="text-foreground underline decoration-muted-foreground transition-colors hover:decoration-foreground"
 						>
 							Cloudflare
@@ -79,10 +86,10 @@ export function Landing() {
 
 				<div className="mb-8">
 					<a
-						href="/blog"
+						href="/projects"
 						className="text-foreground underline decoration-muted-foreground transition-colors hover:decoration-foreground"
 					>
-						Read my blog →
+						Check out my latest project →
 					</a>
 				</div>
 

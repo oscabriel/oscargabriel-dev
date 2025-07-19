@@ -19,7 +19,7 @@ export const site = await Website("site", {
     main: "src/worker.tsx",
   },
   compatibilityFlags: ["nodejs_compat"],
-  compatibilityDate: "2025-07-13",
+  compatibilityDate: "2025-07-19",
   observability: {
     enabled: true,
   },
@@ -31,6 +31,7 @@ export const customDomain = await CustomDomain("custom-domain", {
   workerName: site.name,
   adopt: true,
 });
+
 console.log(`➜  Site deployed at: https://${process.env.CUSTOM_DOMAIN}`);
 
 await app.finalize();

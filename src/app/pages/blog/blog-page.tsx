@@ -1,4 +1,4 @@
-export function Blog() {
+export function BlogPage() {
 	return (
 		<div className="min-h-screen bg-background px-4 py-16">
 			<div className="mx-auto max-w-3xl">
@@ -6,14 +6,6 @@ export function Blog() {
 				<p className="text-lg text-muted-foreground">
 					Coming soon. Stay tuned!
 				</p>
-				<div className="mt-8">
-					<a
-						href="/"
-						className="text-foreground underline decoration-muted-foreground transition-colors hover:decoration-foreground"
-					>
-						← Back to home
-					</a>
-				</div>
 			</div>
 		</div>
 	);
