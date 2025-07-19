@@ -1,3 +1,3 @@
-# Personal Website
+# My Portfolio
 
-This personal site was built with [RedwoodSDK](https://rwsdk.com).
+This personal porfolio is built with [RedwoodSDK](https://rwsdk.com). It's deployed using [Alchemy](https://alchemy.run).
