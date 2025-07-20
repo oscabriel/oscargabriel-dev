@@ -1,6 +1,6 @@
 export function Landing() {
 	return (
-		<div className="min-h-screen bg-background px-4 py-16">
+		<div className="bg-background px-4">
 			<div className="mx-auto max-w-3xl">
 				<div className="mb-8">
 					<h1 className="mb-6 font-bold text-5xl">Oscar Gabriel</h1>

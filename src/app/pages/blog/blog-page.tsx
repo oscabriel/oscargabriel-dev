@@ -1,6 +1,6 @@
 export function BlogPage() {
 	return (
-		<div className="min-h-screen bg-background px-4 py-16">
+		<div className="bg-background px-4">
 			<div className="mx-auto max-w-3xl">
 				<h1 className="mb-6 font-bold text-5xl">Blog</h1>
 				<p className="text-lg text-muted-foreground">
