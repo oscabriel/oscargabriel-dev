@@ -64,7 +64,6 @@ export function BlogPost({ params }: RequestInfo) {
 						← Back to blog
 					</a>
 				</nav>
-
 				<article>
 					<header className="mb-8">
 						<h1 className="mb-4 font-bold text-4xl leading-tight">
@@ -84,12 +83,11 @@ export function BlogPost({ params }: RequestInfo) {
 						<div className="mt-6 h-px bg-border" />
 					</header>
 					<div
-						className="prose prose-gray dark:prose-invert prose-lg max-w-none prose-code:bg-muted prose-pre:bg-muted prose-headings:font-semibold prose-a:text-primary prose-headings:tracking-tight prose-a:no-underline hover:prose-a:underline"
+						className="prose prose-gray dark:prose-invert prose-p:mb-4 max-w-none prose-code:bg-muted prose-pre:bg-muted prose-headings:font-semibold prose-a:text-primary prose-p:text-sm prose-p:leading-relaxed prose-headings:tracking-tight prose-a:no-underline hover:prose-a:underline"
 						// biome-ignore lint/security/noDangerouslySetInnerHtml: Blog content is trusted markdown
 						dangerouslySetInnerHTML={{ __html: post.html }}
-					/>{" "}
+					/>
 				</article>
-
 				<footer className="mt-12 pt-8">
 					<div className="mb-8 h-px bg-border" />
 					<div className="text-center">
