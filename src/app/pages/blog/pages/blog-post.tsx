@@ -56,19 +56,9 @@ export function BlogPost({ params }: RequestInfo) {
 	return (
 		<div className="bg-background px-4">
 			<div className="mx-auto max-w-3xl">
-				<nav className="mb-8">
-					<a
-						href="/blog"
-						className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-3 font-medium text-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-					>
-						← Back to blog
-					</a>
-				</nav>
 				<article>
 					<header className="mb-8">
-						<h1 className="mb-4 font-bold text-4xl leading-tight">
-							{post.title}
-						</h1>
+						<h1 className="mb-6 font-bold text-5xl">{post.title}</h1>{" "}
 						<div className="flex items-center gap-4 text-muted-foreground text-sm">
 							<span>By {post.author}</span>
 							<span>•</span>
@@ -83,17 +73,17 @@ export function BlogPost({ params }: RequestInfo) {
 						<div className="mt-6 h-px bg-border" />
 					</header>
 					<div
-						className="prose prose-gray dark:prose-invert prose-p:mb-4 max-w-none prose-code:bg-muted prose-pre:bg-muted prose-headings:font-semibold prose-a:text-primary prose-p:text-sm prose-p:leading-relaxed prose-headings:tracking-tight prose-a:no-underline hover:prose-a:underline"
+						className="prose prose-gray dark:prose-invert prose-headings:mt-6 prose-headings:mb-3 prose-p:mb-3 max-w-none prose-code:bg-muted prose-pre:bg-muted prose-headings:font-semibold prose-a:text-primary prose-p:text-sm prose-p:leading-relaxed prose-headings:tracking-tight prose-a:no-underline hover:prose-a:underline"
 						// biome-ignore lint/security/noDangerouslySetInnerHtml: Blog content is trusted markdown
 						dangerouslySetInnerHTML={{ __html: post.html }}
 					/>
 				</article>
-				<footer className="mt-12 pt-8">
-					<div className="mb-8 h-px bg-border" />
-					<div className="text-center">
+				<footer className="mt-8 mb-8">
+					<div className="mb-4 h-px bg-border" />
+					<div>
 						<a
 							href="/blog"
-							className="inline-flex h-10 items-center justify-center whitespace-nowrap rounded-md border border-input bg-background px-4 py-2 font-medium text-sm ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+							className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-3 font-medium text-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
 						>
 							← Back to all posts
 						</a>

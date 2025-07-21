@@ -1,15 +1,15 @@
-export function Landing() {
+export function LandingPage() {
 	return (
 		<div className="bg-background px-4">
 			<div className="mx-auto max-w-3xl">
 				<div className="mb-8">
 					<h1 className="mb-6 font-bold text-5xl">Oscar Gabriel</h1>
-					<p className="mb-6 text-lg text-muted-foreground">
+					<p className="mb-6 text-base text-muted-foreground sm:text-lg">
 						Practicing data analyst on a web development journey.
 					</p>
 				</div>
 
-				<div className="mb-8 space-y-4 text-base leading-relaxed">
+				<div className="mb-8 space-y-4 text-sm leading-relaxed sm:text-base">
 					<div>
 						<span className="text-muted-foreground">Working at</span>{" "}
 						<a
