@@ -24,6 +24,9 @@ dist
 .out
 .vite
 
+# Content Collections
+.content-collections
+
 # Misc
 .DS_Store
 

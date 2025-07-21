@@ -1,12 +1,7 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "lib": [
-      "DOM",
-      "DOM.Iterable",
-      "ESNext",
-      "ES2022"
-    ],
+    "lib": ["DOM", "DOM.Iterable", "ESNext", "ES2022"],
     "jsx": "react-jsx",
     "module": "ESNext",
     "moduleResolution": "bundler",
@@ -18,12 +13,9 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@/root/*": [
-        "./*"
-      ]
+      "@/*": ["./src/*"],
+      "@/root/*": ["./*"],
+      "content-collections": ["./.content-collections/generated"]
     },
     "resolveJsonModule": true,
     "checkJs": false,

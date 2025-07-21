@@ -14,7 +14,7 @@ type ThemeProviderProps = {
 export function ThemeProvider({
 	children,
 	defaultTheme = "system",
-	storageKey = "red-cloud-theme",
+	storageKey = "oscar-gabriel-theme",
 	...props
 }: ThemeProviderProps) {
 	const [theme, setTheme] = useState<Theme>(() => {
