@@ -252,7 +252,7 @@ body {
 }
 
 .prose .heading-anchor:hover {
-	color: oklch(0.666 0.179 58.318);
+	color: var(--primary);
 }
 
 /* Tables */
@@ -263,7 +263,7 @@ body {
 }
 
 .prose table thead {
-	border-bottom: 2px solid oklch(0.374 0.01 67.558);
+	border-bottom: 2px solid var(--accent-foreground);
 }
 
 .prose table th {
@@ -274,9 +274,9 @@ body {
 
 .prose table td {
 	padding: 0.75rem 1rem;
-	border-bottom: 1px solid oklch(0.374 0.01 67.558);
+	border-bottom: 1px solid var(--accent-foreground);
 }
 
 .prose table tbody tr:hover {
-	background-color: oklch(0.216 0.006 56.043);
+	background-color: var(--muted);
 }

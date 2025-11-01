@@ -111,7 +111,7 @@ Thusly, we ended up with:
 
 Here's how data flows during an AI chat completion:
 
-```
+```ansi
 ┌─────────────────────────────────────────────────────┐
 │                  User sends message                 │
 │      POST /api/ai (streaming chat completion)       │

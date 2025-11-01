@@ -51,7 +51,7 @@ I tried three different layout approaches before landing on one that worked:
 
 Here's what the final structure looks like:
 
-```
+```ansi
 apps/web/src/routes/
 ├── __root.tsx                    # Global layout, context, error boundary
 ├── index.tsx                     # Landing page
