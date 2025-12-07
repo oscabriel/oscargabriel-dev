@@ -21,7 +21,7 @@ This is what I learned along the way.
 
 The architecture splits into discrete, composable layers.
 
-```
+```ansi
 @tanstack/ai          → Core: chat(), tools, adapters, streaming
 @tanstack/ai-client   → Headless client: ChatClient, connection adapters
 @tanstack/ai-react    → React bindings: useChat() hook
@@ -41,7 +41,7 @@ Under the hood, several key components orchestrate the AI interactions:
 
 The data flow is clean.
 
-```
+```ansi
 User Request → AI Interaction Core → Tool Call Manager → Provider Adapters → AI Service
                     ↓                      ↓
               Streaming Response    Execute Tool Calls
@@ -237,7 +237,7 @@ You can also build your own adapters. The protocol is just async iterables of `S
 
 When I built [Better Chat](https://chat.oscargabriel.dev) with Vercel's AI SDK and Cloudflare Durable Objects, I had to route everything through HTTP.
 
-```
+```ansi
 Client → HTTP POST → Worker → saves msg → Durable Object
                          ↓
                    streamText() → LLM
