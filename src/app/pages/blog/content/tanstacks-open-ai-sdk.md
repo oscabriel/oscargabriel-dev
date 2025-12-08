@@ -9,7 +9,7 @@ headerImageCaption: Me building my first chat app with Tanstack AI — Lilo and 
 
 The Eye of TanStack just veered over into the AI SDK space.
 
-If you've used any of their [libraries](https://tanstack.com/#libraries) before, then you know what to expect: headless primitives, relentless type safety and type-first design, framework flexibility, and APIs that feel like they were designed by people who actually build apps. Tanner and his growing team of maintainers and contributors have spent years earning developer trust by shipping tools that work everywhere and stand the test of time.
+If you've used any of their [libraries](https://tanstack.com/#libraries) before, then you know what to expect: headless primitives, relentless type-first design, framework flexibility, and APIs that feel like they were designed by people who actually build apps. Tanner and his growing team of maintainers and contributors have spent years earning developer trust by shipping tools that work everywhere and stand the test of time.
 
 Now they're applying that philosophy to building AI-powered apps. [TanStack AI](https://tanstack.com/ai) launched this week in alpha, and it's already showing what happens when you build an AI SDK without platform assumptions baked in.
 
@@ -75,8 +75,6 @@ export abstract class BaseAdapter<
 When you select `gpt-4o`, TypeScript knows exactly what provider options are valid for that model, which modalities it supports (text, image, audio), and what metadata each content type accepts. Pass an option that `gpt-4-turbo` doesn't support, and you get a useful compile error.
 
 ### Isomorphic Tool Definitions
-
-In TanStack AI, you define a tool once, then spawn server or client implementations from that single source of truth.
 
 ```typescript
 const weatherTool = toolDefinition({
@@ -157,7 +155,7 @@ Route::post('/api/chat', function (Request $request) {
 
 Your frontend uses `@tanstack/ai-client`. Your backend can be Python, PHP, or TypeScript. Same chunk format, same tool execution flow, different languages.
 
-The Vercel AI SDK is TypeScript-only on the server. Not huge for me specifically as a now-dedicated Typescript guy, but if your team has a Python ML backend or a PHP legacy system, then Tanstack's got you covered!
+The Vercel AI SDK is TypeScript-only on the server. Not huge for me specifically as a now-dedicated TypeScript guy, but if your team has a Python ML backend or a Laravel/WordPress stack, TanStack's got you covered.
 
 ### Streaming UX Control
 
@@ -417,9 +415,7 @@ If you avoid `@ai-sdk/gateway` and `@ai-sdk/rsc`, the Vercel SDK is genuinely po
 
 ## The Feature Gap
 
-TanStack AI is an alpha that launched this week. The feature gap is real.
-
-Vercel's SDK offers:
+TanStack AI launched this week in alpha. Vercel's SDK offers:
 - **25+ more providers** — Bedrock, Groq, Mistral, Cohere, Perplexity, etc.
 - **`generateObject()`** — structured output with schema validation
 - **Middleware system** — request/response interceptors for logging, caching, transforms
@@ -520,6 +516,6 @@ _I intend to rebuild Better Chat with TanStack Start and TanStack AI. Follow alo
 
 - [TanStack AI Alpha: Your AI, Your Way](https://tanstack.com/blog/tanstack-ai-alpha-your-ai-your-way) — Official announcement
 - [TanStack AI Documentation](https://tanstack.com/ai/latest/docs) — Guides and API reference
-- [Matt Pocock's analysis](https://x.com/mattpocockuk/status/1996967049004757363) — Comparison with Vercel AI SDK
+- [Matt Pocock's analysis](https://twitter.com/mattpocockuk/status/1996967049004757363) — Comparison with Vercel AI SDK
 - [Vercel AI SDK](https://ai-sdk.dev/) — Official docs
 - [TanStack AI on GitHub](https://github.com/TanStack/ai) — Source code
