@@ -272,11 +272,20 @@ body {
 	display: list-item;
 }
 
-/* Tables */
+/* Tables - scrollable on mobile */
 .prose table {
+	display: block;
 	width: 100%;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
 	border-collapse: collapse;
 	margin: 2rem 0;
+}
+
+@media (min-width: 768px) {
+	.prose table {
+		display: table;
+	}
 }
 
 .prose table thead {

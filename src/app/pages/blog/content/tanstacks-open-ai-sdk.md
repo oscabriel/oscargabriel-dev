@@ -9,6 +9,8 @@ headerImageCaption: Me building my first chat app with Tanstack AI — Lilo and 
 
 The Eye of TanStack just veered over into the AI SDK space.
 
+> **Alpha 2 Update (Dec 2025):** TanStack AI shipped a major update two weeks after initial release. Key changes include: modality-specific adapters (`openaiText`, `openaiImage`, etc.), model passed directly to adapters, `providerOptions` renamed to `modelOptions`, options like `temperature` flattened to root level, and new modalities (image, video, audio, TTS, transcription). I've updated this post to reflect these changes. See the [official announcement](https://tanstack.com/blog/tanstack-ai-alpha-2-every-modality-better-apis-smaller-bundles) for details.
+
 If you've used any of their [libraries](https://tanstack.com/#libraries) before, then you know what to expect: headless primitives, relentless type-first design, framework flexibility, and APIs that feel like they were designed by people who actually build apps. Tanner and his growing team of maintainers and contributors have spent years earning developer trust by shipping tools that work everywhere and stand the test of time.
 
 Now they're applying that philosophy to building AI-powered apps. [TanStack AI](https://tanstack.com/ai) launched this week in alpha, and it's already showing what happens when you build an AI SDK without platform assumptions baked in.
@@ -58,21 +60,46 @@ This decoupled, reactive architecture means you can subscribe to events, swap pr
 
 The Vercel AI SDK uses flexible typing for provider options to enable rapid iteration on provider-specific features. The tradeoff is that you can pass options that don't apply to the model you're using, and TypeScript won't catch it. TanStack makes the opposite tradeoff, prioritizing *per-model* type safety. Zero runtime overhead since it's all erased at compile time.
 
-The `BaseAdapter` class uses 7 type parameters.
+~~The `BaseAdapter` class uses 7 type parameters.~~ **Update (Alpha 2):** TanStack AI now uses modality-specific adapters with only 3-4 type parameters each. Instead of one monolithic adapter, you import what you need:
 
 ```typescript
-export abstract class BaseAdapter<
-  TChatModels extends ReadonlyArray<string>,
-  TEmbeddingModels extends ReadonlyArray<string>,
-  TChatProviderOptions extends Record<string, any>,
-  TEmbeddingProviderOptions extends Record<string, any>,
-  TModelProviderOptionsByName extends Record<string, any>,
-  TModelInputModalitiesByName extends Record<string, ReadonlyArray<Modality>>,
-  TMessageMetadataByModality
+import { openaiText, openaiImage, openaiVideo } from '@tanstack/ai-openai'
+
+// Model is now passed directly to the adapter
+const textAdapter = openaiText('gpt-4o')
+const imageAdapter = openaiImage('gpt-image-1')
+```
+
+The `BaseTextAdapter` class is now focused:
+
+```typescript
+export class OpenAITextAdapter<TModel> extends BaseTextAdapter<
+  TModel,
+  ResolveProviderOptions<TModel>,
+  ResolveInputModalities<TModel>,
+  OpenAIMessageMetadataByModality
 >
 ```
 
 When you select `gpt-4o`, TypeScript knows exactly what provider options are valid for that model, which modalities it supports (text, image, audio), and what metadata each content type accepts. Pass an option that `gpt-4-turbo` doesn't support, and you get a useful compile error.
+
+The API for calling `chat()` also changed in Alpha 2. Options like `temperature` moved to the root level, and `providerOptions` was renamed to `modelOptions`:
+
+```diff
+chat({
+-  adapter: openai(),
++  adapter: openaiText("gpt-4o"),
+-  model: "gpt-4",
+-  providerOptions: {
++  modelOptions: {
+    text: {}
+  },
+-  options: {
+-    temperature: 0.6
+-  },
++  temperature: 0.6
+})
+```
 
 ### Isomorphic Tool Definitions
 
@@ -186,6 +213,32 @@ const processor = new StreamProcessor({
 
 This solves the "streaming feels janky" problem at the SDK level. No more characters appearing mid-word or sentences breaking at awkward points. The Vercel SDK handles this at the transport level; TanStack gives you explicit control. I also got confused initially when trying to implement actually [smooth streaming](https://twitter.com/oscabriel/status/1976494486906896453) with the Vercel SDK, but TanStack's SDK makes it easy to control the streaming behavior.
 
+### Stream Recording and Replay
+
+The `StreamProcessor` supports recording and replaying streams, which is useful for testing, debugging, and building conversation history features.
+
+```typescript
+import { StreamProcessor, createReplayStream } from '@tanstack/ai'
+
+const processor = new StreamProcessor()
+processor.startRecording()
+
+// Process your stream...
+for await (const chunk of stream) {
+  processor.process(chunk)
+}
+
+const recording = processor.getRecording() // Chunks with timestamps
+
+// Later, replay the recording
+const replayStream = createReplayStream(recording)
+for await (const chunk of replayStream) {
+  // Same chunks, same timing
+}
+```
+
+There's also a `PartialJSONParser` that parses incomplete JSON from streaming tool arguments, enabling real-time previews of tool inputs before they're complete.
+
 ### Deep Devtools Integration
 
 The devtools story goes beyond basic inspection. TanStack AI emits 35+ distinct event types, and the devtools consume them all:
@@ -208,7 +261,9 @@ aiEventClient.on('tanstack-ai-devtools:stream:chunk:thinking', (event) => {
 })
 ```
 
-Observability is baked into the architecture. Every significant operation emits events. Subscribe to what you need; pipe it to your analytics, your error tracker, or the TanStack devtools panel. Vercel's SDK uses OpenTelemetry for observability, which integrates with standard tracing tools but requires external infrastructure. TanStack's approach is more granular and ships with dedicated devtools out of the box.
+Observability is baked into the architecture. Every significant operation emits events. Subscribe to what you need; pipe it to your analytics, your error tracker, or the TanStack devtools panel.
+
+~~Vercel's SDK uses OpenTelemetry for observability, which integrates with standard tracing tools but requires external infrastructure.~~ **Update:** Vercel now ships `@ai-sdk/devtools` with a middleware-based approach and full viewer UI. Both SDKs now have dedicated devtools. The difference is architectural: Vercel uses middleware that wraps your model (`devToolsMiddleware()`), while TanStack uses an event-driven system you can subscribe to anywhere in your app.
 
 ### Connection Adapter Extensibility
 
@@ -319,34 +374,52 @@ async fetch(request: Request) {
 
 No Worker intermediary. No HTTP reconnection per message. The DO maintains chat history, handles hibernation, and can broadcast to multiple clients, invisible to the TanStack AI client layer. Same pattern could work for things like gRPC streaming, Electron IPC, or service worker-based offline chat. Vercel's SDK assumes HTTP. TanStack assumes nothing.
 
-### Headless UI Components (Coming Soon)
+### Headless UI Components ~~(Coming Soon)~~ (Shipped!)
 
-The work Tanner and co. have done on [Table](https://tanstack.com/table) and [Form](https://tanstack.com/form) is going to pay off for AI, too. The announcement [blog post](https://tanstack.com/blog/tanstack-ai-alpha-your-ai-your-way#coming-soon) lists headless chat UI components as a coming soon feature ("think Radix, but for AI chat interfaces"). Fully functional, completely unstyled components that you can skin to match your app.
-
-If they follow TanStack's usual patterns, it might look something like this (note: this is speculation, not actual API)...
+The work Tanner and co. have done on [Table](https://tanstack.com/table) and [Form](https://tanstack.com/form) is going to pay off for AI, too. ~~The announcement blog post lists headless chat UI components as a coming soon feature.~~ **Update:** They shipped! Three packages now exist: `@tanstack/ai-react-ui`, `@tanstack/ai-solid-ui`, and `@tanstack/ai-vue-ui`.
 
 ```tsx
-import { Chat } from '@tanstack/ai-react-ui'
+import { Chat, ChatMessages, ChatMessage, ChatInput } from '@tanstack/ai-react-ui'
+import { fetchServerSentEvents } from '@tanstack/ai-client'
 
-<Chat connection={fetchServerSentEvents("/api/chat")}>
-  <Chat.Messages>
+<Chat connection={fetchServerSentEvents('/api/chat')}>
+  <ChatMessages>
     {(message) => (
-      <Chat.Message message={message}>
-        <Chat.TextPart />
-        <Chat.ThinkingPart />
-        <Chat.ToolCallPart>
-          {(toolCall) => <MyToolUI toolCall={toolCall} />}
-        </Chat.ToolCallPart>
-      </Chat.Message>
+      <ChatMessage
+        message={message}
+        userClassName="justify-end"
+        assistantClassName="justify-start"
+        toolsRenderer={{
+          weatherTool: ({ name, arguments: args }) => (
+            <WeatherCard {...JSON.parse(args)} />
+          ),
+        }}
+        defaultToolRenderer={() => null}
+      />
     )}
-  </Chat.Messages>
-  <Chat.Input />
+  </ChatMessages>
+  <ChatInput placeholder="Type a message..." />
 </Chat>
 ```
 
-...which would be *amazing*. Compound components. Render props. Zero styling opinions. You'd get the state machine, the streaming, the tool handling, but with legible control over every pixel.
+The `<ChatMessage>` component understands TanStack AI's parts-based message format natively: text parts, thinking parts (with auto-collapse when complete), tool-call parts with approval state, and tool-result parts. You can override any part with custom renderers.
 
-The Vercel AI SDK gives you hooks as part of its [AI SDK UI](https://ai-sdk.dev/docs/ai-sdk-ui/overview) package. TanStack is planning to give you hooks _and_ unstyled primitives. This could eliminate a ton of boilerplate without sacrificing flexibility.
+The `<ChatInput>` also supports render props for full control.
+
+```tsx
+<ChatInput>
+  {({ value, onChange, onSubmit, isLoading }) => (
+    <div className="flex gap-2">
+      <textarea value={value} onChange={(e) => onChange(e.target.value)} />
+      <button onClick={onSubmit} disabled={isLoading}>
+        {isLoading ? 'Sending...' : 'Send'}
+      </button>
+    </div>
+  )}
+</ChatInput>
+```
+
+Compound components. Render props. Zero styling opinions. Named tool renderers for custom tool UIs. The Vercel AI SDK gives you hooks as part of its [AI SDK UI](https://ai-sdk.dev/docs/ai-sdk-ui/overview) package. TanStack now gives you hooks _and_ unstyled primitives, eliminating boilerplate without sacrificing flexibility.
 
 ## The Full Picture for Vercel AI SDK
 
@@ -357,7 +430,7 @@ TanStack's marketing leans into "no vendor lock-in." But what does Vercel's SDK 
 The vast majority of the SDK has zero Vercel dependencies:
 
 - **Core `ai` package** — `streamText()`, `generateText()`, `generateObject()` work anywhere
-- **All 30+ provider adapters** — OpenAI, Anthropic, Google, Mistral, Cohere, etc.
+- **All 40+ provider adapters** — OpenAI, Anthropic, Google, xAI, DeepSeek, Mistral, Cohere, and many more
 - **React/Vue/Svelte/Angular hooks** — `useChat()`, `useCompletion()`, `useObject()`
 - **The streaming protocol** — SSE with JSON chunks, nothing proprietary
 - **The tool system** — completely provider-agnostic
@@ -398,34 +471,54 @@ If you avoid `@ai-sdk/gateway` and `@ai-sdk/rsc`, the Vercel SDK is genuinely po
 
 | Aspect | Vercel AI SDK | TanStack AI |
 |--------|---------------|-------------|
-| **Provider abstraction** | `LanguageModelV3` interface | `BaseAdapter` class (7 generics) |
+| **Provider abstraction** | `LanguageModelV3` interface | Modality-specific adapters (3-4 generics each) |
 | **Type safety** | Per-provider | Per-model |
-| **Provider count** | 30+ packages | 4 "that you actually want to use" (OpenAI, Anthropic, Gemini, Ollama) |
+| **Provider count** | 40+ packages | 4 "that you actually want to use" (OpenAI, Anthropic, Gemini, Ollama) |
 | **Tool definition** | `tool()` with FlexibleSchema | `toolDefinition()` → `.server()`/`.client()` |
-| **Schema support** | Zod, Valibot, ArkType, Effect | Zod only |
-| **Streaming control** | Transport-level | Chunking strategies |
-| **UI primitives** | Hooks only | Hooks + headless components (coming soon) |
-| **Middleware** | `wrapLanguageModel()`, extractors | None |
-| **Agent loops** | `agent()` with stop conditions | `AgentLoopStrategy` |
+| **Schema support** | Standard Schema (Zod, Valibot, JSON Schema) | Standard Schema (Zod v4+, ArkType, Valibot, Effect) |
+| **Streaming control** | `smoothStream` (word/line/regex) | Chunking strategies (punctuation, word boundary, batch) |
+| **UI primitives** | Hooks only | Hooks + headless components (`@tanstack/ai-react-ui`) |
+| **Middleware** | `wrapLanguageModel()`, extractors | Coming soon |
+| **Agent loops** | `ToolLoopAgent` with UI streaming | `AgentLoopStrategy` |
 | **RSC support** | Full `@ai-sdk/rsc` package | None |
 | **Backend languages** | TypeScript only | TypeScript, Python, PHP |
-| **Framework bindings** | React, Vue, Svelte, Angular | React, Solid, Vue |
-| **Observability** | OpenTelemetry | Event system (40+ types) |
+| **Framework bindings** | React, Vue, Svelte, Angular | React, Solid, Vue, Svelte |
+| **Observability** | OpenTelemetry + `@ai-sdk/devtools` | Event system + `@tanstack/ai-devtools` |
 | **Connection protocols** | HTTP/SSE | HTTP, SSE, WebSocket, RPC, custom |
+| **Modalities** | Text, image, speech, transcription, reranking | Text, image, video, audio, speech, transcription, structured output |
+| **Stream recording** | No | Yes (with replay) |
+| **MCP support** | Dedicated `@ai-sdk/mcp` package with OAuth | `mcpTool` |
 
 ## The Feature Gap
 
-TanStack AI launched this week in alpha. Vercel's SDK offers:
-- **25+ more providers** — Bedrock, Groq, Mistral, Cohere, Perplexity, etc.
-- **`generateObject()`** — structured output with schema validation
-- **Middleware system** — request/response interceptors for logging, caching, transforms
-- **Provider-specific tools** — `openai.tools.webSearch()`, `anthropic.tools.computer_20250124()`, etc
-- **MCP integration** — `@ai-sdk/mcp` for Model Context Protocol
-- **Speech/transcription** — `generateSpeech()`, `transcribe()`
-- **Image generation** — `generateImage()`
-- **Streaming tool execution** — tools can return `AsyncIterable<T>`
+TanStack AI launched in alpha two weeks ago. ~~Vercel's SDK offers many features TanStack lacks.~~ **Update (Alpha 2):** The gap has narrowed significantly. Here's the current state:
 
-The gap is real, but TanStack is betting they can nail the type-safe streaming DX better than anyone else, and the features will follow. Given their track record, I'd take that bet.
+**Features TanStack AI now has:**
+- **Structured output** — `outputSchema` parameter with Standard Schema support
+- **Image generation** — `generateImage()` with `openaiImage`, `anthropicImage`, etc.
+- **Video generation** — `generateVideo()` (experimental, with job polling)
+- **Speech/TTS** — `generateSpeech()` with `openaiSpeech`, `geminiSpeech`
+- **Transcription** — `generateTranscription()` with `openaiTranscription`
+- **Provider-specific tools** — `webSearchTool`, `codeInterpreterTool`, `computerUseTool`, `fileSearchTool`, `mcpTool`, and more for OpenAI, Anthropic, and Gemini
+- **MCP integration** — `mcpTool` for Model Context Protocol servers
+- **Headless UI components** — `@tanstack/ai-react-ui` and `@tanstack/ai-solid-ui` shipped
+
+**Features still Vercel-only:**
+- **35+ more providers** — Bedrock, Groq, Mistral, Cohere, Perplexity, xAI, DeepSeek, ElevenLabs, and many more
+- **Middleware system** — `wrapLanguageModel()` for logging, caching, transforms
+- **Agent system** — `ToolLoopAgent` with automatic tool execution loops and UI streaming
+- **Image editing** — `generateImage()` with `files` and `mask` parameters
+- **Reranking** — `rerank()` for document reranking (Cohere, Bedrock)
+- **RSC streaming** — `streamUI()` for React Server Components
+- **smoothStream** — Built-in chunking with word/line/regex boundaries
+
+**Where TanStack leads:**
+- **Video generation** — Vercel has no equivalent to TanStack's `generateVideo()` with job polling
+- **Stream recording/replay** — Capture and replay streams for testing and debugging
+- **Multi-language backends** — Python and PHP SDKs speak the same protocol
+- **Per-model type safety** — TypeScript catches invalid options at compile time
+
+The gap has closed dramatically. Provider-specific tools, MCP, and headless UI components all shipped without fanfare. But each SDK now has clear strengths.
 
 ## The Ecosystem Play
 
@@ -437,6 +530,7 @@ If you're using TanStack Start, there's a pattern worth knowing.
 
 ```typescript
 import { createServerFnTool } from "@tanstack/ai-react";
+import { openaiText } from "@tanstack/ai-openai";
 
 const getProducts = createServerFnTool({
   name: "getProducts",
@@ -444,8 +538,12 @@ const getProducts = createServerFnTool({
   execute: async ({ query }) => db.products.search(query),
 });
 
-// Use in AI chat
-chat({ tools: [getProducts.server] });
+// Use in AI chat with the new adapter API
+chat({
+  adapter: openaiText("gpt-4o"),
+  tools: [getProducts.server],
+  temperature: 0.7, // Options now at root level
+});
 
 // Call directly from components
 const products = await getProducts.serverFn({ query: "laptop" });
@@ -514,7 +612,8 @@ _I intend to rebuild Better Chat with TanStack Start and TanStack AI. Follow alo
 
 ## Further Reading
 
-- [TanStack AI Alpha: Your AI, Your Way](https://tanstack.com/blog/tanstack-ai-alpha-your-ai-your-way) — Official announcement
+- [TanStack AI Alpha 2: Every Modality, Better APIs, Smaller Bundles](https://tanstack.com/blog/tanstack-ai-alpha-2) — Alpha 2 announcement with breaking changes
+- [TanStack AI Alpha: Your AI, Your Way](https://tanstack.com/blog/tanstack-ai-alpha-your-ai-your-way) — Original announcement
 - [TanStack AI Documentation](https://tanstack.com/ai/latest/docs) — Guides and API reference
 - [Matt Pocock's analysis](https://twitter.com/mattpocockuk/status/1996967049004757363) — Comparison with Vercel AI SDK
 - [Vercel AI SDK](https://ai-sdk.dev/) — Official docs
