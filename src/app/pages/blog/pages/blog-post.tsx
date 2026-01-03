@@ -58,9 +58,9 @@ export function BlogPost({ params }: RequestInfo) {
 		);
 	}
 
-	// Extract headings for table of contents (only h2 elements)
+	// Extract headings for table of contents (h2 and h3 elements)
 	const headings = extractHeadingsFromHtml(post.html).filter(
-		(h) => h.level === 2,
+		(h) => h.level === 2 || h.level === 3,
 	);
 
 	return (
