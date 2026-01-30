@@ -83,8 +83,8 @@ export const projects: ProjectItem[] = [
 	{
 		title: "Offworld",
 		description:
-			"AI-powered codebase analysis platform that explores GitHub repos, generates architecture docs and diagrams, and provides conversational project navigation. Built primarily on Tanstack Start and Convex",
-		date: "2025-11-17",
+			"CLI tool that gives coding agents instant context on any open source repo. Monorepo with CLI, web app, docs, and TUI. Built with Convex, Better Auth, Alchemy, and Turborepo.",
+		date: "2026-01-27",
 		liveUrl: "https://offworld.sh",
 		githubUrl: "https://github.com/oscabriel/offworld",
 		repo: { owner: "oscabriel", name: "offworld" },
