@@ -108,7 +108,7 @@ export function LandingPage() {
 						</svg>
 					</a>
 					<a
-						href="https://linkedin.com/in/oscar-hernandez-iv"
+						href="https://linkedin.com/in/oscar-gabriel"
 						className="text-muted-foreground transition-colors hover:text-foreground"
 					>
 						<svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
