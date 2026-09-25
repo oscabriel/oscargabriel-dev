@@ -7,7 +7,7 @@ headerImage: "/images/lord-of-the-rings.jpg"
 headerImageCaption: "The Lord of the Rings (1978) — Let alchemy guide you home."
 ---
 
-Going from a blank folder on your computer to a real, live website is easier than it's ever been, but don't let anyone grift you into thinking it's trivial. 
+Going from a blank folder on your computer to a real, live website is easier than it's ever been, but don't let anyone grift you into thinking it's trivial.
 
 One thing I quickly picked up on when I first dove into the wide world of web development in 2024 was that, at the very beginning, it's a lot less like "building" and a lot more like "shopping." It's browsing and looking and judging vibes, then it's picking out and trying on and putting back on the rack. And eventually, it's deciding and committing and taking home to add to your wardrobe.
 
@@ -23,21 +23,22 @@ I think there just might be.
 
 According to its test suite, [Better-T-Stack](https://better-t-stack.dev/) has well over 150 possible tech stack combinations. BTS represents everything I learned to love on my journey so far: it's 100% focused on Typescript and type-safety, it's wildly composable, and it's dedicated to tech stacks featuring discrete frontend and backend code.
 
-With all of this, Better-T-Stack generates *excellent* development setups. Your local environment is beautifully setup for you. But here's the thing: that was typically where the easy fun ended and the deployment headaches began, *until now*.
+With all of this, Better-T-Stack generates _excellent_ development setups. Your local environment is beautifully setup for you. But here's the thing: that was typically where the easy fun ended and the deployment headaches began, _until now_.
 
 The recent Alchemy integration into BTS heals all deployment headaches, allowing you to take your beautiful local dev environment and turn it into a production-ready app deployed to Cloudflare Workers. If you've tried out BTS but gave up on your project because of the difficulty of deploying, I highly encourage you to give it another shot with Alchemy in your stack.
 
 It's not super important for what we're doing in this tour, but here's the stack we'll be using to explore Alchemy. It's my personal go-to within the available BTS options:
+
 - **TanStack Router** for type-safe frontend routing
 - **Hono** for lightning-fast backend APIs
 - **SQLite/D1** for your database layer
 - **Drizzle** as your type-safe ORM
-- **Better-Auth** for the *best* authz/authn
+- **Better-Auth** for the _best_ authz/authn
 - And last but not least **Alchemy** for deployment to Cloudflare
 
 ## Time to Learn What "IaC" Means
 
-If you're unfamiliar with [Alchemy](https://alchemy.run/), then I'm delighted to be the first to show it to you. 
+If you're unfamiliar with [Alchemy](https://alchemy.run/), then I'm delighted to be the first to show it to you.
 
 Infrastructure-as-Code ("IaC") is the incredible idea of pre-defining your app's infra configuration in code, rather than doing it manually in a cloud console after finishing your app. And Alchemy's not like other IaC offerings; it's written in pure Typescript (already established that that's a win), that doesn't depend on one or more wrapper layers above it to work, that is easy to understand and super flexible. Alchemy also features:
 
@@ -68,41 +69,41 @@ config({ path: "./apps/server/.env" });
 const app = await alchemy("your-app-name");
 
 await Exec("db-generate", {
-  cwd: "apps/server",
-  command: "bun run db:generate",
+	cwd: "apps/server",
+	command: "bun run db:generate",
 });
 
 const db = await D1Database("database", {
-  migrationsDir: "apps/server/src/db/migrations",
+	migrationsDir: "apps/server/src/db/migrations",
 });
 
 export const web = await Vite("web", {
-  cwd: "apps/web",
-  assets: "dist",
-  bindings: {
-    VITE_SERVER_URL: process.env.VITE_SERVER_URL || "",
-  },
-  dev: {
-    command: "bun run dev",
-  },
+	cwd: "apps/web",
+	assets: "dist",
+	bindings: {
+		VITE_SERVER_URL: process.env.VITE_SERVER_URL || "",
+	},
+	dev: {
+		command: "bun run dev",
+	},
 });
 
 export const server = await Worker("server", {
-  cwd: "apps/server",
-  entrypoint: "src/index.ts",
-  compatibility: "node",
-  bindings: {
-    DB: db,
-    CORS_ORIGIN: process.env.CORS_ORIGIN || "",
-    BETTER_AUTH_SECRET: alchemy.secret(process.env.BETTER_AUTH_SECRET),
-    BETTER_AUTH_URL: process.env.BETTER_AUTH_URL || "",
-    GOOGLE_GENERATIVE_AI_API_KEY: alchemy.secret(
-      process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-    ),
-  },
-  dev: {
-    port: 3000,
-  },
+	cwd: "apps/server",
+	entrypoint: "src/index.ts",
+	compatibility: "node",
+	bindings: {
+		DB: db,
+		CORS_ORIGIN: process.env.CORS_ORIGIN || "",
+		BETTER_AUTH_SECRET: alchemy.secret(process.env.BETTER_AUTH_SECRET),
+		BETTER_AUTH_URL: process.env.BETTER_AUTH_URL || "",
+		GOOGLE_GENERATIVE_AI_API_KEY: alchemy.secret(
+			process.env.GOOGLE_GENERATIVE_AI_API_KEY
+		),
+	},
+	dev: {
+		port: 3000,
+	},
 });
 
 console.log(`Web    -> ${web.url}`);
@@ -138,8 +139,8 @@ const app = await alchemy("your-app-name");
 
 ```typescript
 await Exec("db-generate", {
-  cwd: "apps/server",
-  command: "bun run db:generate",
+	cwd: "apps/server",
+	command: "bun run db:generate",
 });
 ```
 
@@ -151,7 +152,7 @@ Cloudflare D1 is the easiest choice for database when deploying to Cloudflare, a
 
 ```typescript
 const db = await D1Database("database", {
-  migrationsDir: "apps/server/src/db/migrations",
+	migrationsDir: "apps/server/src/db/migrations",
 });
 ```
 
@@ -167,14 +168,14 @@ Cloudflare Workers manages your frontend for you with intelligent static asset h
 
 ```typescript
 export const web = await Vite("web", {
-  cwd: "apps/web",
-  assets: "dist",
-  bindings: {
-    VITE_SERVER_URL: process.env.VITE_SERVER_URL || "",
-  },
-  dev: {
-    command: "bun run dev",
-  },
+	cwd: "apps/web",
+	assets: "dist",
+	bindings: {
+		VITE_SERVER_URL: process.env.VITE_SERVER_URL || "",
+	},
+	dev: {
+		command: "bun run dev",
+	},
 });
 ```
 
@@ -194,21 +195,21 @@ Your backend API runs as a Cloudflare Worker with access to all your infrastruct
 
 ```typescript
 export const server = await Worker("server", {
-  cwd: "apps/server",
-  entrypoint: "src/index.ts",
-  compatibility: "node",
-  bindings: {
-    DB: db,
-    CORS_ORIGIN: process.env.CORS_ORIGIN || "",
-    BETTER_AUTH_SECRET: alchemy.secret(process.env.BETTER_AUTH_SECRET),
-    BETTER_AUTH_URL: process.env.BETTER_AUTH_URL || "",
-    GOOGLE_GENERATIVE_AI_API_KEY: alchemy.secret(
-      process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-    ),
-  },
-  dev: {
-    port: 3000,
-  },
+	cwd: "apps/server",
+	entrypoint: "src/index.ts",
+	compatibility: "node",
+	bindings: {
+		DB: db,
+		CORS_ORIGIN: process.env.CORS_ORIGIN || "",
+		BETTER_AUTH_SECRET: alchemy.secret(process.env.BETTER_AUTH_SECRET),
+		BETTER_AUTH_URL: process.env.BETTER_AUTH_URL || "",
+		GOOGLE_GENERATIVE_AI_API_KEY: alchemy.secret(
+			process.env.GOOGLE_GENERATIVE_AI_API_KEY
+		),
+	},
+	dev: {
+		port: 3000,
+	},
 });
 ```
 
@@ -241,6 +242,7 @@ config({ path: `./apps/server/.env.${stage}` });
 ```
 
 Then, we create separate environment files for each stage:
+
 - `.env.dev` - Development configurations with relaxed CORS, debug logging, and local service endpoints
 - `.env.prod` - Production settings with strict security policies and production API keys
 
@@ -251,6 +253,7 @@ Make use of the different stages with `ALCHEMY_STAGE=prod bun alchemy deploy` or
 Your basic setup can grow into a full production system by adding more of Cloudflare's offerings:
 
 **KV Storage for Caching and Sessions**:
+
 ```typescript
 import { KVNamespace } from "alchemy/cloudflare";
 
@@ -266,52 +269,58 @@ bindings: {
 ```
 
 **Queues for Background Processing**:
+
 ```typescript
 import { Queue } from "alchemy/cloudflare";
 
 const queue = await Queue("email-queue", {
-  name: "email-queue",
+	name: "email-queue",
 });
 
 // Bind to a worker with settings
 await Worker("processor", {
-  bindings: {
-    QUEUE: queue,
-  },
-  eventSources: [{
-    queue,
-    settings: {
-      batchSize: 10,  // Process 10 messages at once
-      maxWaitTimeMs: 2000,  // Wait up to 2 seconds to fill a batch
-    }
-  }]
+	bindings: {
+		QUEUE: queue,
+	},
+	eventSources: [
+		{
+			queue,
+			settings: {
+				batchSize: 10, // Process 10 messages at once
+				maxWaitTimeMs: 2000, // Wait up to 2 seconds to fill a batch
+			},
+		},
+	],
 });
 ```
 
 **Durable Objects for Stateful Services**:
+
 ```typescript
 import { DurableObjectNamespace } from "alchemy/cloudflare";
 
 const gameRooms = await DurableObjectNamespace("game-rooms", {
-  class_name: "GameRoom",
-  sqlite: true  // SQLite-backed DO
+	class_name: "GameRoom",
+	sqlite: true, // SQLite-backed DO
 });
 ```
 
 **Custom Domains and SSL**:
+
 ```typescript
 // Give your server worker a custom API subdomain
 const server = await Worker("api", {
-  name: "api-worker",
-  domains: [
-    {
-      domainName: "api.example.com",
-      zoneId: "YOUR_ZONE_ID",
-      adopt: true,
-    },
-  ],
+	name: "api-worker",
+	domains: [
+		{
+			domainName: "api.example.com",
+			zoneId: "YOUR_ZONE_ID",
+			adopt: true,
+		},
+	],
 });
 ```
+
 And more!
 
 ### Making the Most of the Edge
@@ -330,4 +339,4 @@ And if you're building with Better-T-Stack, you should probably be choosing Alch
 
 ---
 
-*Want to see this stack in action? I'll be building a real app with Better-T-Stack + Alchemy and documenting the entire journey. Follow along on [Twitter](https://twitter.com/oscabriel).*
+_Want to see this stack in action? I'll be building a real app with Better-T-Stack + Alchemy and documenting the entire journey. Follow along on [Twitter](https://twitter.com/oscabriel)._

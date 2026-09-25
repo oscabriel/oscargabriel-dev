@@ -58,16 +58,16 @@ This decoupled, reactive architecture means you can subscribe to events, swap pr
 
 ### Type-First Design
 
-The Vercel AI SDK uses flexible typing for provider options to enable rapid iteration on provider-specific features. The tradeoff is that you can pass options that don't apply to the model you're using, and TypeScript won't catch it. TanStack makes the opposite tradeoff, prioritizing *per-model* type safety. Zero runtime overhead since it's all erased at compile time.
+The Vercel AI SDK uses flexible typing for provider options to enable rapid iteration on provider-specific features. The tradeoff is that you can pass options that don't apply to the model you're using, and TypeScript won't catch it. TanStack makes the opposite tradeoff, prioritizing _per-model_ type safety. Zero runtime overhead since it's all erased at compile time.
 
 ~~The `BaseAdapter` class uses 7 type parameters.~~ **Update (Alpha 2):** TanStack AI now uses modality-specific adapters with only 3-4 type parameters each. Instead of one monolithic adapter, you import what you need:
 
 ```typescript
-import { openaiText, openaiImage, openaiVideo } from '@tanstack/ai-openai'
+import { openaiText, openaiImage, openaiVideo } from "@tanstack/ai-openai";
 
 // Model is now passed directly to the adapter
-const textAdapter = openaiText('gpt-4o')
-const imageAdapter = openaiImage('gpt-image-1')
+const textAdapter = openaiText("gpt-4o");
+const imageAdapter = openaiImage("gpt-image-1");
 ```
 
 The `BaseTextAdapter` class is now focused:
@@ -105,22 +105,22 @@ chat({
 
 ```typescript
 const weatherTool = toolDefinition({
-  name: 'getWeather',
-  description: 'Get current weather',
-  needsApproval: true,
-  inputSchema: z.object({ location: z.string() }),
-  outputSchema: z.object({ temp: z.number() }),
-})
+	name: "getWeather",
+	description: "Get current weather",
+	needsApproval: true,
+	inputSchema: z.object({ location: z.string() }),
+	outputSchema: z.object({ temp: z.number() }),
+});
 
 // Server-side execution
 const serverWeather = weatherTool.server(async ({ location }) => {
-  return await weatherAPI.get(location)
-})
+	return await weatherAPI.get(location);
+});
 
 // Client-side execution
 const clientWeather = weatherTool.client(async ({ location }) => {
-  return await fetch(`/api/weather?loc=${location}`).then(r => r.json())
-})
+	return await fetch(`/api/weather?loc=${location}`).then((r) => r.json());
+});
 ```
 
 In Vercel's AI SDK, you typically define tools separately for each context where they're used. TanStack's `.server()` / `.client()` pattern lets you define a tool once and spawn different implementations from it: same name, same schemas, different execution contexts.
@@ -131,10 +131,10 @@ Both SDKs support tool approval workflows. But TanStack's is baked into the stat
 
 ```typescript
 const deleteUser = toolDefinition({
-  name: 'deleteUser',
-  needsApproval: true, // Pauses for human confirmation
-  inputSchema: z.object({ userId: z.string() }),
-})
+	name: "deleteUser",
+	needsApproval: true, // Pauses for human confirmation
+	inputSchema: z.object({ userId: z.string() }),
+});
 ```
 
 The system emits `approval-requested` events, the `StreamProcessor` transitions to a paused state, and execution only continues after explicit approval. The entire flow is orchestrated by the engine, from tool call detection through approval handling to execution resumption, rather than implemented by you.
@@ -144,6 +144,7 @@ The system emits `approval-requested` events, the `StreamProcessor` transitions 
 This is undersold in TanStack's marketing. They ship Python and PHP packages that speak the same streaming protocol.
 
 **Python (FastAPI):**
+
 ```python
 from tanstack_ai import StreamChunkConverter, format_sse_chunk
 
@@ -162,6 +163,7 @@ async def chat(request: ChatRequest):
 ```
 
 **PHP (Laravel):**
+
 ```php
 use TanStack\AI\StreamChunkConverter;
 
@@ -192,17 +194,17 @@ The `StreamProcessor` supports configurable chunking strategies that control how
 
 ```typescript
 import {
-  PunctuationStrategy,
-  WordBoundaryStrategy,
-  CompositeStrategy
-} from '@tanstack/ai'
+	PunctuationStrategy,
+	WordBoundaryStrategy,
+	CompositeStrategy,
+} from "@tanstack/ai";
 
 const processor = new StreamProcessor({
-  chunkingStrategy: new CompositeStrategy([
-    new PunctuationStrategy(),      // Buffer until sentence ends
-    new WordBoundaryStrategy(),     // Never split mid-word
-  ])
-})
+	chunkingStrategy: new CompositeStrategy([
+		new PunctuationStrategy(), // Buffer until sentence ends
+		new WordBoundaryStrategy(), // Never split mid-word
+	]),
+});
 ```
 
 - `ImmediateStrategy` — every token, as fast as possible
@@ -218,22 +220,22 @@ This solves the "streaming feels janky" problem at the SDK level. No more charac
 The `StreamProcessor` supports recording and replaying streams, which is useful for testing, debugging, and building conversation history features.
 
 ```typescript
-import { StreamProcessor, createReplayStream } from '@tanstack/ai'
+import { StreamProcessor, createReplayStream } from "@tanstack/ai";
 
-const processor = new StreamProcessor()
-processor.startRecording()
+const processor = new StreamProcessor();
+processor.startRecording();
 
 // Process your stream...
 for await (const chunk of stream) {
-  processor.process(chunk)
+	processor.process(chunk);
 }
 
-const recording = processor.getRecording() // Chunks with timestamps
+const recording = processor.getRecording(); // Chunks with timestamps
 
 // Later, replay the recording
-const replayStream = createReplayStream(recording)
+const replayStream = createReplayStream(recording);
 for await (const chunk of replayStream) {
-  // Same chunks, same timing
+	// Same chunks, same timing
 }
 ```
 
@@ -250,15 +252,15 @@ The devtools story goes beyond basic inspection. TanStack AI emits 35+ distinct 
 - **Embedding and summarization tracking** — Not just chat, but all AI operations
 
 ```typescript
-import { aiEventClient } from '@tanstack/ai'
+import { aiEventClient } from "@tanstack/ai";
 
-aiEventClient.on('tanstack-ai-devtools:tool:approval-requested', (event) => {
-  console.log(`Tool ${event.payload.toolName} awaiting approval`)
-})
+aiEventClient.on("tanstack-ai-devtools:tool:approval-requested", (event) => {
+	console.log(`Tool ${event.payload.toolName} awaiting approval`);
+});
 
-aiEventClient.on('tanstack-ai-devtools:stream:chunk:thinking', (event) => {
-  console.log(`Model reasoning: ${event.payload.content}`)
-})
+aiEventClient.on("tanstack-ai-devtools:stream:chunk:thinking", (event) => {
+	console.log(`Model reasoning: ${event.payload.content}`);
+});
 ```
 
 Observability is baked into the architecture. Every significant operation emits events. Subscribe to what you need; pipe it to your analytics, your error tracker, or the TanStack devtools panel.
@@ -271,11 +273,11 @@ The `ConnectionAdapter` interface is intentionally minimal.
 
 ```typescript
 interface ConnectionAdapter {
-  connect(
-    messages: Array<UIMessage> | Array<ModelMessage>,
-    data?: Record<string, any>,
-    abortSignal?: AbortSignal,
-  ): AsyncIterable<StreamChunk>
+	connect(
+		messages: Array<UIMessage> | Array<ModelMessage>,
+		data?: Record<string, any>,
+		abortSignal?: AbortSignal
+	): AsyncIterable<StreamChunk>;
 }
 ```
 
@@ -303,27 +305,27 @@ The Worker acts as an intermediary for every message. The DO is just storage.
 ```typescript
 // Client: HTTP streaming to a worker endpoint
 const { messages, sendMessage } = useChat({
-  api: '/api/ai',
-  body: { conversationId },
-})
+	api: "/api/ai",
+	body: { conversationId },
+});
 
 // Worker: receives HTTP, coordinates with DO, streams from LLM
-app.post('/api/ai', async (c) => {
-  const { messages, conversationId } = await c.req.json()
-  const db = getUserDOStub(c.env, userId)
+app.post("/api/ai", async (c) => {
+	const { messages, conversationId } = await c.req.json();
+	const db = getUserDOStub(c.env, userId);
 
-  await db.appendMessages(conversationId, userMessage)
+	await db.appendMessages(conversationId, userMessage);
 
-  const result = streamText({
-    model: openai('gpt-4o'),
-    messages: convertToModelMessages(messages),
-    onFinish: async ({ response }) => {
-      await db.appendMessages(conversationId, response.messages)
-    },
-  })
+	const result = streamText({
+		model: openai("gpt-4o"),
+		messages: convertToModelMessages(messages),
+		onFinish: async ({ response }) => {
+			await db.appendMessages(conversationId, response.messages);
+		},
+	});
 
-  return result.toUIMessageStreamResponse()
-})
+	return result.toUIMessageStreamResponse();
+});
 ```
 
 With TanStack AI, the architecture collapses. The client can connect directly to the Durable Object via WebSocket.
@@ -331,21 +333,21 @@ With TanStack AI, the architecture collapses. The client can connect directly to
 ```typescript
 // Client: WebSocket directly to the DO
 const { messages, sendMessage } = useChat({
-  connection: durableObjectChat(conversationId),
-})
+	connection: durableObjectChat(conversationId),
+});
 
 function durableObjectChat(conversationId: string): ConnectionAdapter {
-  return {
-    async *connect(messages, data, abortSignal) {
-      const ws = new WebSocket(`wss://app.com/chat/${conversationId}`)
-      await waitForOpen(ws)
-      ws.send(JSON.stringify({ messages, data }))
+	return {
+		async *connect(messages, data, abortSignal) {
+			const ws = new WebSocket(`wss://app.com/chat/${conversationId}`);
+			await waitForOpen(ws);
+			ws.send(JSON.stringify({ messages, data }));
 
-      for await (const chunk of wsChunks(ws, abortSignal)) {
-        yield chunk
-      }
-    }
-  }
+			for await (const chunk of wsChunks(ws, abortSignal)) {
+				yield chunk;
+			}
+		},
+	};
 }
 ```
 
@@ -379,27 +381,32 @@ No Worker intermediary. No HTTP reconnection per message. The DO maintains chat 
 The work Tanner and co. have done on [Table](https://tanstack.com/table) and [Form](https://tanstack.com/form) is going to pay off for AI, too. ~~The announcement blog post lists headless chat UI components as a coming soon feature.~~ **Update:** They shipped! Three packages now exist: `@tanstack/ai-react-ui`, `@tanstack/ai-solid-ui`, and `@tanstack/ai-vue-ui`.
 
 ```tsx
-import { Chat, ChatMessages, ChatMessage, ChatInput } from '@tanstack/ai-react-ui'
-import { fetchServerSentEvents } from '@tanstack/ai-client'
+import {
+	Chat,
+	ChatMessages,
+	ChatMessage,
+	ChatInput,
+} from "@tanstack/ai-react-ui";
+import { fetchServerSentEvents } from "@tanstack/ai-client";
 
-<Chat connection={fetchServerSentEvents('/api/chat')}>
-  <ChatMessages>
-    {(message) => (
-      <ChatMessage
-        message={message}
-        userClassName="justify-end"
-        assistantClassName="justify-start"
-        toolsRenderer={{
-          weatherTool: ({ name, arguments: args }) => (
-            <WeatherCard {...JSON.parse(args)} />
-          ),
-        }}
-        defaultToolRenderer={() => null}
-      />
-    )}
-  </ChatMessages>
-  <ChatInput placeholder="Type a message..." />
-</Chat>
+<Chat connection={fetchServerSentEvents("/api/chat")}>
+	<ChatMessages>
+		{(message) => (
+			<ChatMessage
+				message={message}
+				userClassName="justify-end"
+				assistantClassName="justify-start"
+				toolsRenderer={{
+					weatherTool: ({ name, arguments: args }) => (
+						<WeatherCard {...JSON.parse(args)} />
+					),
+				}}
+				defaultToolRenderer={() => null}
+			/>
+		)}
+	</ChatMessages>
+	<ChatInput placeholder="Type a message..." />
+</Chat>;
 ```
 
 The `<ChatMessage>` component understands TanStack AI's parts-based message format natively: text parts, thinking parts (with auto-collapse when complete), tool-call parts with approval state, and tool-result parts. You can override any part with custom renderers.
@@ -408,14 +415,14 @@ The `<ChatInput>` also supports render props for full control.
 
 ```tsx
 <ChatInput>
-  {({ value, onChange, onSubmit, isLoading }) => (
-    <div className="flex gap-2">
-      <textarea value={value} onChange={(e) => onChange(e.target.value)} />
-      <button onClick={onSubmit} disabled={isLoading}>
-        {isLoading ? 'Sending...' : 'Send'}
-      </button>
-    </div>
-  )}
+	{({ value, onChange, onSubmit, isLoading }) => (
+		<div className="flex gap-2">
+			<textarea value={value} onChange={(e) => onChange(e.target.value)} />
+			<button onClick={onSubmit} disabled={isLoading}>
+				{isLoading ? "Sending..." : "Send"}
+			</button>
+		</div>
+	)}
 </ChatInput>
 ```
 
@@ -443,7 +450,7 @@ Two optional packages have Vercel-specific integrations:
 
 ```typescript
 const baseURL =
-  withoutTrailingSlash(options.baseURL) ?? "https://ai-gateway.vercel.sh/v1/ai";
+	withoutTrailingSlash(options.baseURL) ?? "https://ai-gateway.vercel.sh/v1/ai";
 ```
 
 **`@ai-sdk/rsc`** — React Server Components with `streamUI()`.
@@ -470,7 +477,7 @@ If you avoid `@ai-sdk/gateway` and `@ai-sdk/rsc`, the Vercel SDK is genuinely po
 ## Architectural Comparison
 
 | Aspect | Vercel AI SDK | TanStack AI |
-|--------|---------------|-------------|
+| --- | --- | --- |
 | **Provider abstraction** | `LanguageModelV3` interface | Modality-specific adapters (3-4 generics each) |
 | **Type safety** | Per-provider | Per-model |
 | **Provider count** | 40+ packages | 4 "that you actually want to use" (OpenAI, Anthropic, Gemini, Ollama) |
@@ -494,6 +501,7 @@ If you avoid `@ai-sdk/gateway` and `@ai-sdk/rsc`, the Vercel SDK is genuinely po
 TanStack AI launched in alpha two weeks ago. ~~Vercel's SDK offers many features TanStack lacks.~~ **Update (Alpha 2):** The gap has narrowed significantly. Here's the current state:
 
 **Features TanStack AI now has:**
+
 - **Structured output** — `outputSchema` parameter with Standard Schema support
 - **Image generation** — `generateImage()` with `openaiImage`, `anthropicImage`, etc.
 - **Video generation** — `generateVideo()` (experimental, with job polling)
@@ -504,6 +512,7 @@ TanStack AI launched in alpha two weeks ago. ~~Vercel's SDK offers many features
 - **Headless UI components** — `@tanstack/ai-react-ui` and `@tanstack/ai-solid-ui` shipped
 
 **Features still Vercel-only:**
+
 - **35+ more providers** — Bedrock, Groq, Mistral, Cohere, Perplexity, xAI, DeepSeek, ElevenLabs, and many more
 - **Middleware system** — `wrapLanguageModel()` for logging, caching, transforms
 - **Agent system** — `ToolLoopAgent` with automatic tool execution loops and UI streaming
@@ -513,6 +522,7 @@ TanStack AI launched in alpha two weeks ago. ~~Vercel's SDK offers many features
 - **smoothStream** — Built-in chunking with word/line/regex boundaries
 
 **Where TanStack leads:**
+
 - **Video generation** — Vercel has no equivalent to TanStack's `generateVideo()` with job polling
 - **Stream recording/replay** — Capture and replay streams for testing and debugging
 - **Multi-language backends** — Python and PHP SDKs speak the same protocol
@@ -533,16 +543,16 @@ import { createServerFnTool } from "@tanstack/ai-react";
 import { openaiText } from "@tanstack/ai-openai";
 
 const getProducts = createServerFnTool({
-  name: "getProducts",
-  inputSchema: z.object({ query: z.string() }),
-  execute: async ({ query }) => db.products.search(query),
+	name: "getProducts",
+	inputSchema: z.object({ query: z.string() }),
+	execute: async ({ query }) => db.products.search(query),
 });
 
 // Use in AI chat with the new adapter API
 chat({
-  adapter: openaiText("gpt-4o"),
-  tools: [getProducts.server],
-  temperature: 0.7, // Options now at root level
+	adapter: openaiText("gpt-4o"),
+	tools: [getProducts.server],
+	temperature: 0.7, // Options now at root level
 });
 
 // Call directly from components
@@ -556,11 +566,12 @@ But it goes deeper. The `stream()` connection adapter bypasses HTTP entirely for
 ### The Broader TanStack Ecosystem
 
 Think about what's possible:
+
 - **TanStack Query** already handles caching, invalidation, and optimistic updates. Imagine AI responses cached and deduplicated the same way.
 - **TanStack Router** provides type-safe routing with loaders. AI-powered route prefetching based on predicted user intent?
 - **TanStack Form** handles validation with Zod. Tool input schemas already use Zod. The integration writes itself.
 
-None of this is announced, but the architecture makes it possible because TanStack controls the whole stack. Vercel's AI SDK integrates with Next.js. TanStack AI can integrate with *every TanStack library*.
+None of this is announced, but the architecture makes it possible because TanStack controls the whole stack. Vercel's AI SDK integrates with Next.js. TanStack AI can integrate with _every TanStack library_.
 
 ### The Platform Shift
 
@@ -577,6 +588,7 @@ As the open source services market continues to grow into 2026, the momentum is 
 ## Who Should Use What
 
 **Vercel AI SDK makes sense when:**
+
 - You're on Next.js deployed to Vercel
 - You want RSC streaming UI (`streamUI()`)
 - You need mature features now (image gen, speech, MCP)
@@ -584,6 +596,7 @@ As the open source services market continues to grow into 2026, the momentum is 
 - Middleware and interceptors matter to your use case
 
 **TanStack AI makes sense when:**
+
 - Your backend is Python, PHP, or you want language flexibility
 - You're using Solid, or want framework optionality
 - Per-model type safety matters to you
@@ -593,6 +606,7 @@ As the open source services market continues to grow into 2026, the momentum is 
 - You're investing in the TanStack ecosystem long-term
 
 **Either works when:**
+
 - Standard React chat interface
 - OpenAI/Anthropic/Google providers
 - Tool calling with approval workflows

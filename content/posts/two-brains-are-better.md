@@ -54,12 +54,13 @@ This sort of approach works just fine for thousands of chat apps out there. But 
 
 ### Problem 1: The Write Bottleneck
 
-AI chat is *extremely* write-heavy. Each completion generates multiple messages (user message, assistant response, tool calls, tool results). Active users generate 10-20+ writes per minute. Scale to 10,000 concurrent users streaming completions, and your single database is drowning in writes. Connection pools max out. Write latency spikes. Scaling requires expensive read replicas and careful sharding—all of which can be solved easily, for a price. Like a literal price, with dollars.
+AI chat is _extremely_ write-heavy. Each completion generates multiple messages (user message, assistant response, tool calls, tool results). Active users generate 10-20+ writes per minute. Scale to 10,000 concurrent users streaming completions, and your single database is drowning in writes. Connection pools max out. Write latency spikes. Scaling requires expensive read replicas and careful sharding—all of which can be solved easily, for a price. Like a literal price, with dollars.
 
 ### Problem 2: The Access Pattern Mismatch
 
 Look at what actually happens:
-- **Messages:** Written constantly during streaming, read by one user for conversation history, *never* queried across users
+
+- **Messages:** Written constantly during streaming, read by one user for conversation history, _never_ queried across users
 - **Conversations:** Written on creation, updated on every message, listed per user
 - **Settings:** Written rarely (model selection, API keys), read on every request
 - **Usage tracking:** Written after each completion, aggregated globally for quotas or potentially billing
@@ -86,20 +87,24 @@ The breakthrough was realizing that I didn't have to pick just one method. I did
 > **Does this data fundamentally belong to one user and need to be accessed frequently, or does it need to be coordinated globally and accessed less often?**
 
 **User-Specific Data** (high frequency, isolated access, streaming writes):
+
 - **Conversations** — list, create, update per user
 - **Messages** — user messages, assistant responses, tool calls, reasoning steps
 
 **Global Data** (coordination required, low frequency, needs aggregation):
+
 - **Authentication** — sessions, OAuth tokens
 - **Settings** — selected model, BYOK API keys, enabled tools, app theme
 - **Usage tracking** — token counts, daily/monthly quotas, models used
 - **MCP servers** — custom tool configurations, server URLs
 
 Thusly, we ended up with:
+
 - **Durable Objects** — Per-user SQLite databases for conversations and messages
 - **Cloudflare D1** — Global SQLite database for auth, settings, usage, MCP configs
 
 **The wins:**
+
 - User chat queries have no `user_id` filtering (it's implicit in which DO you access)
 - Message writes scale linearly per user (no shared database bottleneck)
 - Each user's database lives geographically close to them (Cloudflare auto-placement)
@@ -156,20 +161,22 @@ The entire architecture hinges on one seven-line function:
 ```typescript
 // apps/server/src/db/do/get-user-stub.ts
 export function getUserDOStub(
-  env: Env,
-  userId: string,
+	env: Env,
+	userId: string
 ): DurableObjectStub<UserDurableObject> {
-  const id = env.USER_DO.idFromName(userId);
-  return env.USER_DO.get(id) as DurableObjectStub<UserDurableObject>;
+	const id = env.USER_DO.idFromName(userId);
+	return env.USER_DO.get(id) as DurableObjectStub<UserDurableObject>;
 }
 ```
 
 This function:
-1. Takes a `userId` (which *must* come from an authenticated session)
+
+1. Takes a `userId` (which _must_ come from an authenticated session)
 2. Maps it deterministically to a Durable Object instance
-3. Returns a stub that can only access *that user's* data
+3. Returns a stub that can only access _that user's_ data
 
 Durable Objects implement the **Actor model**—each instance is a single-threaded "actor" with its own isolated state. Cloudflare guarantees:
+
 - The same `userId` always routes to the same Durable Object
 - That object runs in exactly one location globally
 - Multiple requests are automatically serialized (single-threaded execution)
@@ -181,15 +188,15 @@ Combined with this authentication guard:
 ```typescript
 // apps/server/src/lib/auth-guards.ts
 export async function requireUserDO(c: HonoContext) {
-  const session = await auth.api.getSession({ headers: c.req.raw.headers });
-  if (!session) throw new UnauthorizedError();
+	const session = await auth.api.getSession({ headers: c.req.raw.headers });
+	if (!session) throw new UnauthorizedError();
 
-  const stub = getUserDOStub(c.env, session.user.id);
-  return { userId: session.user.id, stub } as const;
+	const stub = getUserDOStub(c.env, session.user.id);
+	return { userId: session.user.id, stub } as const;
 }
 ```
 
-You can't get a user's Durable Object stub without a valid session. Critically, the stub is *always* derived from the session—never from request parameters, never from user input.
+You can't get a user's Durable Object stub without a valid session. Critically, the stub is _always_ derived from the session—never from request parameters, never from user input.
 
 **This is the security boundary.** Everything that happens after this point is physically isolated per user.
 
@@ -204,13 +211,13 @@ Let's trace what happens when a user sends a message. This is where the dual-dat
 export const aiRoutes = new Hono();
 
 aiRoutes.post("/", async (c) => {
-  // Get userId and DO stub from authenticated session
-  const { userId, stub } = await requireUserDO(c);
+	// Get userId and DO stub from authenticated session
+	const { userId, stub } = await requireUserDO(c);
 
-  const body = aiRequestSchema.parse(await c.req.json());
+	const body = aiRequestSchema.parse(await c.req.json());
 
-  // Pass userId and stub to handler
-  return await streamCompletion(userId, stub, body);
+	// Pass userId and stub to handler
+	return await streamCompletion(userId, stub, body);
 });
 ```
 
@@ -227,19 +234,19 @@ const modelId = requestedModelId || userSettings.selectedModel;
 ```typescript
 // apps/server/src/features/settings/queries.ts
 export async function getUserSettings(userId: string) {
-  const row = await db
-    .select()
-    .from(userSettings)
-    .where(eq(userSettings.userId, userId))
-    .get();
+	const row = await db
+		.select()
+		.from(userSettings)
+		.where(eq(userSettings.userId, userId))
+		.get();
 
-  // D1 stores: selected model, API keys (encrypted), theme, etc.
-  return {
-    selectedModel: row.selectedModel ?? DEFAULT_SETTINGS.selectedModel,
-    apiKeys: await migrateApiKeysIfNeeded(userId, storedApiKeys),
-    enabledMcpServers: parseJson<string[]>(row.enabledMcpServers, []),
-    webSearchEnabled: row.webSearchEnabled ?? false,
-  };
+	// D1 stores: selected model, API keys (encrypted), theme, etc.
+	return {
+		selectedModel: row.selectedModel ?? DEFAULT_SETTINGS.selectedModel,
+		apiKeys: await migrateApiKeysIfNeeded(userId, storedApiKeys),
+		enabledMcpServers: parseJson<string[]>(row.enabledMcpServers, []),
+		webSearchEnabled: row.webSearchEnabled ?? false,
+	};
 }
 ```
 
@@ -255,21 +262,21 @@ await requireAvailableQuota(userId, provider, userSettings.apiKeys || {});
 ```typescript
 // apps/server/src/features/usage/handlers.ts
 export async function requireAvailableQuota(
-  userId: string,
-  provider: string,
-  userApiKeys: Record<string, string>,
+	userId: string,
+	provider: string,
+	userApiKeys: Record<string, string>
 ) {
-  if (userApiKeys[provider]) {
-    return; // Unlimited with BYOK (Bring Your Own Key)
-  }
+	if (userApiKeys[provider]) {
+		return; // Unlimited with BYOK (Bring Your Own Key)
+	}
 
-  const summary = await getCurrentUsageSummary(userId);
-  if (!summary.daily.allowed) {
-    throw new QuotaExceededError("daily");
-  }
-  if (!summary.monthly.allowed) {
-    throw new QuotaExceededError("monthly");
-  }
+	const summary = await getCurrentUsageSummary(userId);
+	if (!summary.daily.allowed) {
+		throw new QuotaExceededError("daily");
+	}
+	if (!summary.monthly.allowed) {
+		throw new QuotaExceededError("monthly");
+	}
 }
 ```
 
@@ -280,13 +287,13 @@ export async function requireAvailableQuota(
 ```typescript
 // apps/server/src/features/ai/handlers.ts (line 124-127)
 const history = await userDOStub.listMessages(
-  conversationId,
-  MAX_PROMPT_MESSAGES,
+	conversationId,
+	MAX_PROMPT_MESSAGES
 );
 
 const mergedUiMessages = mergeHistoryWithIncoming(
-  history.items,
-  incomingMessages,
+	history.items,
+	incomingMessages
 );
 ```
 
@@ -317,18 +324,18 @@ async listMessages(
 }
 ```
 
-**Why Durable Object?** Messages are read and written constantly during active conversations. The DO's in-memory SQLite provides sub-50ms latency. More importantly, this data *never needs to be queried across users*—perfect for physical isolation.
+**Why Durable Object?** Messages are read and written constantly during active conversations. The DO's in-memory SQLite provides sub-50ms latency. More importantly, this data _never needs to be queried across users_—perfect for physical isolation.
 
 ### Step 5: Generate AI Response (External API Call)
 
 ```typescript
 // apps/server/src/features/ai/handlers.ts (line 142-151)
 const result = streamText({
-  model: userRegistry.languageModel(resolvedProvider.modelId),
-  system: systemPrompt,
-  messages: convertToModelMessages(mergedForModel),
-  tools: allTools,
-  experimental_transform: smoothStream(),
+	model: userRegistry.languageModel(resolvedProvider.modelId),
+	system: systemPrompt,
+	messages: convertToModelMessages(mergedForModel),
+	tools: allTools,
+	experimental_transform: smoothStream(),
 });
 ```
 
@@ -384,37 +391,37 @@ async appendMessages(conversationId: string, items: AppUIMessage[]) {
 ```typescript
 // apps/server/src/features/ai/handlers.ts (line 206-215)
 if (usageData) {
-  await recordUsage(userId, {
-    modelId,
-    usage: usageData,
-    conversationId,
-  });
+	await recordUsage(userId, {
+		modelId,
+		usage: usageData,
+		conversationId,
+	});
 }
 ```
 
 ```typescript
 // apps/server/src/features/usage/mutations.ts
 export async function recordUsage(userId: string, params) {
-  const today = getDaysSinceEpoch(new Date());
+	const today = getDaysSinceEpoch(new Date());
 
-  await db
-    .insert(usageEvents)
-    .values({
-      id: generateId(),
-      userId,
-      daysSinceEpoch: today,
-      messagesCount: 1,
-      modelUsage: JSON.stringify(modelUsageMap),
-      lastMessageAt: new Date(),
-    })
-    .onConflictDoUpdate({
-      target: [usageEvents.userId, usageEvents.daysSinceEpoch],
-      set: {
-        messagesCount: sql`${usageEvents.messagesCount} + 1`,
-        modelUsage: sql`json_patch(${usageEvents.modelUsage}, ?)`,
-        lastMessageAt: new Date(),
-      },
-    });
+	await db
+		.insert(usageEvents)
+		.values({
+			id: generateId(),
+			userId,
+			daysSinceEpoch: today,
+			messagesCount: 1,
+			modelUsage: JSON.stringify(modelUsageMap),
+			lastMessageAt: new Date(),
+		})
+		.onConflictDoUpdate({
+			target: [usageEvents.userId, usageEvents.daysSinceEpoch],
+			set: {
+				messagesCount: sql`${usageEvents.messagesCount} + 1`,
+				modelUsage: sql`json_patch(${usageEvents.modelUsage}, ?)`,
+				lastMessageAt: new Date(),
+			},
+		});
 }
 ```
 
@@ -424,14 +431,14 @@ export async function recordUsage(userId: string, params) {
 
 One request touches both databases:
 
-| Operation | Database | Latency | Frequency |
-|-----------|----------|---------|-----------|
-| Load settings | D1 | ~40ms | Once per request |
-| Check quota | D1 | ~20ms | Once per request |
-| Read history | DO | ~30ms | Once per request |
-| Write user message | DO | ~20ms | Once per request |
-| Write AI response | DO | ~20ms | Once per request |
-| Record usage | D1 | ~30ms | Once per request |
+| Operation          | Database | Latency | Frequency        |
+| ------------------ | -------- | ------- | ---------------- |
+| Load settings      | D1       | ~40ms   | Once per request |
+| Check quota        | D1       | ~20ms   | Once per request |
+| Read history       | DO       | ~30ms   | Once per request |
+| Write user message | DO       | ~20ms   | Once per request |
+| Write AI response  | DO       | ~20ms   | Once per request |
+| Record usage       | D1       | ~30ms   | Once per request |
 
 **Total request overhead:** ~160ms across both databases (many operations run in parallel)
 
@@ -444,32 +451,33 @@ Here's the beautiful part: **the Durable Object schema has no `userId` column**.
 ```typescript
 // apps/server/src/db/do/schema/chat.ts
 export const conversations = sqliteTable("conversations", {
-  id: text("id").primaryKey(),
-  title: text("title"),
-  created: integer("created", { mode: "timestamp_ms" }).notNull(),
-  updated: integer("updated", { mode: "timestamp_ms" }).notNull(),
+	id: text("id").primaryKey(),
+	title: text("title"),
+	created: integer("created", { mode: "timestamp_ms" }).notNull(),
+	updated: integer("updated", { mode: "timestamp_ms" }).notNull(),
 });
 
 export const messages = sqliteTable("messages", {
-  id: text("id").primaryKey(),
-  conversationId: text("conversation_id").notNull(),
-  message: text("message").notNull(),  // Full JSON blob
-  role: text("role").notNull(),
-  created: integer("created", { mode: "timestamp_ms" }).notNull(),
+	id: text("id").primaryKey(),
+	conversationId: text("conversation_id").notNull(),
+	message: text("message").notNull(), // Full JSON blob
+	role: text("role").notNull(),
+	created: integer("created", { mode: "timestamp_ms" }).notNull(),
 });
 ```
 
-Why? Because each Durable Object *is* a user's database. The isolation is physical, not logical.
+Why? Because each Durable Object _is_ a user's database. The isolation is physical, not logical.
 
 ### What This Prevents
 
-**SQL Injection?** Even if you somehow injected SQL into a DO query, you can only access *your own* data. There's no `WHERE user_id = ?` to forget.
+**SQL Injection?** Even if you somehow injected SQL into a DO query, you can only access _your own_ data. There's no `WHERE user_id = ?` to forget.
 
 **Authorization Bugs?** You can't accidentally query another user's messages—they're in a different database entirely.
 
-**Insider Threats?** A compromised Durable Object can't access other users' data. It would need to compromise the authentication layer *and* obtain valid session tokens for every user.
+**Insider Threats?** A compromised Durable Object can't access other users' data. It would need to compromise the authentication layer _and_ obtain valid session tokens for every user.
 
 **Mass Data Leaks?** An attacker would need to:
+
 1. Compromise authentication to get valid sessions
 2. Request access to each user's DO individually
 3. Extract data one user at a time
@@ -485,33 +493,34 @@ But we don't stop there:
 ```typescript
 // apps/server/src/lib/crypto.ts
 async function deriveUserKey(
-  masterKey: string,
-  userId: string,
+	masterKey: string,
+	userId: string
 ): Promise<CryptoKey> {
-  const keyMaterial = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(masterKey),
-    "PBKDF2",
-    false,
-    ["deriveBits", "deriveKey"],
-  );
+	const keyMaterial = await crypto.subtle.importKey(
+		"raw",
+		new TextEncoder().encode(masterKey),
+		"PBKDF2",
+		false,
+		["deriveBits", "deriveKey"]
+	);
 
-  return await crypto.subtle.deriveKey(
-    {
-      name: "PBKDF2",
-      salt: new TextEncoder().encode(`better-chat-${userId}`),
-      iterations: 100000,
-      hash: "SHA-256",
-    },
-    keyMaterial,
-    { name: "AES-GCM", length: 256 },
-    false,
-    ["encrypt", "decrypt"],
-  );
+	return await crypto.subtle.deriveKey(
+		{
+			name: "PBKDF2",
+			salt: new TextEncoder().encode(`better-chat-${userId}`),
+			iterations: 100000,
+			hash: "SHA-256",
+		},
+		keyMaterial,
+		{ name: "AES-GCM", length: 256 },
+		false,
+		["encrypt", "decrypt"]
+	);
 }
 ```
 
 Even if an attacker gains access to D1, they get encrypted API keys that require:
+
 - The master `API_ENCRYPTION_KEY` (stored as a secret in Cloudflare)
 - The specific `userId` to derive the decryption key
 
@@ -522,14 +531,14 @@ You can't pass a `userId` in the URL or request body:
 ```typescript
 // ❌ BAD (traditional approach)
 app.get("/messages/:userId/:conversationId", async (req) => {
-  const { userId, conversationId } = req.params;
-  // What if userId doesn't match the session?
+	const { userId, conversationId } = req.params;
+	// What if userId doesn't match the session?
 });
 
 // ✅ GOOD (Better Chat approach)
 app.post("/api/ai", async (c) => {
-  const { userId, stub } = await requireUserDO(c);
-  // userId ALWAYS from session, stub ALWAYS derived from that userId
+	const { userId, stub } = await requireUserDO(c);
+	// userId ALWAYS from session, stub ALWAYS derived from that userId
 });
 ```
 
@@ -538,17 +547,17 @@ app.post("/api/ai", async (c) => {
 ```typescript
 // apps/server/src/db/do/user-durable-object.ts (line 102-116)
 for (const row of rows) {
-  const validation = await safeValidateUIMessages({
-    messages: [parsed],
-    metadataSchema: appMessageMetadataSchema.optional(),
-  });
+	const validation = await safeValidateUIMessages({
+		messages: [parsed],
+		metadataSchema: appMessageMetadataSchema.optional(),
+	});
 
-  if (validation.success) {
-    items.push(normalizeMessage(validation.data[0]));
-  } else {
-    console.error("Failed to validate stored UIMessage");
-    items.push(createFallbackMessage(row));
-  }
+	if (validation.success) {
+		items.push(normalizeMessage(validation.data[0]));
+	} else {
+		console.error("Failed to validate stored UIMessage");
+		items.push(createFallbackMessage(row));
+	}
 }
 ```
 
@@ -573,12 +582,14 @@ Migrations run manually, coordinated across the deployment. Standard database mi
 ```typescript
 // D1 Schema
 export const userSettings = sqliteTable("user_settings", {
-  userId: text("user_id").primaryKey().references(() => user.id),
-  selectedModel: text("selected_model").default("google:gemini-2.5-flash-lite"),
-  apiKeys: text("api_keys").default("{}"),
-  enabledMcpServers: text("enabled_mcp_servers").default('["context7"]'),
-  webSearchEnabled: integer("web_search_enabled", { mode: "boolean" }),
-  // ...
+	userId: text("user_id")
+		.primaryKey()
+		.references(() => user.id),
+	selectedModel: text("selected_model").default("google:gemini-2.5-flash-lite"),
+	apiKeys: text("api_keys").default("{}"),
+	enabledMcpServers: text("enabled_mcp_servers").default('["context7"]'),
+	webSearchEnabled: integer("web_search_enabled", { mode: "boolean" }),
+	// ...
 });
 ```
 
@@ -647,6 +658,7 @@ export const server = await Worker("server", {
 These are actual monthly costs for a 10,000 active user app with 1M messages/month, based on Cloudflare pricing documentation (accurate as of October 2025).
 
 **Traditional Approach (Single PostgreSQL):**
+
 - Managed Postgres: $50-200/month (depending on scale)
 - Read replicas: $100-400/month (for performance)
 - Connection pooling: $20-50/month
@@ -655,11 +667,13 @@ These are actual monthly costs for a 10,000 active user app with 1M messages/mon
 **Better Chat Approach (D1 + Durable Objects):**
 
 **Workers** (Main API)
+
 - Requests: ~2M/month (messages + auth/settings)
 - CPU time: ~10ms/request
 - Cost: $5 (Workers Paid subscription minimum)
 
 **Durable Objects** (Per-user SQLite)
+
 - Compute requests: 2M (1M writes + 1M reads)
   - (2M - 1M included) × $0.15/M = **$0.15**
 - Duration: ~128K GB-seconds (under 400K included) = **$0**
@@ -667,25 +681,29 @@ These are actual monthly costs for a 10,000 active user app with 1M messages/mon
   - Rows read: ~75M (context loading, under 25B limit) = **$0**
   - Rows written: ~1.1M (messages + conversations, under 50M limit) = **$0**
   - Storage: ~1GB across all DOs (under 5GB limit) = **$0**
-  - *Note: SQLite storage billing not yet enabled as of October 2025 (future: $0.20/GB-month)*
+  - _Note: SQLite storage billing not yet enabled as of October 2025 (future: $0.20/GB-month)_
 
 **D1** (Central Database)
+
 - Rows read: ~4.5M (settings, auth, quotas, under 25B limit) = **$0**
 - Rows written: ~1.1M (usage tracking, under 50M limit) = **$0**
 - Storage: ~500MB (under 5GB limit) = **$0**
 
 **KV** (Session Storage)
+
 - All operations under free tier limits = **$0**
 
 **Total: ~$5.15/month**
 
 **Key insights:**
+
 - **Generous free tiers:** Most operations stay within included allowances
 - **Scale-to-zero:** Inactive users cost literally $0
 - **Room to grow:** Could handle 50-100M messages/month before hitting next pricing tier
 - **Linear cost scaling:** Clear, predictable cost increases at specific thresholds
 
 **When costs increase:**
+
 - 10M+ Worker requests: +$0.30 per million
 - 50M+ D1 writes: +$1 per million
 - 1M+ DO requests (beyond free tier): +$0.15 per million
@@ -715,6 +733,7 @@ At my current small scale, I'm getting this entire architecture for the Workers 
 The dual-database pattern isn't "simple." It requires understanding two migration systems, two query patterns, and careful coordination between them.
 
 But here's what I've gotten in return:
+
 - ✅ Physical data isolation (not just logical)
 - ✅ Sub-50ms write latency globally
 - ✅ Linear per-user scaling
@@ -722,6 +741,7 @@ But here's what I've gotten in return:
 - ✅ Security through architectural constraints
 
 **The complexity is worth it,** since I don't have to think about:
+
 - Cross-user data leaks
 - Database scaling bottlenecks
 - Geographic replication
@@ -733,24 +753,27 @@ One database can't serve two masters. Maybe it's time to give each master their 
 
 ---
 
-*Better Chat is live and open source. Try it at [chat.oscargabriel.dev](https://chat.oscargabriel.dev) and explore the backend code at [github.com/oscabriel/better-chat](https://github.com/oscabriel/better-chat/tree/main/apps/server).*
+_Better Chat is live and open source. Try it at [chat.oscargabriel.dev](https://chat.oscargabriel.dev) and explore the backend code at [github.com/oscabriel/better-chat](https://github.com/oscabriel/better-chat/tree/main/apps/server)._
 
-*Stay tuned for part two of this blog post series, where I'll deep dive on the frontend—making the most of Tanstack Router, Better Auth, and AI SDK in the client.*
+_Stay tuned for part two of this blog post series, where I'll deep dive on the frontend—making the most of Tanstack Router, Better Auth, and AI SDK in the client._
 
-*Questions? Hit me up on Twitter [@oscabriel](https://twitter.com/oscabriel) or open an issue in the repo.*
+_Questions? Hit me up on Twitter [@oscabriel](https://twitter.com/oscabriel) or open an issue in the repo._
 
 ---
 
 ## Further Reading
 
 ### Cloudflare Documentation
+
 - [Cloudflare Durable Objects Documentation](https://developers.cloudflare.com/durable-objects/)
 - [Cloudflare D1 Documentation](https://developers.cloudflare.com/d1/)
 
 ### Related Articles
+
 - [Database-per-User with Durable Objects](https://boristane.com/blog/durable-objects-database-per-user/) — Boris Tane's exploration of the per-user database pattern
 - [Using Durable Objects SQL Storage, D1, and Drizzle](https://flashblaze.xyz/posts/using-durable-objects-sql-storage-d1-and-drizzle) — Practical implementation guide for combining DO and D1 with Drizzle ORM
 - [Understanding Cloudflare Durable Objects](https://www.lambrospetrou.com/articles/durable-objects-cloudflare/) — Deep dive into DO architecture, consistency guarantees, and the actor model
 
 ### Database Patterns
+
 - [Why SQLite Can Outperform Postgres](https://www.epicweb.dev/why-you-should-probably-be-using-sqlite)
