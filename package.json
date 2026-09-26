@@ -6,7 +6,6 @@
 		"dev": "varlock run --inject vars -- alchemy dev --stage dev",
 		"deploy": "varlock run --inject vars -- alchemy deploy --stage prod",
 		"destroy": "varlock run --inject vars -- alchemy destroy --stage dev",
-		"generate-routes": "tsr generate",
 		"build": "vite build",
 		"preview": "vite preview",
 		"check": "ultracite check",
