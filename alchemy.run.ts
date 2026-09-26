@@ -18,6 +18,7 @@ export const Database = Effect.gen(function* () {
 
 	return yield* Cloudflare.D1.Database("Database", {
 		migrations: schema,
+		importFiles: ["./src/db/seed/projects.sql"],
 	});
 });
 
