@@ -1,6 +1,7 @@
 import * as Alchemy from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as Drizzle from "alchemy/Drizzle";
+import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 
@@ -25,6 +26,7 @@ export class Website extends Cloudflare.Website.Vite<Website>()("Website", {
 		MEDIA: Media,
 		DB: Database,
 		REPO_CACHE: RepoCache,
+		GITHUB_TOKEN: Config.Redacted("GITHUB_TOKEN"),
 	},
 }) {}
 
