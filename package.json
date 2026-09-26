@@ -49,6 +49,7 @@
 	"devDependencies": {
 		"@cloudflare/workers-types": "5.20260925.2",
 		"@effect/tsgo": "0.46.0",
+		"@oxlint/plugins": "1.85.0",
 		"@shadcn/lint": "^0.1.0",
 		"@tanstack/devtools-vite": "0.8.5",
 		"@tanstack/router-cli": "^1.132.0",

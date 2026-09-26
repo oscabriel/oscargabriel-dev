@@ -3,6 +3,7 @@ import ultracite from "ultracite/oxfmt";
 
 const shadcnFiles = ["src/components/ui/**", "src/hooks/use-mobile.ts"];
 const generatedFiles = ["src/db/migrations/**"];
+const vendoredFiles = ["tools/oxlint/anti-slop/**"];
 
 export default defineConfig({
 	...ultracite,
@@ -10,6 +11,7 @@ export default defineConfig({
 		...(ultracite.ignorePatterns ?? []),
 		...shadcnFiles,
 		...generatedFiles,
+		...vendoredFiles,
 	],
 	useTabs: true,
 	sortTailwindcss: {
