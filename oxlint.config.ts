@@ -6,10 +6,15 @@ import shadcn from "ultracite/oxlint/shadcn";
 import tanstack from "ultracite/oxlint/tanstack";
 
 const shadcnFiles = ["src/components/ui/**", "src/hooks/use-mobile.ts"];
+const generatedFiles = ["src/db/migrations/**"];
 
 export default defineConfig({
 	extends: [core, react, tanstack, shadcn, antiSlop],
-	ignorePatterns: [...(core.ignorePatterns ?? []), ...shadcnFiles],
+	ignorePatterns: [
+		...(core.ignorePatterns ?? []),
+		...shadcnFiles,
+		...generatedFiles,
+	],
 	jsPlugins: shadcn.jsPlugins,
 	options: {
 		typeAware: true,
