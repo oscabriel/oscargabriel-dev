@@ -23,6 +23,7 @@ export const Database = Effect.gen(function* () {
 });
 
 export class Website extends Cloudflare.Website.Vite<Website>()("Website", {
+	dev: { host: "127.0.0.1", port: 3005, strictPort: true },
 	env: {
 		MEDIA: Media,
 		DB: Database,
