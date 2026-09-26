@@ -4,6 +4,7 @@ import * as Drizzle from "alchemy/Drizzle";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Option from "effect/Option";
 
 export const Media = Cloudflare.R2.Bucket("Media");
 
@@ -41,14 +42,22 @@ export default Alchemy.Stack(
 		state: Cloudflare.state(),
 	},
 	Effect.gen(function* () {
+		const { stage } = yield* Alchemy.Stack;
+		const caddyDevHost = yield* Config.option(Config.String("CADDY_DEV_HOST"));
 		const media = yield* Media;
 		const database = yield* Database;
 		const website = yield* Website;
 
+		// In dev, show the reverse-proxy HTTPS domain instead of the local port.
+		const devUrl = caddyDevHost.pipe(
+			Option.filter((host) => stage === "dev" && host !== ""),
+			Option.map((host) => `https://${host}`)
+		);
+
 		return {
 			mediaBucket: media.bucketName,
 			databaseName: database.databaseName,
-			websiteUrl: website.url.as<string>(),
+			websiteUrl: Option.getOrElse(devUrl, () => website.url.as<string>()),
 		};
 	})
 );
