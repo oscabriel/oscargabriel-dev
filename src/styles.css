@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/jetbrains-mono";
+@import "@twinkleplop/theme-github";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -140,5 +141,90 @@ body {
 	}
 	html {
 		@apply font-mono;
+	}
+}
+
+/* Post body: readable defaults until the design pass. */
+@layer components {
+	.post-body {
+		line-height: 1.75;
+		overflow-wrap: break-word;
+
+		& > * + * {
+			margin-top: 1.25em;
+		}
+		& h2 {
+			margin-top: 2em;
+			font-size: 1.5rem;
+			font-weight: 700;
+		}
+		& h3 {
+			margin-top: 1.75em;
+			font-size: 1.25rem;
+			font-weight: 600;
+		}
+		& h4 {
+			font-weight: 600;
+		}
+		& :is(h2, h3, h4) {
+			scroll-margin-top: 6rem;
+		}
+		& a {
+			text-decoration: underline;
+			text-underline-offset: 2px;
+		}
+		& .anchor-heading-link {
+			margin-left: 0.5em;
+			color: var(--muted-foreground);
+			text-decoration: none;
+			opacity: 0;
+		}
+		& :is(h2, h3, h4):hover > .anchor-heading-link {
+			opacity: 1;
+		}
+		& ul {
+			list-style: disc;
+			padding-left: 1.5em;
+		}
+		& ol {
+			list-style: decimal;
+			padding-left: 1.5em;
+		}
+		& li + li {
+			margin-top: 0.25em;
+		}
+		& blockquote {
+			border-left: 3px solid var(--border);
+			padding-left: 1em;
+			color: var(--muted-foreground);
+		}
+		& :not(pre) > code {
+			border-radius: var(--radius-sm);
+			background: var(--muted);
+			padding: 0.1em 0.3em;
+			font-size: 0.9em;
+		}
+		& pre.twinkleplop {
+			overflow-x: auto;
+			border: 1px solid var(--border);
+			border-radius: var(--radius-lg);
+			background: var(--twp-background);
+			padding: 1rem;
+			font-size: 0.875rem;
+			line-height: 1.6;
+		}
+		& table {
+			display: block;
+			overflow-x: auto;
+			border-collapse: collapse;
+		}
+		& :is(th, td) {
+			border: 1px solid var(--border);
+			padding: 0.5em 0.75em;
+			text-align: left;
+		}
+		& th {
+			font-weight: 600;
+		}
 	}
 }

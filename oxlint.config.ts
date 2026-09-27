@@ -38,6 +38,19 @@ export default defineConfig({
 		// False positive on Effect error constructors like `Schema.TaggedError<Self>()(...)`.
 		"unicorn/throw-new-error": "off",
 		"func-names": "off",
+		// TanStack Router's notFound() and redirect() are thrown as plain values by design.
+		"typescript/only-throw-error": [
+			"error",
+			{
+				allow: [
+					{
+						from: "package",
+						package: "@tanstack/router-core",
+						name: ["NotFoundError", "Redirect"],
+					},
+				],
+			},
+		],
 		"func-style": ["error", "declaration"],
 		"react/function-component-definition": [
 			"error",
