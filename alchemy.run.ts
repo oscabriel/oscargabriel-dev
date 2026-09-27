@@ -1,6 +1,7 @@
 import * as Alchemy from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as Drizzle from "alchemy/Drizzle";
+import * as RemovalPolicy from "alchemy/RemovalPolicy";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -15,7 +16,14 @@ import {
 	UPSERT_POST,
 } from "./src/db/seed/posts.ts";
 
-export const Media = Cloudflare.R2.Bucket("Media");
+// Prod data outlives `alchemy destroy` and replacements; dev stays disposable.
+// Piped here, not at a `yield*` site, because the first registration of a
+// resource fixes its policy and Website's env yields these too.
+const retainInProd = RemovalPolicy.retain(
+	Alchemy.Stack.useSync((stack) => stack.stage === "prod")
+);
+
+export const Media = Cloudflare.R2.Bucket("Media").pipe(retainInProd);
 
 export const RepoCache = Cloudflare.KV.Namespace("RepoCache");
 
@@ -29,7 +37,7 @@ export const Database = Effect.gen(function* () {
 	return yield* Cloudflare.D1.Database("Database", {
 		migrations: schema,
 		importFiles: ["./src/db/seed/projects.sql"],
-	});
+	}).pipe(retainInProd);
 });
 
 export class Website extends Cloudflare.Website.Vite<Website>()("Website", {
