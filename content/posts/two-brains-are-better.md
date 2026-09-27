@@ -3,7 +3,7 @@ title: "Two Brains Are Better: Combining D1 with Per-User DOs"
 summary: "Better Chat combines a D1 database with per-user Durable Objects for a more secure, faster, and cheaper solution than traditional approaches."
 date: 2025-10-13
 author: Oscar Gabriel
-headerImage: "/images/pinky-and-the-brain.jpg"
+headerImage: "/images/pinky-and-the-brain.webp"
 headerImageCaption: "Pinky and the Brain (1995)"
 ---
 

@@ -10,6 +10,19 @@ import { parse } from "yaml";
 import { renderPost } from "../../posts/render";
 import type { TocEntry } from "../schema";
 
+export const DELETE_MEDIA = "DELETE FROM media WHERE key = ?";
+
+// Header images the seed stored under their v1 names before they became WebP.
+// Deleted once the posts point at the replacements.
+export const RETIRED_MEDIA_KEYS = [
+	"images/fantastic-planet.jpg",
+	"images/lilo-and-stitch.jpg",
+	"images/lord-of-the-rings.jpg",
+	"images/pinky-and-the-brain.jpg",
+	"images/skeleton-dance.jpg",
+	"images/treasure-planet.jpg",
+];
+
 const FRONTMATTER = /^---\n(?<yaml>[\s\S]*?)\n---\n/u;
 const LEGACY_DATE = /^(?<year>\d{4})-(?<month>\d{1,2})-(?<day>\d{1,2})$/u;
 const MILLIS_PER_SECOND = 1000;

@@ -3,7 +3,7 @@ title: "A Tour of Alchemy via Better-T-Stack"
 summary: "Alchemy brings infrastructure-as-code to Better-T-Stack, turning it into one of the premiere solutions for full-stack production deployment available today."
 date: 2025-09-01
 author: Oscar Gabriel
-headerImage: "/images/lord-of-the-rings.jpg"
+headerImage: "/images/lord-of-the-rings.webp"
 headerImageCaption: "The Lord of the Rings (1978) — Let alchemy guide you home."
 ---
 

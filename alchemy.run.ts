@@ -7,8 +7,10 @@ import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 
 import {
+	DELETE_MEDIA,
 	digestSeedPosts,
 	loadSeedPosts,
+	RETIRED_MEDIA_KEYS,
 	UPSERT_MEDIA,
 	UPSERT_POST,
 } from "./src/db/seed/posts.ts";
@@ -68,32 +70,36 @@ export default Alchemy.Stack(
 							httpMetadata: { contentType: headerImage.contentType },
 						});
 					}
-					yield* db.batch(
-						posts.flatMap((post) => [
-							db
-								.prepare(UPSERT_MEDIA)
-								.bind(
-									post.headerImage.key,
-									post.headerImage.contentType,
-									post.headerImage.bytes.byteLength
-								),
-							db
-								.prepare(UPSERT_POST)
-								.bind(
-									post.slug,
-									post.title,
-									post.summary,
-									post.body,
-									post.html,
-									JSON.stringify(post.toc),
-									post.headerImage.key,
-									post.headerImageCaption,
-									post.publishedAt,
-									post.publishedAt,
-									post.publishedAt
-								),
-						])
+					const upserts = posts.flatMap((post) => [
+						db
+							.prepare(UPSERT_MEDIA)
+							.bind(
+								post.headerImage.key,
+								post.headerImage.contentType,
+								post.headerImage.bytes.byteLength
+							),
+						db
+							.prepare(UPSERT_POST)
+							.bind(
+								post.slug,
+								post.title,
+								post.summary,
+								post.body,
+								post.html,
+								JSON.stringify(post.toc),
+								post.headerImage.key,
+								post.headerImageCaption,
+								post.publishedAt,
+								post.publishedAt,
+								post.publishedAt
+							),
+					]);
+					// Runs after the upserts, so no post still points at a retired row.
+					const retirements = RETIRED_MEDIA_KEYS.map((key) =>
+						db.prepare(DELETE_MEDIA).bind(key)
 					);
+					yield* db.batch([...upserts, ...retirements]);
+					yield* bucket.delete(RETIRED_MEDIA_KEYS);
 					return { posts: posts.length };
 				});
 			}).pipe(

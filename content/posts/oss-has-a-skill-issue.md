@@ -3,7 +3,7 @@ title: "OSS Has a Skill Issue"
 summary: "MCP servers, skills marketplaces, and tool registries all try to solve context engineering by giving agents more tools. Offworld gives your agent just one skill for your whole stack and a map to guide the way."
 date: 2026-1-31
 author: Oscar Gabriel
-headerImage: "/images/treasure-planet.jpg"
+headerImage: "/images/treasure-planet.webp"
 headerImageCaption: "Treasure Planet (2002) — One map is all you need."
 ---
 

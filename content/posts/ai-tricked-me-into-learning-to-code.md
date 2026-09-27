@@ -3,7 +3,7 @@ title: "AI Tricked Me into Learning to Code"
 summary: "Large language models convinced me they'd build everything for me. Bridging the gaps they left behind is how I actually learned to code."
 date: 2025-08-15
 author: Oscar Gabriel
-headerImage: "/images/fantastic-planet.jpg"
+headerImage: "/images/fantastic-planet.webp"
 headerImageCaption: "Fantastic Planet (1973)"
 ---
 

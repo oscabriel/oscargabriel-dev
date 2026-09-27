@@ -3,7 +3,7 @@ title: "Skeletons in My Codebase: Tanstack in Production"
 summary: "Clearing out the skeletons in auth flows and loading patterns to create clean front-end user experiences."
 date: 2025-10-31
 author: Oscar Gabriel
-headerImage: "/images/skeleton-dance.jpg"
+headerImage: "/images/skeleton-dance.webp"
 headerImageCaption: "The Skeleton Dance (1929)"
 ---
 

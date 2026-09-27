@@ -3,7 +3,7 @@ title: TanStack's Open. AI. SDK.
 summary: TanStack AI takes the headless, vendor-agnostic philosophy that made TanStack famous and applies it to AI development. Here's how it compares to Vercel's AI SDK.
 date: 2025-12-06
 author: Oscar Gabriel
-headerImage: /images/lilo-and-stitch.jpg
+headerImage: /images/lilo-and-stitch.webp
 headerImageCaption: Me building my first chat app with Tanstack AI — Lilo and Stitch (2002)
 ---
 
