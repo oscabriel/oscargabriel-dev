@@ -6,6 +6,13 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 
+import {
+	digestSeedPosts,
+	loadSeedPosts,
+	UPSERT_MEDIA,
+	UPSERT_POST,
+} from "./src/db/seed/posts.ts";
+
 export const Media = Cloudflare.R2.Bucket("Media");
 
 export const RepoCache = Cloudflare.KV.Namespace("RepoCache");
@@ -47,6 +54,62 @@ export default Alchemy.Stack(
 		const media = yield* Media;
 		const database = yield* Database;
 		const website = yield* Website;
+		// Imports the v1 posts and their header images. Re-runs only when the
+		// rendered posts or images change. Remove once the admin editor lands.
+		const posts = yield* loadSeedPosts("content");
+		const SeedPosts = Alchemy.Action(
+			"SeedPosts",
+			Effect.gen(function* () {
+				const db = yield* Cloudflare.D1.QueryDatabase(database);
+				const bucket = yield* Cloudflare.R2.WriteBucket(media);
+				return Effect.fn(function* () {
+					for (const { headerImage } of posts) {
+						yield* bucket.put(headerImage.key, headerImage.bytes, {
+							httpMetadata: { contentType: headerImage.contentType },
+						});
+					}
+					yield* db.batch(
+						posts.flatMap((post) => [
+							db
+								.prepare(UPSERT_MEDIA)
+								.bind(
+									post.headerImage.key,
+									post.headerImage.contentType,
+									post.headerImage.bytes.byteLength
+								),
+							db
+								.prepare(UPSERT_POST)
+								.bind(
+									post.slug,
+									post.title,
+									post.summary,
+									post.body,
+									post.html,
+									JSON.stringify(post.toc),
+									post.headerImage.key,
+									post.headerImageCaption,
+									post.publishedAt,
+									post.publishedAt,
+									post.publishedAt
+								),
+						])
+					);
+					return { posts: posts.length };
+				});
+			}).pipe(
+				Effect.provide(
+					Layer.mergeAll(
+						Cloudflare.D1.QueryDatabaseLocal,
+						Cloudflare.R2.WriteBucketLocal
+					)
+				)
+			)
+		);
+		const seeded = yield* SeedPosts({
+			databaseId: database.databaseId,
+			bucketName: media.bucketName,
+			digest: yield* digestSeedPosts(posts),
+		});
 
 		// In dev, show the reverse-proxy HTTPS domain instead of the local port.
 		const devUrl = caddyDevHost.pipe(
@@ -58,6 +121,7 @@ export default Alchemy.Stack(
 			mediaBucket: media.bucketName,
 			databaseName: database.databaseName,
 			websiteUrl: Option.getOrElse(devUrl, () => website.url.as<string>()),
+			seededPosts: seeded.posts,
 		};
 	})
 );
