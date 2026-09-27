@@ -9,7 +9,7 @@ import {
 export interface TocEntry {
 	id: string;
 	text: string;
-	depth: number;
+	level: number;
 }
 
 export const MediaFiles = sqliteTable("media", {
