@@ -1,6 +1,7 @@
 import * as Effect from "effect/Effect";
 import * as Schema from "effect/Schema";
 
+import { MediaStore, MediaUpload } from "@/media/media-store";
 import { AdminPosts, PostDraft } from "@/posts/admin-posts";
 import { admin } from "@/rpc/base";
 
@@ -58,5 +59,24 @@ export const adminRouter = {
 					)
 				);
 		}),
+	},
+	media: {
+		upload: admin
+			.errors({
+				UNSUPPORTED_MEDIA_TYPE: {
+					message: "Only PNG, JPEG, GIF, WebP and AVIF images are accepted",
+				},
+			})
+			.input(MediaUpload)
+			.effect(function* ({ input, errors }) {
+				const media = yield* MediaStore;
+				return yield* media
+					.upload(input)
+					.pipe(
+						Effect.catchTag("UnsupportedImage", () =>
+							Effect.fail(errors.UNSUPPORTED_MEDIA_TYPE())
+						)
+					);
+			}),
 	},
 };
