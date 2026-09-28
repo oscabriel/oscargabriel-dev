@@ -7,7 +7,7 @@ const CACHE_CONTROL = "public, max-age=86400";
 
 const GENERIC_CONTENT_TYPE = "application/octet-stream";
 
-// Objects written over Cloudflare's HTTP API (the seed Action) are stored as
+// Objects written over Cloudflare's HTTP API (the v1 seed did this) are stored as
 // octet-stream: @distilled.cloud's upload lets its body media type override
 // the Content-Type we send. The media row keeps the real type.
 async function lookupContentType(key: string): Promise<string | null> {
