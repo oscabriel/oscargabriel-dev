@@ -41,12 +41,23 @@ export const Database = Effect.gen(function* () {
 });
 
 export class Website extends Cloudflare.Website.Vite<Website>()("Website", {
-	dev: { host: "127.0.0.1", port: 3005, strictPort: true },
+	dev: {
+		host: "127.0.0.1",
+		port: 3005,
+		strictPort: true,
+		// Local dev has no Access edge; act as a signed-in admin instead.
+		access: { identity: { email: "dev@localhost" } },
+	},
 	env: {
 		MEDIA: Media,
 		DB: Database,
 		REPO_CACHE: RepoCache,
 		GITHUB_TOKEN: Config.Redacted("GITHUB_TOKEN"),
+		ADMIN_EMAIL: Config.String("ADMIN_EMAIL"),
+		ACCESS_TEAM_DOMAIN: Config.String("ACCESS_TEAM_DOMAIN").pipe(
+			Config.withDefault("")
+		),
+		ACCESS_AUD: Config.String("ACCESS_AUD").pipe(Config.withDefault("")),
 	},
 }) {}
 

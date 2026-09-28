@@ -15,6 +15,7 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as MediaSplatRouteImport } from './routes/media.$'
 import { Route as ApiRpcSplatRouteImport } from './routes/api.rpc.$'
+import { Route as ApiAdminRpcSplatRouteImport } from './routes/api.admin.rpc.$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,6 +47,11 @@ const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
   path: '/api/rpc/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminRpcSplatRoute = ApiAdminRpcSplatRouteImport.update({
+  id: '/api/admin/rpc/$',
+  path: '/api/admin/rpc/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/media/$': typeof MediaSplatRoute
   '/blog/': typeof BlogIndexRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/api/admin/rpc/$': typeof ApiAdminRpcSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/media/$': typeof MediaSplatRoute
   '/blog': typeof BlogIndexRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/api/admin/rpc/$': typeof ApiAdminRpcSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,13 +79,27 @@ export interface FileRoutesById {
   '/media/$': typeof MediaSplatRoute
   '/blog/': typeof BlogIndexRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/api/admin/rpc/$': typeof ApiAdminRpcSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/projects' | '/blog/$slug' | '/media/$' | '/blog/' | '/api/rpc/$'
+    | '/'
+    | '/projects'
+    | '/blog/$slug'
+    | '/media/$'
+    | '/blog/'
+    | '/api/rpc/$'
+    | '/api/admin/rpc/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/projects' | '/blog/$slug' | '/media/$' | '/blog' | '/api/rpc/$'
+  to:
+    | '/'
+    | '/projects'
+    | '/blog/$slug'
+    | '/media/$'
+    | '/blog'
+    | '/api/rpc/$'
+    | '/api/admin/rpc/$'
   id:
     | '__root__'
     | '/'
@@ -86,6 +108,7 @@ export interface FileRouteTypes {
     | '/media/$'
     | '/blog/'
     | '/api/rpc/$'
+    | '/api/admin/rpc/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -95,6 +118,7 @@ export interface RootRouteChildren {
   MediaSplatRoute: typeof MediaSplatRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
+  ApiAdminRpcSplatRoute: typeof ApiAdminRpcSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -141,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiRpcSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/rpc/$': {
+      id: '/api/admin/rpc/$'
+      path: '/api/admin/rpc/$'
+      fullPath: '/api/admin/rpc/$'
+      preLoaderRoute: typeof ApiAdminRpcSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -151,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   MediaSplatRoute: MediaSplatRoute,
   BlogIndexRoute: BlogIndexRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
+  ApiAdminRpcSplatRoute: ApiAdminRpcSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
