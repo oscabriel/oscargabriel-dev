@@ -1,4 +1,5 @@
 import * as Alchemy from "alchemy";
+import * as AdoptPolicy from "alchemy/AdoptPolicy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as Drizzle from "alchemy/Drizzle";
 import * as RemovalPolicy from "alchemy/RemovalPolicy";
@@ -13,6 +14,9 @@ import * as Option from "effect/Option";
 const retainInProd = RemovalPolicy.retain(
 	Alchemy.Stack.useSync((stack) => stack.stage === "prod")
 );
+
+const SITE_DOMAIN = "oscargabriel.dev";
+const ACCESS_TEAM_DOMAIN = "https://still-glitter-6c16.cloudflareaccess.com";
 
 export const Media = Cloudflare.R2.Bucket("Media").pipe(retainInProd);
 
@@ -31,26 +35,69 @@ export const Database = Effect.gen(function* () {
 	}).pipe(retainInProd);
 });
 
-export class Website extends Cloudflare.Website.Vite<Website>()("Website", {
-	dev: {
-		host: "127.0.0.1",
-		port: 3005,
-		strictPort: true,
-		// Local dev has no Access edge; act as a signed-in admin instead.
-		access: { identity: { email: "dev@localhost" } },
-	},
-	env: {
-		MEDIA: Media,
-		DB: Database,
-		REPO_CACHE: RepoCache,
-		GITHUB_TOKEN: Config.Redacted("GITHUB_TOKEN"),
-		ADMIN_EMAIL: Config.String("ADMIN_EMAIL"),
-		ACCESS_TEAM_DOMAIN: Config.String("ACCESS_TEAM_DOMAIN").pipe(
-			Config.withDefault("")
-		),
-		ACCESS_AUD: Config.String("ACCESS_AUD").pipe(Config.withDefault("")),
-	},
-}) {}
+// One-time PIN exists at most once per account. Adopt it if the dashboard
+// already made one, and keep it on destroy: other Access apps may use it.
+export const OneTimePin = Cloudflare.Access.IdentityProvider("OneTimePin", {
+	type: "onetimepin",
+}).pipe(AdoptPolicy.adopt(true), RemovalPolicy.retain());
+
+// Access gates only the admin paths; the public site stays open. `/admin/*`
+// doesn't cover `/admin` itself, so both are listed.
+export const AdminAccess = Effect.gen(function* () {
+	const pin = yield* OneTimePin;
+	// Same value the Worker checks the JWT email against; it's required, so a
+	// missing one should stop the deploy.
+	const adminEmail = yield* Config.String("ADMIN_EMAIL").pipe(Effect.orDie);
+
+	return yield* Cloudflare.Access.Application("AdminAccess", {
+		type: "self_hosted",
+		destinations: [
+			{ type: "public", uri: `${SITE_DOMAIN}/admin` },
+			{ type: "public", uri: `${SITE_DOMAIN}/admin/*` },
+			{ type: "public", uri: `${SITE_DOMAIN}/api/admin/*` },
+		],
+		allowedIdps: [pin.identityProviderId],
+		autoRedirectToIdentity: true,
+		policies: [{ decision: "allow", include: [{ email: adminEmail }] }],
+	});
+});
+
+// The domain and Access exist only in prod. Other stages keep workers.dev and
+// the dev bypass, and their empty Access config makes the admin API fail closed.
+const accessEnv = Effect.gen(function* () {
+	const { stage } = yield* Alchemy.Stack;
+	if (stage !== "prod") {
+		return { ACCESS_TEAM_DOMAIN: "", ACCESS_AUD: "" };
+	}
+	const admin = yield* AdminAccess;
+	return { ACCESS_TEAM_DOMAIN, ACCESS_AUD: admin.aud };
+});
+
+export class Website extends Cloudflare.Website.Vite<Website>()(
+	"Website",
+	Effect.gen(function* () {
+		const { stage } = yield* Alchemy.Stack;
+
+		return {
+			dev: {
+				host: "127.0.0.1",
+				port: 3005,
+				strictPort: true,
+				// Local dev has no Access edge; act as a signed-in admin instead.
+				access: { identity: { email: "dev@localhost" } },
+			},
+			domain: stage === "prod" ? SITE_DOMAIN : undefined,
+			env: {
+				MEDIA: Media,
+				DB: Database,
+				REPO_CACHE: RepoCache,
+				GITHUB_TOKEN: Config.Redacted("GITHUB_TOKEN"),
+				ADMIN_EMAIL: Config.String("ADMIN_EMAIL"),
+				...(yield* accessEnv),
+			},
+		};
+	})
+) {}
 
 export type WebsiteEnv = Cloudflare.InferEnv<typeof Website>;
 
