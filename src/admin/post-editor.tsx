@@ -1,10 +1,12 @@
 import { ORPCError } from "@orpc/client";
 import type { InferRouterInputs, InferRouterOutputs } from "@orpc/server";
 import { EyeIcon } from "@phosphor-icons/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useBlocker, useNavigate } from "@tanstack/react-router";
 import { useEffect, useId, useRef, useState } from "react";
 
+import { HeaderImageField } from "@/admin/header-image-field";
+import type { MediaFile } from "@/admin/header-image-field";
 import {
 	DeletePostDialog,
 	DiscardChangesDialog,
@@ -62,6 +64,22 @@ function toDraft(post: DraftFields): DraftFields {
 	const { slug, title, summary, body, headerImageId, headerImageCaption } =
 		post;
 	return { slug, title, summary, body, headerImageId, headerImageCaption };
+}
+
+// The saved post already carries its image; one picked since comes from the
+// media library.
+function resolveHeaderImage(
+	id: number | null,
+	saved: MediaFile | null | undefined,
+	library: MediaFile[] | undefined
+): MediaFile | undefined {
+	if (id === null) {
+		return undefined;
+	}
+	if (saved?.id === id) {
+		return saved;
+	}
+	return library?.find((file) => file.id === id);
 }
 
 function sameDraft(a: DraftFields, b: DraftFields): boolean {
@@ -234,6 +252,7 @@ function EditorToolbar({
 
 interface PostFieldsProps {
 	draft: DraftFields;
+	headerImage: MediaFile | undefined;
 	titleError: string | undefined;
 	slugError: string | undefined;
 	titleRef: React.RefObject<HTMLTextAreaElement | null>;
@@ -241,10 +260,13 @@ interface PostFieldsProps {
 	onTitleChange: (title: string) => void;
 	onSlugChange: (slug: string) => void;
 	onChange: (key: "summary" | "body", value: string) => void;
+	onHeaderImageChange: (id: number | null) => void;
+	onCaptionChange: (caption: string | null) => void;
 }
 
 function PostFields({
 	draft,
+	headerImage,
 	titleError,
 	slugError,
 	titleRef,
@@ -252,6 +274,8 @@ function PostFields({
 	onTitleChange,
 	onSlugChange,
 	onChange,
+	onHeaderImageChange,
+	onCaptionChange,
 }: PostFieldsProps) {
 	const ids = useId();
 
@@ -323,6 +347,13 @@ function PostFields({
 						Shown in the blog list and in link previews.
 					</FieldDescription>
 				</Field>
+				<HeaderImageField
+					imageId={draft.headerImageId}
+					image={headerImage}
+					caption={draft.headerImageCaption}
+					onImageChange={onHeaderImageChange}
+					onCaptionChange={onCaptionChange}
+				/>
 				<Field>
 					<FieldLabel htmlFor={`${ids}-body`}>Body</FieldLabel>
 					<Textarea
@@ -368,6 +399,12 @@ export function PostEditor({ post }: { post?: EditablePost }) {
 
 	const dirty = !sameDraft(draft, baseline);
 	const errors = validate(draft);
+	const media = useQuery(adminOrpc.media.list.queryOptions());
+	const headerImage = resolveHeaderImage(
+		draft.headerImageId,
+		post?.headerImage,
+		media.data
+	);
 
 	async function refreshPosts() {
 		await queryClient.invalidateQueries({ queryKey: adminOrpc.posts.key() });
@@ -527,6 +564,7 @@ export function PostEditor({ post }: { post?: EditablePost }) {
 				>
 					<PostFields
 						draft={draft}
+						headerImage={headerImage}
 						titleError={titleError}
 						slugError={slugError}
 						titleRef={titleRef}
@@ -539,6 +577,12 @@ export function PostEditor({ post }: { post?: EditablePost }) {
 						onChange={(key, value) => {
 							setDraft((current) => ({ ...current, [key]: value }));
 						}}
+						onHeaderImageChange={(headerImageId) => {
+							setDraft((current) => ({ ...current, headerImageId }));
+						}}
+						onCaptionChange={(headerImageCaption) => {
+							setDraft((current) => ({ ...current, headerImageCaption }));
+						}}
 					/>
 				</div>
 				{previewOpen && (
@@ -550,7 +594,7 @@ export function PostEditor({ post }: { post?: EditablePost }) {
 							title={draft.title}
 							body={draft.body}
 							publishedAt={post?.publishedAt ?? null}
-							headerImage={post?.headerImage ?? null}
+							headerImage={headerImage ?? null}
 							headerImageCaption={draft.headerImageCaption}
 						/>
 					</section>
