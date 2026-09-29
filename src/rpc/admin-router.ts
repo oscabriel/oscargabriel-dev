@@ -59,8 +59,22 @@ export const adminRouter = {
 					)
 				);
 		}),
+		delete: withNotFound.input(PostId).effect(function* ({ input, errors }) {
+			const posts = yield* AdminPosts;
+			return yield* posts
+				.remove(input.id)
+				.pipe(
+					Effect.catchTag("PostIdNotFound", () =>
+						Effect.fail(errors.NOT_FOUND())
+					)
+				);
+		}),
 	},
 	media: {
+		list: admin.effect(function* () {
+			const media = yield* MediaStore;
+			return yield* media.list();
+		}),
 		upload: admin
 			.errors({
 				UNSUPPORTED_MEDIA_TYPE: {

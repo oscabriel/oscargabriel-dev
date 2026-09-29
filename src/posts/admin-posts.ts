@@ -32,7 +32,7 @@ export class SlugTaken extends Schema.TaggedError<SlugTaken>()("SlugTaken", {
 
 const now = sql`(unixepoch())`;
 
-// An update by id returns no rows when that id doesn't exist.
+// An update or delete by id returns no rows when that id doesn't exist.
 function onlyRow<A>(rows: A[], id: number) {
 	return Effect.fromNullishOr(rows[0]).pipe(
 		Effect.mapError(() => new PostIdNotFound({ id }))
@@ -141,7 +141,18 @@ export class AdminPosts extends Context.Service<AdminPosts>()(
 				return setStatus(id, "draft");
 			}
 
-			return { listAll, byId, save, publish, unpublish };
+			// Published posts can be deleted too; the editor asks first. The header
+			// image stays, since media rows are shared across posts.
+			const remove = Effect.fn("AdminPosts.remove")(function* (id: number) {
+				const deleted = yield* db
+					.delete(Posts)
+					.where(eq(Posts.id, id))
+					.returning({ id: Posts.id })
+					.pipe(Effect.orDie);
+				return yield* onlyRow(deleted, id);
+			});
+
+			return { listAll, byId, save, publish, unpublish, remove };
 		}),
 	}
 ) {

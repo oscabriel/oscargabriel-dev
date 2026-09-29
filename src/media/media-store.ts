@@ -65,7 +65,15 @@ export class MediaStore extends Context.Service<MediaStore>()(
 				return yield* Effect.fromNullishOr(rows[0]).pipe(Effect.orDie);
 			});
 
-			return { upload };
+			// Newest first for the header-image picker. Ids only grow, so they
+			// order exactly where the second-resolution `createdAt` can tie.
+			const list = Effect.fn("MediaStore.list")(function* () {
+				return yield* db.query.MediaFiles.findMany({
+					orderBy: { id: "desc" },
+				}).pipe(Effect.orDie);
+			});
+
+			return { upload, list };
 		}),
 	}
 ) {
