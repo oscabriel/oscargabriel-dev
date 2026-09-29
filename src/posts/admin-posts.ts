@@ -7,8 +7,7 @@ import * as Schema from "effect/Schema";
 import { Db } from "@/db/db";
 import { Posts } from "@/db/schema";
 import { renderPost } from "@/posts/render";
-
-const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
+import { SLUG } from "@/posts/slug";
 
 // What the editor sends. No `id` creates a post; an `id` overwrites that post.
 export const PostDraft = Schema.Struct({
