@@ -4,7 +4,7 @@ import { Link, createFileRoute, notFound } from "@tanstack/react-router";
 
 import { TableOfContents } from "@/components/table-of-contents";
 import { SITE_NAME, SITE_URL, mediaPath } from "@/lib/site";
-import { formatPublishedAt } from "@/posts/date";
+import { PostArticle } from "@/posts/post-article";
 import { orpc } from "@/rpc/client";
 
 export const Route = createFileRoute("/blog/$slug")({
@@ -73,34 +73,13 @@ function PostPage() {
 			<aside className="fixed top-8 left-4 hidden max-h-[calc(100vh-4rem)] w-56 overflow-y-auto xl:block">
 				<TableOfContents toc={post.toc} />
 			</aside>
-			<article className="mx-auto max-w-3xl">
-				<h1 className="text-4xl font-bold">{post.title}</h1>
-				{post.publishedAt && (
-					<time dateTime={post.publishedAt.toISOString()}>
-						{formatPublishedAt(post.publishedAt)}
-					</time>
-				)}
-				{post.headerImage && (
-					<figure className="mt-8">
-						<img
-							src={mediaPath(post.headerImage.key)}
-							alt={post.headerImage.alt ?? ""}
-							fetchPriority="high"
-							className="aspect-video w-full rounded-lg object-cover"
-						/>
-						{post.headerImageCaption !== null && (
-							<figcaption className="mt-2 text-center text-sm text-muted-foreground italic">
-								{post.headerImageCaption}
-							</figcaption>
-						)}
-					</figure>
-				)}
-				<div
-					className="post-body mt-8"
-					// oxlint-disable-next-line react/no-danger -- Rendered from the owner's own markdown when the post is saved.
-					dangerouslySetInnerHTML={{ __html: post.html }}
-				/>
-			</article>
+			<PostArticle
+				title={post.title}
+				publishedAt={post.publishedAt}
+				headerImage={post.headerImage}
+				headerImageCaption={post.headerImageCaption}
+				html={post.html}
+			/>
 		</main>
 	);
 }
