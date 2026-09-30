@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import type { TocEntry } from "@/db/schema";
-import { cn } from "@/lib/utils";
 
 interface TocSection {
 	entry: TocEntry;
@@ -59,46 +58,161 @@ function useActiveHeading(toc: readonly TocEntry[]): string | undefined {
 	return activeId;
 }
 
-function TocLink({ entry, active }: { entry: TocEntry; active: boolean }) {
+// The ribbon: the section a reader was at when they last left this post.
+// Read once per page load so it stays put while they read on.
+const RIBBON_PREFIX = "ribbon:";
+const ribbons = new Map<string, string | null>();
+
+function readRibbon(postKey: string): string | null {
+	const cached = ribbons.get(postKey);
+	if (cached !== undefined) {
+		return cached;
+	}
+	let stored: string | null = null;
+	try {
+		stored = localStorage.getItem(RIBBON_PREFIX + postKey);
+	} catch {
+		// No storage, no ribbon.
+	}
+	ribbons.set(postKey, stored);
+	return stored;
+}
+
+function writeRibbon(postKey: string, id: string) {
+	try {
+		localStorage.setItem(RIBBON_PREFIX + postKey, id);
+	} catch {
+		// No storage, no ribbon.
+	}
+}
+
+function subscribeNever() {
+	return () => {
+		// The ribbon never moves during a visit.
+	};
+}
+
+function useRibbon(postKey: string, activeId: string | undefined) {
+	const ribbonId = useSyncExternalStore(
+		subscribeNever,
+		() => readRibbon(postKey),
+		() => null
+	);
+	useEffect(() => {
+		if (activeId !== undefined) {
+			writeRibbon(postKey, activeId);
+		}
+	}, [postKey, activeId]);
+	return ribbonId;
+}
+
+function TocLink({
+	entry,
+	active,
+	ribbon,
+}: {
+	entry: TocEntry;
+	active: boolean;
+	ribbon: boolean;
+}) {
 	return (
 		<a
 			href={`#${entry.id}`}
 			aria-current={active ? "location" : undefined}
-			className={cn(
-				"block py-1 text-muted-foreground transition-colors hover:text-foreground",
-				active && "font-medium text-foreground"
-			)}
+			className="block py-1 text-ink-soft transition-colors hover:text-ink aria-[current=location]:text-ink"
 		>
-			{entry.text}
+			<span className={ribbon ? "border-l-2 border-ink pl-2" : undefined}>
+				{entry.text}
+				{ribbon && (
+					<span className="ml-2 text-xs text-ink-soft italic">
+						left off here
+					</span>
+				)}
+			</span>
 		</a>
 	);
 }
 
-export function TableOfContents({ toc }: { toc: readonly TocEntry[] }) {
+// One manicule for the whole index. It glides to the active entry rather
+// than blinking on and off per row.
+function useGlidingManicule(activeId: string | undefined) {
+	const listRef = useRef<HTMLUListElement>(null);
+	const markRef = useRef<HTMLSpanElement>(null);
+
+	useEffect(() => {
+		const list = listRef.current;
+		const mark = markRef.current;
+		if (list === null || mark === null) {
+			return;
+		}
+		const link =
+			activeId === undefined
+				? null
+				: list.querySelector<HTMLElement>(`a[href="#${CSS.escape(activeId)}"]`);
+		if (link === null) {
+			mark.style.opacity = "0";
+			return;
+		}
+		mark.style.transform = `translateY(${link.offsetTop - list.offsetTop}px)`;
+		mark.style.opacity = "1";
+	}, [activeId]);
+
+	return { listRef, markRef };
+}
+
+// The open post's headings, set into the leaf beneath the site tabs. The
+// manicule points at the section under the reader's eye.
+export function ThumbIndexSections({
+	toc,
+	postKey,
+}: {
+	toc: readonly TocEntry[];
+	postKey: string;
+}) {
 	const activeId = useActiveHeading(toc);
+	const ribbonId = useRibbon(postKey, activeId);
+	const { listRef, markRef } = useGlidingManicule(activeId);
 	const sections = groupSections(toc);
+	// A ribbon at the very first section marks nothing worth pointing at.
+	const ribbonAt =
+		ribbonId !== null && ribbonId !== sections[0]?.entry.id ? ribbonId : null;
 
 	if (sections.length === 0) {
 		return null;
 	}
 
 	return (
-		<nav aria-labelledby="toc-label" className="text-xs">
-			<p
-				id="toc-label"
-				className="mb-4 font-semibold tracking-wider text-muted-foreground uppercase"
-			>
-				On this page
+		<nav
+			aria-labelledby="toc-label"
+			className="relative mt-8 border-t border-dashed border-rule px-6 pt-5 text-sm leading-snug"
+		>
+			<p id="toc-label" className="mb-3 text-xs smallcaps text-ink-soft">
+				In this post
 			</p>
-			<ul className="space-y-2">
+			<span
+				ref={markRef}
+				aria-hidden="true"
+				className="absolute py-1 opacity-0 transition-all duration-300 ease-out"
+			>
+				☞
+			</span>
+			<ul ref={listRef} className="pl-6">
 				{sections.map(({ entry, children }) => (
 					<li key={entry.id}>
-						<TocLink entry={entry} active={entry.id === activeId} />
+						<TocLink
+							entry={entry}
+							active={entry.id === activeId}
+							ribbon={entry.id === ribbonAt}
+						/>
 						{children.length > 0 && (
-							<ul className="ml-2 space-y-1 border-l pl-3">
+							<ul className="pl-4">
 								{children.map((child) => (
 									<li key={child.id}>
-										<TocLink entry={child} active={child.id === activeId} />
+										<TocLink
+											entry={child}
+											active={child.id === activeId}
+											ribbon={child.id === ribbonAt}
+										/>
 									</li>
 								))}
 							</ul>

@@ -8,6 +8,7 @@ import {
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
 import { SITE_NAME } from "@/lib/site";
+import { THEME_SCRIPT } from "@/theme/theme";
 
 import appCss from "../styles.css?url";
 
@@ -32,6 +33,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 					href: appCss,
 				},
 			],
+			scripts: [{ children: THEME_SCRIPT }],
 		}),
 		shellComponent: RootDocument,
 	}
@@ -39,7 +41,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en">
+		<html lang="en" suppressHydrationWarning>
 			<head>
 				<HeadContent />
 			</head>

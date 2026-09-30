@@ -9,21 +9,22 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as BookRouteImport } from './routes/_book'
 import { Route as AdminRouteImport } from './routes/admin'
-import { Route as ProjectsRouteImport } from './routes/projects'
+import { Route as BookIndexRouteImport } from './routes/_book.index'
+import { Route as BookCvRouteImport } from './routes/_book.cv'
+import { Route as BookProjectsRouteImport } from './routes/_book.projects'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as BlogIndexRouteImport } from './routes/blog.index'
-import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as MediaSplatRouteImport } from './routes/media.$'
+import { Route as BookBlogIndexRouteImport } from './routes/_book.blog.index'
+import { Route as BookBlogSlugRouteImport } from './routes/_book.blog.$slug'
 import { Route as AdminPostsIdRouteImport } from './routes/admin.posts.$id'
 import { Route as AdminPostsNewRouteImport } from './routes/admin.posts.new'
 import { Route as ApiRpcSplatRouteImport } from './routes/api.rpc.$'
 import { Route as ApiAdminRpcSplatRouteImport } from './routes/api.admin.rpc.$'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const BookRoute = BookRouteImport.update({
+  id: '/_book',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -31,30 +32,40 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProjectsRoute = ProjectsRouteImport.update({
+const BookIndexRoute = BookIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BookRoute,
+} as any)
+const BookCvRoute = BookCvRouteImport.update({
+  id: '/cv',
+  path: '/cv',
+  getParentRoute: () => BookRoute,
+} as any)
+const BookProjectsRoute = BookProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => BookRoute,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
-const BlogIndexRoute = BlogIndexRouteImport.update({
-  id: '/blog/',
-  path: '/blog/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BlogSlugRoute = BlogSlugRouteImport.update({
-  id: '/blog/$slug',
-  path: '/blog/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const MediaSplatRoute = MediaSplatRouteImport.update({
   id: '/media/$',
   path: '/media/$',
   getParentRoute: () => rootRouteImport,
+} as any)
+const BookBlogIndexRoute = BookBlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => BookRoute,
+} as any)
+const BookBlogSlugRoute = BookBlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => BookRoute,
 } as any)
 const AdminPostsIdRoute = AdminPostsIdRouteImport.update({
   id: '/posts/$id',
@@ -78,42 +89,46 @@ const ApiAdminRpcSplatRoute = ApiAdminRpcSplatRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof BookIndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/projects': typeof ProjectsRoute
-  '/blog/$slug': typeof BlogSlugRoute
+  '/cv': typeof BookCvRoute
+  '/projects': typeof BookProjectsRoute
   '/media/$': typeof MediaSplatRoute
   '/admin/': typeof AdminIndexRoute
-  '/blog/': typeof BlogIndexRoute
+  '/blog/$slug': typeof BookBlogSlugRoute
   '/admin/posts/$id': typeof AdminPostsIdRoute
   '/admin/posts/new': typeof AdminPostsNewRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/blog/': typeof BookBlogIndexRoute
   '/api/admin/rpc/$': typeof ApiAdminRpcSplatRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/projects': typeof ProjectsRoute
-  '/blog/$slug': typeof BlogSlugRoute
+  '/cv': typeof BookCvRoute
+  '/projects': typeof BookProjectsRoute
   '/media/$': typeof MediaSplatRoute
+  '/': typeof BookIndexRoute
   '/admin': typeof AdminIndexRoute
-  '/blog': typeof BlogIndexRoute
+  '/blog/$slug': typeof BookBlogSlugRoute
   '/admin/posts/$id': typeof AdminPostsIdRoute
   '/admin/posts/new': typeof AdminPostsNewRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/blog': typeof BookBlogIndexRoute
   '/api/admin/rpc/$': typeof ApiAdminRpcSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_book': typeof BookRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
-  '/projects': typeof ProjectsRoute
-  '/blog/$slug': typeof BlogSlugRoute
+  '/_book/cv': typeof BookCvRoute
+  '/_book/projects': typeof BookProjectsRoute
   '/media/$': typeof MediaSplatRoute
+  '/_book/': typeof BookIndexRoute
   '/admin/': typeof AdminIndexRoute
-  '/blog/': typeof BlogIndexRoute
+  '/_book/blog/$slug': typeof BookBlogSlugRoute
   '/admin/posts/$id': typeof AdminPostsIdRoute
   '/admin/posts/new': typeof AdminPostsNewRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/_book/blog/': typeof BookBlogIndexRoute
   '/api/admin/rpc/$': typeof ApiAdminRpcSplatRoute
 }
 export interface FileRouteTypes {
@@ -121,60 +136,61 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/cv'
     | '/projects'
-    | '/blog/$slug'
     | '/media/$'
     | '/admin/'
-    | '/blog/'
+    | '/blog/$slug'
     | '/admin/posts/$id'
     | '/admin/posts/new'
     | '/api/rpc/$'
+    | '/blog/'
     | '/api/admin/rpc/$'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
+    | '/cv'
     | '/projects'
-    | '/blog/$slug'
     | '/media/$'
+    | '/'
     | '/admin'
-    | '/blog'
+    | '/blog/$slug'
     | '/admin/posts/$id'
     | '/admin/posts/new'
     | '/api/rpc/$'
+    | '/blog'
     | '/api/admin/rpc/$'
   id:
     | '__root__'
-    | '/'
+    | '/_book'
     | '/admin'
-    | '/projects'
-    | '/blog/$slug'
+    | '/_book/cv'
+    | '/_book/projects'
     | '/media/$'
+    | '/_book/'
     | '/admin/'
-    | '/blog/'
+    | '/_book/blog/$slug'
     | '/admin/posts/$id'
     | '/admin/posts/new'
     | '/api/rpc/$'
+    | '/_book/blog/'
     | '/api/admin/rpc/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  BookRoute: typeof BookRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
-  ProjectsRoute: typeof ProjectsRoute
-  BlogSlugRoute: typeof BlogSlugRoute
   MediaSplatRoute: typeof MediaSplatRoute
-  BlogIndexRoute: typeof BlogIndexRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
   ApiAdminRpcSplatRoute: typeof ApiAdminRpcSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
+    '/_book': {
+      id: '/_book'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof BookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -184,12 +200,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/projects': {
-      id: '/projects'
+    '/_book/': {
+      id: '/_book/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof BookIndexRouteImport
+      parentRoute: typeof BookRoute
+    }
+    '/_book/cv': {
+      id: '/_book/cv'
+      path: '/cv'
+      fullPath: '/cv'
+      preLoaderRoute: typeof BookCvRouteImport
+      parentRoute: typeof BookRoute
+    }
+    '/_book/projects': {
+      id: '/_book/projects'
       path: '/projects'
       fullPath: '/projects'
-      preLoaderRoute: typeof ProjectsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof BookProjectsRouteImport
+      parentRoute: typeof BookRoute
     }
     '/admin/': {
       id: '/admin/'
@@ -198,26 +228,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/blog/': {
-      id: '/blog/'
-      path: '/blog'
-      fullPath: '/blog/'
-      preLoaderRoute: typeof BlogIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/blog/$slug': {
-      id: '/blog/$slug'
-      path: '/blog/$slug'
-      fullPath: '/blog/$slug'
-      preLoaderRoute: typeof BlogSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/media/$': {
       id: '/media/$'
       path: '/media/$'
       fullPath: '/media/$'
       preLoaderRoute: typeof MediaSplatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_book/blog/': {
+      id: '/_book/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BookBlogIndexRouteImport
+      parentRoute: typeof BookRoute
+    }
+    '/_book/blog/$slug': {
+      id: '/_book/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BookBlogSlugRouteImport
+      parentRoute: typeof BookRoute
     }
     '/admin/posts/$id': {
       id: '/admin/posts/$id'
@@ -250,6 +280,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface BookRouteChildren {
+  BookCvRoute: typeof BookCvRoute
+  BookProjectsRoute: typeof BookProjectsRoute
+  BookIndexRoute: typeof BookIndexRoute
+  BookBlogSlugRoute: typeof BookBlogSlugRoute
+  BookBlogIndexRoute: typeof BookBlogIndexRoute
+}
+
+const BookRouteChildren: BookRouteChildren = {
+  BookCvRoute: BookCvRoute,
+  BookProjectsRoute: BookProjectsRoute,
+  BookIndexRoute: BookIndexRoute,
+  BookBlogSlugRoute: BookBlogSlugRoute,
+  BookBlogIndexRoute: BookBlogIndexRoute,
+}
+
+const BookRouteWithChildren = BookRoute._addFileChildren(BookRouteChildren)
+
 interface AdminRouteChildren {
   AdminIndexRoute: typeof AdminIndexRoute
   AdminPostsIdRoute: typeof AdminPostsIdRoute
@@ -265,12 +313,9 @@ const AdminRouteChildren: AdminRouteChildren = {
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  BookRoute: BookRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
-  ProjectsRoute: ProjectsRoute,
-  BlogSlugRoute: BlogSlugRoute,
   MediaSplatRoute: MediaSplatRoute,
-  BlogIndexRoute: BlogIndexRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
   ApiAdminRpcSplatRoute: ApiAdminRpcSplatRoute,
 }

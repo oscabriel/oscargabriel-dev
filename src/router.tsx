@@ -13,8 +13,21 @@ export function getRouter() {
 		routeTree,
 		context: { queryClient },
 		scrollRestoration: true,
+		defaultViewTransition: true,
 		defaultPreload: "intent",
 		defaultPreloadStaleTime: 0,
+	});
+
+	// Only a new page turns the page. A section link or heading anchor is a
+	// hash-only navigation (the browser fires popstate, the router reloads),
+	// and a view transition there replays the wipe and cross-fades the leaf,
+	// doubling the manicule. `defaultViewTransition.types` could return false
+	// instead, but the router only consults it where view-transition types are
+	// supported; this runs everywhere, before the router decides.
+	router.subscribe("onBeforeNavigate", ({ pathChanged }) => {
+		if (!pathChanged) {
+			router.shouldViewTransition = false;
+		}
 	});
 
 	setupRouterSsrQueryIntegration({ router, queryClient });

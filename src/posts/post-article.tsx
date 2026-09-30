@@ -7,6 +7,9 @@ interface PostArticleProps {
 	headerImage: { key: string; alt: string | null } | null;
 	headerImageCaption: string | null;
 	html: string;
+	// Rendered between the plate and the body; the post page puts the
+	// small-screen sections list here.
+	afterHeader?: React.ReactNode;
 }
 
 // The post itself, shared by the blog page and the admin preview so the
@@ -17,32 +20,44 @@ export function PostArticle({
 	headerImage,
 	headerImageCaption,
 	html,
+	afterHeader,
 }: PostArticleProps) {
 	return (
-		<article className="mx-auto max-w-3xl">
-			<h1 className="text-4xl font-bold">{title}</h1>
-			{publishedAt && (
-				<time dateTime={publishedAt.toISOString()}>
-					{formatPublishedAt(publishedAt)}
-				</time>
-			)}
+		<article className="max-w-prose">
+			<header>
+				<h1 className="text-4xl leading-tight font-medium tracking-tight text-balance text-ink md:text-5xl">
+					{title}
+				</h1>
+				{publishedAt && (
+					<time
+						dateTime={publishedAt.toISOString()}
+						className="mt-4 block text-xs smallcaps text-ink-soft"
+					>
+						{formatPublishedAt(publishedAt)}
+					</time>
+				)}
+			</header>
 			{headerImage && (
-				<figure className="mt-8">
+				<figure className="mt-10">
 					<img
 						src={mediaPath(headerImage.key)}
 						alt={headerImage.alt ?? ""}
 						fetchPriority="high"
-						className="aspect-video w-full rounded-lg object-cover"
+						className="aspect-video w-full object-cover"
 					/>
-					{headerImageCaption !== null && (
-						<figcaption className="mt-2 text-center text-sm text-muted-foreground italic">
-							{headerImageCaption}
-						</figcaption>
-					)}
+					<figcaption className="mt-3 flex items-baseline gap-4 text-xs">
+						<span className="shrink-0 smallcaps whitespace-nowrap text-ink-soft">
+							Plate I
+						</span>
+						{headerImageCaption !== null && (
+							<span className="text-ink-soft italic">{headerImageCaption}</span>
+						)}
+					</figcaption>
 				</figure>
 			)}
+			{afterHeader}
 			<div
-				className="post-body mt-8"
+				className="post-body mt-10"
 				// oxlint-disable-next-line react/no-danger -- Rendered from the owner's own markdown when the post is saved.
 				dangerouslySetInnerHTML={{ __html: html }}
 			/>
