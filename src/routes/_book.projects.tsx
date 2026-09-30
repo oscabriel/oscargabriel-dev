@@ -47,7 +47,7 @@ function ProjectsPage() {
 				<ol className="mt-10 max-w-prose">
 					{projects.map((project) => (
 						<li key={project.id} className="border-t border-rule py-6">
-							<div className="flex items-baseline gap-3">
+							<div className="md:flex md:items-baseline md:gap-3">
 								<a
 									href={project.liveUrl}
 									className="text-xl font-medium text-ink no-underline hover:underline"
@@ -56,11 +56,11 @@ function ProjectsPage() {
 								</a>
 								<span
 									aria-hidden="true"
-									className="mb-1 min-w-6 flex-1 border-b border-dotted border-ink-faint"
+									className="mb-1 hidden min-w-6 flex-1 border-b border-dotted border-ink-faint md:block"
 								/>
 								<time
 									dateTime={project.launchedAt.toISOString()}
-									className="shrink-0 text-xs smallcaps text-ink-soft"
+									className="mt-1 block shrink-0 text-xs smallcaps text-ink-soft md:mt-0 md:inline"
 								>
 									{launchedFormat.format(project.launchedAt)}
 								</time>

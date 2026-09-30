@@ -59,7 +59,8 @@ function VisitedMark({ slug }: { slug: string }) {
 	);
 }
 
-// The contents page: each entry a title, a dotted leader, and its date.
+// The contents page: each entry a title, a dotted leader, and its date. On
+// phones the date drops under the title, as on the CV, so long titles keep room.
 function BlogPage() {
 	const { data: posts } = useSuspenseQuery(orpc.posts.list.queryOptions());
 
@@ -74,7 +75,7 @@ function BlogPage() {
 				<ol className="mt-10 max-w-prose">
 					{posts.map((post) => (
 						<li key={post.slug} className="border-t border-rule py-6">
-							<div className="flex items-baseline gap-3">
+							<div className="md:flex md:items-baseline md:gap-3">
 								<Link
 									to="/blog/$slug"
 									params={{ slug: post.slug }}
@@ -85,12 +86,12 @@ function BlogPage() {
 								<VisitedMark slug={post.slug} />
 								<span
 									aria-hidden="true"
-									className="mb-1 min-w-6 flex-1 border-b border-dotted border-ink-faint"
+									className="mb-1 hidden min-w-6 flex-1 border-b border-dotted border-ink-faint md:block"
 								/>
 								{post.publishedAt && (
 									<time
 										dateTime={post.publishedAt.toISOString()}
-										className="shrink-0 text-xs smallcaps text-ink-soft"
+										className="mt-1 block shrink-0 text-xs smallcaps text-ink-soft md:mt-0 md:inline"
 									>
 										{formatPublishedAt(post.publishedAt)}
 									</time>
