@@ -377,9 +377,15 @@ body {
 	view-transition-name: book-leaf;
 }
 ::view-transition-group(book-leaf),
+::view-transition-new(book-leaf),
 ::view-transition-old(root),
 ::view-transition-new(root) {
 	animation: none;
+}
+/* The left leaf swaps at once. The default cross-fade let the old leaf's
+   colophon show through the new one's section list mid-turn. */
+::view-transition-old(book-leaf) {
+	display: none;
 }
 :root:has(.book-leaf)::view-transition-old(root) {
 	animation: page-out 360ms cubic-bezier(0.2, 0, 0, 1) both;
