@@ -35,6 +35,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 					rel: "stylesheet",
 					href: appCss,
 				},
+				{
+					rel: "icon",
+					type: "image/svg+xml",
+					href: "/favicon.svg",
+				},
 				// The sun and moon's ink is a CSS mask, which the browser would only
 				// fetch after the stylesheet; preloaded, it lands with the washes.
 				// Masks are fetched in CORS mode, so the preload must be too or the
