@@ -148,11 +148,11 @@ body {
 	color-scheme: light;
 
 	/* The book: paper and ink. Every other token derives from these five. */
-	--paper: oklch(0.955 0.009 85);
-	--ink: oklch(0.19 0.008 70);
-	--ink-soft: oklch(0.46 0.01 70);
-	--ink-faint: oklch(0.72 0.012 80);
-	--rule: oklch(0.86 0.012 80);
+	--paper: #fafafa;
+	--ink: #2a2722;
+	--ink-soft: #666666;
+	--ink-faint: oklch(0.765 0.01 80);
+	--rule: oklch(0.895 0.008 80);
 
 	--background: var(--paper);
 	--foreground: var(--ink);
@@ -162,11 +162,11 @@ body {
 	--popover-foreground: var(--ink);
 	--primary: var(--ink);
 	--primary-foreground: var(--paper);
-	--secondary: oklch(0.925 0.01 85);
+	--secondary: #f0f0f0;
 	--secondary-foreground: var(--ink);
-	--muted: oklch(0.925 0.01 85);
+	--muted: #f0f0f0;
 	--muted-foreground: var(--ink-soft);
-	--accent: oklch(0.925 0.01 85);
+	--accent: #f0f0f0;
 	--accent-foreground: var(--ink);
 	--destructive: oklch(0.5 0.19 27);
 	--border: var(--rule);
@@ -174,22 +174,22 @@ body {
 	--ring: var(--ink-soft);
 	--chart-1: var(--ink-faint);
 	--chart-2: var(--ink-soft);
-	--chart-3: oklch(0.4 0.01 70);
-	--chart-4: oklch(0.32 0.01 70);
+	--chart-3: oklch(0.47 0.01 70);
+	--chart-4: oklch(0.395 0.01 70);
 	--chart-5: var(--ink);
 	--radius: 0.125rem;
 	--sidebar: var(--paper);
 	--sidebar-foreground: var(--ink);
 	--sidebar-primary: var(--ink);
 	--sidebar-primary-foreground: var(--paper);
-	--sidebar-accent: oklch(0.925 0.01 85);
+	--sidebar-accent: #f0f0f0;
 	--sidebar-accent-foreground: var(--ink);
 	--sidebar-border: var(--rule);
 	--sidebar-ring: var(--ink-soft);
 
 	/* Code as rubricated text: red for keywords, sepia for strings, iron-gall
 	   blue for types, and the page's own ink for everything else. */
-	--twp-background: oklch(0.925 0.01 85);
+	--twp-background: #f0f0f0;
 	--twp-identifier: var(--ink);
 	--twp-variable: var(--ink);
 	--twp-punctuation: var(--ink-soft);
@@ -249,11 +249,11 @@ body {
 	color-scheme: dark;
 
 	/* The same page under a reading lamp: ink and paper trade places. */
-	--paper: oklch(0.2 0.007 70);
-	--ink: oklch(0.93 0.01 85);
-	--ink-soft: oklch(0.68 0.012 80);
-	--ink-faint: oklch(0.46 0.01 70);
-	--rule: oklch(0.32 0.008 70);
+	--paper: #2a2722;
+	--ink: #fafafa;
+	--ink-soft: #9f9f9f;
+	--ink-faint: oklch(0.525 0.01 70);
+	--rule: oklch(0.39 0.008 70);
 
 	--background: var(--paper);
 	--foreground: var(--ink);
@@ -263,11 +263,11 @@ body {
 	--popover-foreground: var(--ink);
 	--primary: var(--ink);
 	--primary-foreground: var(--paper);
-	--secondary: oklch(0.26 0.008 70);
+	--secondary: oklch(0.335 0.008 70);
 	--secondary-foreground: var(--ink);
-	--muted: oklch(0.26 0.008 70);
+	--muted: oklch(0.335 0.008 70);
 	--muted-foreground: var(--ink-soft);
-	--accent: oklch(0.26 0.008 70);
+	--accent: oklch(0.335 0.008 70);
 	--accent-foreground: var(--ink);
 	--destructive: oklch(0.68 0.17 24);
 	--border: var(--rule);
@@ -275,19 +275,19 @@ body {
 	--ring: var(--ink-soft);
 	--chart-1: var(--ink-faint);
 	--chart-2: var(--ink-soft);
-	--chart-3: oklch(0.6 0.01 70);
-	--chart-4: oklch(0.75 0.01 80);
+	--chart-3: oklch(0.665 0.01 70);
+	--chart-4: oklch(0.81 0.01 80);
 	--chart-5: var(--ink);
 	--sidebar: var(--paper);
 	--sidebar-foreground: var(--ink);
 	--sidebar-primary: var(--ink);
 	--sidebar-primary-foreground: var(--paper);
-	--sidebar-accent: oklch(0.26 0.008 70);
+	--sidebar-accent: oklch(0.335 0.008 70);
 	--sidebar-accent-foreground: var(--ink);
 	--sidebar-border: var(--rule);
 	--sidebar-ring: var(--ink-soft);
 
-	--twp-background: oklch(0.24 0.008 70);
+	--twp-background: oklch(0.315 0.008 70);
 	--twp-identifier: var(--ink);
 	--twp-variable: var(--ink);
 	--twp-punctuation: var(--ink-soft);
