@@ -4,6 +4,10 @@ import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query
 
 import { routeTree } from "./routeTree.gen";
 
+// Tailwind's md breakpoint. Below it the leaf sits above the page rather
+// than beside it, so there is no fore-edge for a page to turn from.
+const PHONE_QUERY = "(width < 48rem)";
+
 export function getRouter() {
 	const queryClient = new QueryClient({
 		defaultOptions: { queries: { staleTime: 60_000 } },
@@ -23,9 +27,12 @@ export function getRouter() {
 	// and a view transition there replays the wipe and cross-fades the leaf,
 	// doubling the manicule. `defaultViewTransition.types` could return false
 	// instead, but the router only consults it where view-transition types are
-	// supported; this runs everywhere, before the router decides.
+	// supported; this runs everywhere, before the router decides. Phones
+	// never turn the page, so they swap at once.
 	router.subscribe("onBeforeNavigate", ({ pathChanged }) => {
-		if (!pathChanged) {
+		const onPhone =
+			typeof window !== "undefined" && window.matchMedia(PHONE_QUERY).matches;
+		if (!pathChanged || onPhone) {
 			router.shouldViewTransition = false;
 		}
 	});
