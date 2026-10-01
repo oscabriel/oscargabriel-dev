@@ -4,8 +4,9 @@ import { createFileRoute } from "@tanstack/react-router";
 // first-party and survive most ad blockers. Static assets go to the assets
 // host and everything else to ingestion; the client never asks for assets
 // (it bundles the SDK), but PostHog's checklist wants both routed. The
-// visitor's IP is forwarded so the world map doesn't put everyone at a
-// Cloudflare data centre. Not under /admin, so Access leaves it alone.
+// visitor's IP is forwarded because the cookieless visitor hash is built from
+// it; without it every visitor would hash to a Cloudflare data centre. Not
+// under /admin, so Access leaves it alone.
 const API_HOST = "us.i.posthog.com";
 const ASSET_HOST = "us-assets.i.posthog.com";
 
