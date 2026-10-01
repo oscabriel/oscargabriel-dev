@@ -66,14 +66,12 @@ function EntryLine({
 	);
 }
 
-function RoleEntry({ role, nested }: { role: Role; nested: boolean }) {
+function RoleEntry({ role }: { role: Role }) {
 	return (
-		<div className={nested ? "mt-5" : "mt-1"}>
-			{nested && (
-				<EntryLine start={role.start} end={role.end}>
-					<h4 className="text-lg text-ink italic">{role.title}</h4>
-				</EntryLine>
-			)}
+		<div className="mt-5">
+			<EntryLine start={role.start} end={role.end}>
+				<h4 className="text-lg text-ink italic">{role.title}</h4>
+			</EntryLine>
 			{role.place !== undefined && (
 				<p className="text-sm text-ink-soft italic">{role.place}</p>
 			)}
@@ -86,29 +84,17 @@ function RoleEntry({ role, nested }: { role: Role; nested: boolean }) {
 	);
 }
 
-// One employer. With a single role the role names the line; with several,
-// the employer does and each role gets its own dated line beneath.
+// One employer: its name heads the entry and each role gets its own dated
+// line beneath, however many there are.
 function EmployerEntry({ employer }: { employer: Employer }) {
-	const { roles } = employer;
-	const [only] = roles;
-	const single = roles.length === 1 && only !== undefined;
-
 	return (
 		<li className="border-t border-rule py-6">
-			{single ? (
-				<EntryLine start={only.start} end={only.end}>
-					<h3 className="text-xl font-medium text-ink">
-						{only.title}, <span className="font-normal">{employer.name}</span>
-					</h3>
-				</EntryLine>
-			) : (
-				<h3 className="text-xl font-medium text-ink">{employer.name}</h3>
-			)}
+			<h3 className="text-xl font-medium text-ink">{employer.name}</h3>
 			{employer.place !== undefined && (
 				<p className="text-sm text-ink-soft italic">{employer.place}</p>
 			)}
-			{roles.map((role) => (
-				<RoleEntry key={role.title} role={role} nested={!single} />
+			{employer.roles.map((role) => (
+				<RoleEntry key={role.title} role={role} />
 			))}
 		</li>
 	);
