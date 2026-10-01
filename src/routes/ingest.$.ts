@@ -2,26 +2,55 @@ import { createFileRoute } from "@tanstack/react-router";
 
 // A reverse proxy for PostHog on this origin, so the analytics requests are
 // first-party and survive most ad blockers. Static assets go to the assets
-// host and everything else to ingestion; the client never asks for assets
+// host and captured events to ingestion; the client never asks for assets
 // (it bundles the SDK), but PostHog's checklist wants both routed. The
 // visitor's IP is forwarded because the cookieless visitor hash is built from
 // it; without it every visitor would hash to a Cloudflare data centre. Not
 // under /admin, so Access leaves it alone.
+//
+// Only PostHog's capture endpoints (POST) and asset paths (GET) are relayed;
+// anything else is a 404, so the route can't be used to reach the rest of
+// PostHog's API from this origin.
 const API_HOST = "us.i.posthog.com";
 const ASSET_HOST = "us-assets.i.posthog.com";
 
-function upstreamHost(path: string): string {
-	const isAsset = path.startsWith("static/") || path.startsWith("array/");
-	return isAsset ? ASSET_HOST : API_HOST;
+const CAPTURE_PATHS = new Set(["/e/", "/i/v0/e/", "/batch/"]);
+const ASSET_PREFIXES = ["/static/", "/array/"];
+
+// Checked after the URL parser has resolved any dot segments (including
+// percent-encoded ones), so "static/../flags" can't slip past as an asset.
+function upstreamUrl(
+	path: string,
+	search: string,
+	method: string
+): URL | undefined {
+	const url = new URL(`https://${API_HOST}/${path}${search}`);
+	const withSlash = url.pathname.endsWith("/")
+		? url.pathname
+		: `${url.pathname}/`;
+	if (method === "POST" && CAPTURE_PATHS.has(withSlash)) {
+		return url;
+	}
+	const isRead = method === "GET" || method === "HEAD";
+	if (
+		isRead &&
+		ASSET_PREFIXES.some((prefix) => url.pathname.startsWith(prefix))
+	) {
+		url.host = ASSET_HOST;
+		return url;
+	}
+	return undefined;
 }
 
 export const Route = createFileRoute("/ingest/$")({
 	server: {
 		handlers: {
 			ANY: async ({ params, request }) => {
-				const path = params._splat ?? "";
 				const { search } = new URL(request.url);
-				const target = `https://${upstreamHost(path)}/${path}${search}`;
+				const target = upstreamUrl(params._splat ?? "", search, request.method);
+				if (target === undefined) {
+					return new Response("Not found", { status: 404 });
+				}
 
 				// Cloudflare's own cf-* headers must not reach another Cloudflare
 				// site, or its edge answers 403 (error 1000); the visitor's IP
