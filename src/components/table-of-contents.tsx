@@ -130,7 +130,7 @@ function TocSectionItem({
 						aria-controls={listId}
 						aria-label={`Subsections of ${entry.text}`}
 						onClick={onToggle}
-						className="shrink-0 cursor-pointer self-center p-1 text-ink-faint transition-colors hover:text-ink"
+						className="shrink-0 cursor-pointer self-center p-1.5 text-ink-faint transition-colors hover:text-ink"
 					>
 						<CaretRightIcon
 							aria-hidden="true"
