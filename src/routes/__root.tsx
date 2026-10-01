@@ -10,7 +10,7 @@ import { useEffect } from "react";
 
 import { startAnalytics } from "@/analytics/posthog";
 import inkUrl from "@/components/sun-moon/ink.webp";
-import { SITE_NAME } from "@/lib/site";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { THEME_SCRIPT } from "@/theme/theme";
 
 import appCss from "../styles.css?url";
@@ -28,6 +28,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 				},
 				{
 					title: SITE_NAME,
+				},
+				// The card for every page that has no image of its own; a post with
+				// a header image replaces it.
+				{
+					property: "og:image",
+					content: `${SITE_URL}/og.png`,
+				},
+				{
+					name: "twitter:card",
+					content: "summary_large_image",
 				},
 			],
 			links: [
