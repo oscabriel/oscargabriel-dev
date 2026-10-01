@@ -2,23 +2,23 @@
 name: The Commonplace Book
 description: Oscar Gabriel's site set as one open book — paper and ink, EB Garamond with Courier Prime for code, a left leaf that never moves.
 colors:
-  paper: "oklch(0.955 0.009 85)"
-  ink: "oklch(0.19 0.008 70)"
-  ink-soft: "oklch(0.46 0.01 70)"
-  ink-faint: "oklch(0.72 0.012 80)"
-  rule: "oklch(0.86 0.012 80)"
-  wash: "oklch(0.925 0.01 85)"
+  paper: "#fafafa"
+  ink: "#2a2722"
+  ink-soft: "#666666"
+  ink-faint: "oklch(0.765 0.01 80)"
+  rule: "oklch(0.895 0.008 80)"
+  wash: "#f0f0f0"
   rubric-red: "oklch(0.5 0.16 27)"
   rubric-sepia: "oklch(0.45 0.09 60)"
   rubric-iron-gall: "oklch(0.42 0.08 250)"
   rubric-green: "oklch(0.42 0.1 145)"
   destructive: "oklch(0.5 0.19 27)"
-  paper-night: "oklch(0.2 0.007 70)"
-  ink-night: "oklch(0.93 0.01 85)"
-  ink-soft-night: "oklch(0.68 0.012 80)"
-  ink-faint-night: "oklch(0.46 0.01 70)"
-  rule-night: "oklch(0.32 0.008 70)"
-  wash-night: "oklch(0.26 0.008 70)"
+  paper-night: "#2a2722"
+  ink-night: "#fafafa"
+  ink-soft-night: "#9f9f9f"
+  ink-faint-night: "oklch(0.525 0.01 70)"
+  rule-night: "oklch(0.39 0.008 70)"
+  wash-night: "oklch(0.335 0.008 70)"
   rubric-red-night: "oklch(0.76 0.12 27)"
   rubric-sepia-night: "oklch(0.8 0.08 75)"
   rubric-iron-gall-night: "oklch(0.78 0.07 240)"
@@ -175,7 +175,7 @@ Density is bookish, not sparse: a 65ch measure at 20px/1.6 (18px on phones, to k
 
 ## Colors
 
-A paper-and-ink palette: warm off-white and warm near-black with three graded inks between them, reversed at night, and a strictly rationed set of rubric hues that appear only inside code.
+A paper-and-ink palette: off-white (`#fafafa`) and dark grey (`#2a2722`) with three graded inks between them, the two trading places at night, and a strictly rationed set of rubric hues that appear only inside code.
 
 ### Primary
 
@@ -187,7 +187,7 @@ A paper-and-ink palette: warm off-white and warm near-black with three graded in
 - **Soft ink** (`ink-soft`, night: `ink-soft-night`): marginalia. The intro paragraph, summaries, dates, labels, captions, inactive tabs and index entries, code punctuation and comments, the colophon, `--muted-foreground` and `--ring`.
 - **Faint ink** (`ink-faint`, night: `ink-faint-night`): the lightest mark that still reads. Underlines at rest, dotted leaders on contents pages, the ¶ list mark, blockquote and `hr` rules, the hidden heading anchor.
 - **Rule** (`rule`, night: `rule-night`): hairlines. The leaf's fore-edge, the tab hairline, contents-entry separators, code-block top and bottom rules, table cell rules, the mobile header band border, `--border` and `--input`.
-- **Wash** (`wash`, night: `wash-night`): the only tinted fill. Code-block background (`--twp-background` is a shade of it) and the shadcn `--secondary`, `--muted`, `--accent` and `--sidebar-accent` for admin controls. Never used as a card or panel on the public site.
+- **Wash** (`wash`, night: `wash-night`): the only filled surface, a neutral grey a step off the paper. Code-block background (`--twp-background` is a shade of it) and the shadcn `--secondary`, `--muted`, `--accent` and `--sidebar-accent` for admin controls. Never used as a card or panel on the public site.
 
 ### Rubric (code only)
 
