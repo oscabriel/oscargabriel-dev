@@ -178,10 +178,13 @@ export function Leaf() {
 					<div>
 						<Wordmark />
 						<p className="mt-5 hidden justified text-sm leading-relaxed text-ink-soft md:block">
-							I’m an engineer with a roundabout background. I studied math in
-							New Orleans, made portraits as a working photographer, and spent
-							years on warehouse and factory floors before I taught myself to
-							code. These days I live in Portland.
+							Rising software engineer sharing what I learn and build online.
+							Focused on learning strategic programming from a beginner
+							perspective. Constantly experimenting with agents. Based in
+							Portland, OR.
+						</p>
+						<p className="mt-3 hidden text-sm leading-relaxed text-ink-soft md:block">
+							Currently looking for something new.
 						</p>
 					</div>
 					<button
