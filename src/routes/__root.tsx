@@ -37,10 +37,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 				},
 				// The sun and moon's ink is a CSS mask, which the browser would only
 				// fetch after the stylesheet; preloaded, it lands with the washes.
+				// Masks are fetched in CORS mode, so the preload must be too or the
+				// browser ignores it and fetches the image again.
 				{
 					rel: "preload",
 					as: "image",
 					href: inkUrl,
+					crossOrigin: "anonymous",
 				},
 			],
 			scripts: [{ children: THEME_SCRIPT }],
