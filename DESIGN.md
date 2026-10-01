@@ -144,7 +144,7 @@ components:
 
 The whole site is one book lying open. The left leaf belongs to the author and holds still: a small serif wordmark, a short intro, and a thumb index of stepped tabs cut into the leaf's fore-edge. The right leaf is whatever the reader turned to: a blank page at `/` (the leaf is the whole welcome), a contents page at `/blog` and `/projects`, the curriculum vitae at `/cv`, or the article itself. Navigating to a new page turns it: the new page wipes in from the fore-edge while the author stays in view. The world refuses the centred single column under a top nav bar.
 
-The material is paper and ink and nothing else. There is no accent hue; there are no cards, boxes, shadows, badges or icons. Type is the only material, so hierarchy is carried by one book face, EB Garamond, in its roman, italic and true small caps, and by three depths of ink. Courier Prime appears only where code does. Colour appears only where a book would carry it: in the plates (film stills as numbered figures with italic captions) and in rubricated code, where keywords are red, strings sepia and types iron-gall blue. State is a mark, not a hue: the printer's fist ☞ points at the current tab and section, and a dagger † follows any post the reader has opened.
+The material is paper and ink and nothing else. There is no accent hue; there are no cards, boxes, shadows or badges, and one interface icon, the section index's unfold caret. Type is the only material, so hierarchy is carried by one book face, EB Garamond, in its roman, italic and true small caps, and by three depths of ink. Courier Prime appears only where code does. Colour appears only where a book would carry it: in the plates (film stills as numbered figures with italic captions) and in rubricated code, where keywords are red, strings sepia and types iron-gall blue. State is a mark, not a hue: the printer's fist ☞ points at the current tab and section, and a dagger † follows any post the reader has opened.
 
 Density is bookish, not sparse: a 65ch measure at 20px/1.6 (18px on phones, to keep the measure above 45 characters), wide gutters, plenty of leading, but every line does a job. At night the page reverses (ink and paper trade places) under the same five tokens, so nothing is designed twice.
 
@@ -168,7 +168,7 @@ A paper-and-ink palette: off-white (`#fafafa`) and dark grey (`#2a2722`) with th
 
 ### Neutral
 
-- **Paper** (`paper`, night: `paper-night`): the page. The only background the public site uses; also `--background`, `--card`, `--popover` and `--sidebar` in the shadcn mapping. The current thumb tab paints its right edge in paper to break the hairline.
+- **Paper** (`paper`, night: `paper-night`): the page. The only background the public site uses; also `--background`, `--card`, `--popover` and `--sidebar` in the shadcn mapping.
 - **Soft ink** (`ink-soft`, night: `ink-soft-night`): marginalia on the right leaf. Summaries, dates, labels, captions, code punctuation and comments, `--muted-foreground` and `--ring`.
 - **Faint ink** (`ink-faint`, night: `ink-faint-night`): the lightest mark that still reads. Underlines at rest, dotted leaders on contents pages, the ¶ list mark, blockquote and `hr` rules, the hidden heading anchor.
 - **Rule** (`rule`, night: `rule-night`): hairlines. The leaf's fore-edge, the tab hairline, contents-entry separators, code-block top and bottom rules, table cell rules, `--border` and `--input`.
