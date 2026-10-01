@@ -21,9 +21,10 @@ export const Route = createFileRoute("/_book/")({
 });
 
 // The book opens on a blank recto, facing the leaf that says who wrote it.
+// Phones have no facing page: the leaf above is the whole of it.
 function Home() {
 	return (
-		<main className="px-6 py-10 md:min-h-dvh md:px-12 md:py-16">
+		<main className="md:min-h-dvh md:px-12 md:py-16">
 			<h1 className="sr-only">{SITE_NAME}</h1>
 		</main>
 	);
