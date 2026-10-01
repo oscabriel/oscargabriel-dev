@@ -17,6 +17,7 @@ import { Route as BookGalleryRouteImport } from './routes/_book.gallery'
 import { Route as BookProjectsRouteImport } from './routes/_book.projects'
 import { Route as BookWatchingRouteImport } from './routes/_book.watching'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as IngestSplatRouteImport } from './routes/ingest.$'
 import { Route as MediaSplatRouteImport } from './routes/media.$'
 import { Route as BookBlogIndexRouteImport } from './routes/_book.blog.index'
 import { Route as BookBlogSlugRouteImport } from './routes/_book.blog.$slug'
@@ -64,6 +65,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const IngestSplatRoute = IngestSplatRouteImport.update({
+  id: '/ingest/$',
+  path: '/ingest/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MediaSplatRoute = MediaSplatRouteImport.update({
   id: '/media/$',
   path: '/media/$',
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/gallery': typeof BookGalleryRoute
   '/projects': typeof BookProjectsRoute
   '/watching': typeof BookWatchingRoute
+  '/ingest/$': typeof IngestSplatRoute
   '/media/$': typeof MediaSplatRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/$slug': typeof BookBlogSlugRoute
@@ -121,6 +128,7 @@ export interface FileRoutesByTo {
   '/gallery': typeof BookGalleryRoute
   '/projects': typeof BookProjectsRoute
   '/watching': typeof BookWatchingRoute
+  '/ingest/$': typeof IngestSplatRoute
   '/media/$': typeof MediaSplatRoute
   '/': typeof BookIndexRoute
   '/admin': typeof AdminIndexRoute
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   '/_book/gallery': typeof BookGalleryRoute
   '/_book/projects': typeof BookProjectsRoute
   '/_book/watching': typeof BookWatchingRoute
+  '/ingest/$': typeof IngestSplatRoute
   '/media/$': typeof MediaSplatRoute
   '/_book/': typeof BookIndexRoute
   '/admin/': typeof AdminIndexRoute
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/projects'
     | '/watching'
+    | '/ingest/$'
     | '/media/$'
     | '/admin/'
     | '/blog/$slug'
@@ -172,6 +182,7 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/projects'
     | '/watching'
+    | '/ingest/$'
     | '/media/$'
     | '/'
     | '/admin'
@@ -189,6 +200,7 @@ export interface FileRouteTypes {
     | '/_book/gallery'
     | '/_book/projects'
     | '/_book/watching'
+    | '/ingest/$'
     | '/media/$'
     | '/_book/'
     | '/admin/'
@@ -203,6 +215,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   BookRoute: typeof BookRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
+  IngestSplatRoute: typeof IngestSplatRoute
   MediaSplatRoute: typeof MediaSplatRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
   ApiAdminRpcSplatRoute: typeof ApiAdminRpcSplatRoute
@@ -265,6 +278,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/ingest/$': {
+      id: '/ingest/$'
+      path: '/ingest/$'
+      fullPath: '/ingest/$'
+      preLoaderRoute: typeof IngestSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/media/$': {
       id: '/media/$'
@@ -357,6 +377,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   BookRoute: BookRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
+  IngestSplatRoute: IngestSplatRoute,
   MediaSplatRoute: MediaSplatRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
   ApiAdminRpcSplatRoute: ApiAdminRpcSplatRoute,

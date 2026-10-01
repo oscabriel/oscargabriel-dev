@@ -6,7 +6,9 @@ import {
 	createRootRouteWithContext,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { useEffect } from "react";
 
+import { startAnalytics } from "@/analytics/posthog";
 import inkUrl from "@/components/sun-moon/ink.webp";
 import { SITE_NAME } from "@/lib/site";
 import { THEME_SCRIPT } from "@/theme/theme";
@@ -47,7 +49,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 	}
 );
 
+// Analytics start in an effect, so never during server rendering.
 function RootDocument({ children }: { children: React.ReactNode }) {
+	useEffect(() => {
+		startAnalytics();
+	}, []);
+
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<head>
