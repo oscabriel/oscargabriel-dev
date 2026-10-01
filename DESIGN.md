@@ -235,7 +235,7 @@ The right leaf has no max width of its own; content is measured instead. At `/` 
 
 Vertical rhythm on the right leaf uses 2.5rem (`mt-10`) between the plate, the sections disclosure and the body, 4rem (`mt-16`) before the foot navigation, 3.5rem (`mt-14`) between CV sections, and 1.5rem (`py-6`) per contents entry with a hairline above each.
 
-Below `md`, the leaf stands above the page with no rule beneath it, and only at `/` is it whole: wordmark, intro, the tabs stacked as on the leaf, then the theme toggle. On every other page it shrinks to the wordmark, which leads back home to the index; there is no menu. The section index is hidden. The post's sections become a native `<details>` disclosure between the plate and the body, ruled top and bottom, with a small-caps "In this post" summary. On contents lines the dates drop beneath the title and the dotted leader is hidden where space is short (the CV does this; the blog and projects lists still keep one line).
+Below `md`, the leaf stands above the page with no rule beneath it, and only at `/` is it whole: wordmark, intro and the tabs stacked as on the leaf, with the theme toggle fixed in the bottom-right corner. On every other page it shrinks to the wordmark, which leads back home to the index; there is no menu. The section index is hidden. The post's sections become a native `<details>` disclosure between the plate and the body, ruled top and bottom, with a small-caps "In this post" summary. On contents lines the dates drop beneath the title and the dotted leader is hidden where space is short (the CV does this; the blog and projects lists still keep one line).
 
 Browser surfaces belong to the book: scrollbars are thin, `ink-faint` on transparent; the text selection is paper on ink; the focus outline is a 1px ink line 3px out.
 
@@ -291,7 +291,7 @@ A `pre` set like a typewritten insert: `wash` background, 1px `rule` top and bot
 
 ### Theme Toggle
 
-The leaf's foot: a woodcut of the sun and moon, the sun's wash showing by day and the crescent's by night, with hover hinting at the other. It is a button named "Dark theme" with `aria-pressed`, titled "Read by moonlight" or "Read by daylight". On phones it shows only on the home page, under the tabs. Two states are shown; three are stored: nothing (follow the system), or "light"/"dark" only while the choice differs from the system, so a later system change is never pinned. An inline head script applies `.dark` before first paint.
+The leaf's foot: a woodcut of the sun and moon, the sun's wash showing by day and the crescent's by night, with hover hinting at the other. It is a button named "Dark theme" with `aria-pressed`, titled "Read by moonlight" or "Read by daylight". On phones it shows only on the home page, fixed in the screen's bottom-right corner, 1.5rem in from each edge. Two states are shown; three are stored: nothing (follow the system), or "light"/"dark" only while the choice differs from the system, so a later system change is never pinned. An inline head script applies `.dark` before first paint.
 
 ### Mobile Sections Disclosure
 

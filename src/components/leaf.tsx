@@ -168,7 +168,11 @@ export function Leaf() {
 				<div className="hidden md:block">
 					<OpenPostSections />
 				</div>
-				<div className={`mt-auto px-6 pt-6 pb-6 ${phoneShown}`}>
+				{/* The sun and moon stand at the leaf's foot from md, and in the
+				    screen's corner on phones. */}
+				<div
+					className={`fixed right-6 bottom-6 md:static md:mt-auto md:px-6 md:pt-6 md:pb-6 ${phoneShown}`}
+				>
 					<ThemeToggle />
 				</div>
 			</div>
