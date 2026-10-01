@@ -131,6 +131,12 @@ function OpenPostSections() {
 	return <ThumbIndexSections key={post.slug} toc={post.toc} />;
 }
 
+// The hairline down the leaf's fore-edge. At / the right leaf is blank and
+// there is no fold to mark, so it is drawn only beside a page, and fades in
+// and out with the page turn's timing.
+const FORE_EDGE_CLASS =
+	"md:before:absolute md:before:inset-y-0 md:before:right-0 md:before:w-px md:before:bg-rule md:before:transition-opacity md:before:duration-360 md:before:ease-turn motion-reduce:before:transition-none";
+
 // From md the whole leaf stands beside every page. On phones it stands above
 // the page, and only the home page shows all of it: elsewhere it shrinks to
 // the name, which leads back home to the index.
@@ -138,9 +144,12 @@ export function Leaf() {
 	const atHome =
 		useMatch({ from: "/_book/", shouldThrow: false }) !== undefined;
 	const phoneShown = atHome ? "block" : "hidden md:block";
+	const foreEdge = atHome ? "md:before:opacity-0" : "";
 
 	return (
-		<aside className="relative book-leaf md:sticky md:top-0 md:h-dvh md:before:absolute md:before:inset-y-0 md:before:right-0 md:before:w-px md:before:bg-rule">
+		<aside
+			className={`relative book-leaf md:sticky md:top-0 md:h-dvh ${FORE_EDGE_CLASS} ${foreEdge}`}
+		>
 			<div className="flex flex-col md:h-full md:overflow-y-auto">
 				{/* From md the name's baseline lands 6.5rem down: 2.5rem of
 				    padding and the 4rem cap, whose foot is the baseline. The pages

@@ -98,6 +98,9 @@ body {
 	--text-wordmark--line-height: 1.25;
 	--text-wordmark-lg: 2.375rem;
 	--text-wordmark-lg--line-height: 1.2;
+	/* The page turn's curve (see the turn's keyframes below), for whatever
+	   moves with it. */
+	--ease-turn: cubic-bezier(0.2, 0, 0, 1);
 	--tracking-tight: -0.01em;
 	--color-paper: var(--paper);
 	--color-ink: var(--ink);

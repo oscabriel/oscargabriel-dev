@@ -150,7 +150,7 @@ Density is bookish, not sparse: a 65ch measure at 20px/1.6 (18px on phones, to k
 
 **Key Characteristics:**
 
-- Two leaves, one hairline between them; the left leaf (22rem) is sticky and never moves.
+- Two leaves, one hairline between them wherever the right leaf holds a page; the left leaf (22rem) is sticky and never moves.
 - Five neutral tokens (paper, ink, ink-soft, ink-faint, rule) derive every surface; no accent hue anywhere.
 - EB Garamond for everything that is not code: text in roman and italic, labels, dates and tabs in true small caps, figures old-style. Courier Prime for code only.
 - Ornament is limited to the manicule ☞, the dagger †, the pilcrow ¶ list mark and the arrow →, all drawn from EB Garamond so they look the same on every system.
@@ -229,7 +229,7 @@ A paper-and-ink palette: off-white (`#fafafa`) and dark grey (`#2a2722`) with th
 
 ## Layout
 
-The book is a two-column grid from the `md` breakpoint (48rem): `22rem minmax(0, 1fr)`. The left leaf is `position: sticky; top: 0; height: 100dvh` with its own vertical scroll, so it stays on screen across every navigation and every scroll position of the right leaf. A one-pixel pseudo-element hairline in `rule` runs the leaf's full height at its right edge.
+The book is a two-column grid from the `md` breakpoint (48rem): `22rem minmax(0, 1fr)`. The left leaf is `position: sticky; top: 0; height: 100dvh` with its own vertical scroll, so it stays on screen across every navigation and every scroll position of the right leaf. A one-pixel pseudo-element hairline in `rule` runs the leaf's full height at its right edge, but only beside a page: at `/` the right leaf is blank and there is no fold to mark. Turning to or from `/` fades it in or out over 360ms on the page turn's curve (the `ease-turn` token), and it changes at once under reduced motion.
 
 Inside the leaf: 1.5rem side gutters, 3rem top (2rem on mobile), the wordmark, a 30ch intro, the tabs at 0.375rem vertical padding, then the open post's section index beneath a dashed hairline with 2rem above, and the sun and moon theme toggle pushed to the foot with `margin-top: auto`.
 
