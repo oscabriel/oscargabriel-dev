@@ -20,10 +20,10 @@ export const Route = createFileRoute("/_book/")({
 	component: Home,
 });
 
-// The book lies open at a blank page; the left leaf is the whole welcome.
+// The book opens on a blank recto, facing the leaf that says who wrote it.
 function Home() {
 	return (
-		<main>
+		<main className="px-6 py-10 md:min-h-dvh md:px-12 md:py-16">
 			<h1 className="sr-only">{SITE_NAME}</h1>
 		</main>
 	);

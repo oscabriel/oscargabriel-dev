@@ -2,6 +2,7 @@ import { ORPCError } from "@orpc/client";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
 
+import { FoldedSections } from "@/components/table-of-contents";
 import { SITE_NAME, SITE_URL, mediaPath } from "@/lib/site";
 import { PostArticle } from "@/posts/post-article";
 import { orpc } from "@/rpc/client";
@@ -68,7 +69,10 @@ function PostPage() {
 	);
 
 	return (
-		<main className="px-6 py-10 md:px-12 md:py-16">
+		/* The pages pad so their title baselines meet the name's on the leaf,
+		   6.5rem down. A title's baseline falls 2.7rem below its padding; this
+		   one is a size larger and falls 3.375rem, so it pads a little less. */
+		<main className="px-6 py-10 md:px-12 md:pt-12.5 md:pb-16">
 			<PostArticle
 				title={post.title}
 				publishedAt={post.publishedAt}
@@ -77,27 +81,14 @@ function PostPage() {
 				html={post.html}
 				afterHeader={
 					post.toc.length > 0 ? (
-						<details className="mt-10 border-y border-rule py-3 md:hidden">
+						<details
+							key={slug}
+							className="mt-10 border-y border-rule py-3 md:hidden"
+						>
 							<summary className="cursor-pointer text-xs smallcaps text-ink-soft">
 								In this post
 							</summary>
-							<ol className="mt-3 space-y-1.5 text-sm">
-								{post.toc
-									.filter((entry) => entry.level <= 3)
-									.map((entry) => (
-										<li
-											key={entry.id}
-											className={entry.level === 3 ? "pl-4" : undefined}
-										>
-											<a
-												href={`#${entry.id}`}
-												className="text-ink-soft hover:text-ink"
-											>
-												{entry.text}
-											</a>
-										</li>
-									))}
-							</ol>
+							<FoldedSections toc={post.toc} />
 						</details>
 					) : undefined
 				}
@@ -155,7 +146,7 @@ function PostTurn({ slug }: { slug: string }) {
 
 function PostNotFound() {
 	return (
-		<main className="px-6 py-10 md:px-12 md:py-16">
+		<main className="px-6 py-10 md:px-12 md:pt-15.25 md:pb-16">
 			<h1 className="text-4xl leading-tight font-medium tracking-tight text-ink">
 				No such page
 			</h1>

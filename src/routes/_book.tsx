@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_book")({ component: Book });
 
 function Book() {
 	return (
-		<div className="min-h-dvh md:grid md:grid-cols-[22rem_minmax(0,1fr)]">
+		<div className="min-h-dvh md:grid md:grid-cols-[20rem_minmax(0,1fr)] lg:grid-cols-[22rem_minmax(0,1fr)]">
 			<Leaf />
 			<div className="min-w-0">
 				<Outlet />

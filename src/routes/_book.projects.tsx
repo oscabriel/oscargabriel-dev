@@ -37,16 +37,17 @@ function ProjectsPage() {
 	);
 
 	return (
-		<main className="px-6 py-10 md:px-12 md:py-16">
-			<h1 className="text-4xl leading-tight font-medium tracking-tight text-ink">
-				Projects
-			</h1>
+		<main className="px-6 py-10 md:px-12 md:pt-10 md:pb-16">
+			<h1 className="sr-only">Projects</h1>
 			{projects.length === 0 ? (
-				<p className="mt-6 text-ink-soft">Nothing built yet.</p>
+				<p className="text-ink-soft">Nothing built yet.</p>
 			) : (
-				<ol className="mt-10 max-w-prose">
+				<ol className="max-w-prose">
 					{projects.map((project) => (
-						<li key={project.id} className="border-t border-rule py-6">
+						<li
+							key={project.id}
+							className="border-t border-rule py-6 first:border-t-0 first:pt-0"
+						>
 							<div className="md:flex md:items-baseline md:gap-3">
 								<a
 									href={project.liveUrl}

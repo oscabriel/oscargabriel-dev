@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { CaretRightIcon } from "@phosphor-icons/react";
+import { useEffect, useId, useRef, useState } from "react";
 
 import type { TocEntry } from "@/db/schema";
 
@@ -58,78 +59,115 @@ function useActiveHeading(toc: readonly TocEntry[]): string | undefined {
 	return activeId;
 }
 
-// The ribbon: the section a reader was at when they last left this post.
-// Read once per page load so it stays put while they read on.
-const RIBBON_PREFIX = "ribbon:";
-const ribbons = new Map<string, string | null>();
-
-function readRibbon(postKey: string): string | null {
-	const cached = ribbons.get(postKey);
-	if (cached !== undefined) {
-		return cached;
-	}
-	let stored: string | null = null;
-	try {
-		stored = localStorage.getItem(RIBBON_PREFIX + postKey);
-	} catch {
-		// No storage, no ribbon.
-	}
-	ribbons.set(postKey, stored);
-	return stored;
-}
-
-function writeRibbon(postKey: string, id: string) {
-	try {
-		localStorage.setItem(RIBBON_PREFIX + postKey, id);
-	} catch {
-		// No storage, no ribbon.
-	}
-}
-
-function subscribeNever() {
-	return () => {
-		// The ribbon never moves during a visit.
-	};
-}
-
-function useRibbon(postKey: string, activeId: string | undefined) {
-	const ribbonId = useSyncExternalStore(
-		subscribeNever,
-		() => readRibbon(postKey),
-		() => null
-	);
-	useEffect(() => {
-		if (activeId !== undefined) {
-			writeRibbon(postKey, activeId);
-		}
-	}, [postKey, activeId]);
-	return ribbonId;
-}
-
-function TocLink({
-	entry,
-	active,
-	ribbon,
-}: {
-	entry: TocEntry;
-	active: boolean;
-	ribbon: boolean;
-}) {
+function TocLink({ entry, active }: { entry: TocEntry; active: boolean }) {
 	return (
 		<a
 			href={`#${entry.id}`}
 			aria-current={active ? "location" : undefined}
-			className="block py-1 text-ink-soft transition-colors hover:text-ink aria-[current=location]:text-ink"
+			className="block min-w-0 py-1 text-ink-soft transition-colors hover:text-ink aria-[current=location]:text-ink"
 		>
-			<span className={ribbon ? "border-l-2 border-ink pl-2" : undefined}>
-				{entry.text}
-				{ribbon && (
-					<span className="ml-2 text-xs text-ink-soft italic">
-						left off here
-					</span>
-				)}
-			</span>
+			{entry.text}
 		</a>
+	);
+}
+
+// Which sections are unfolded. Every section starts folded to its h2.
+function useOpenSections() {
+	const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
+	function toggle(id: string) {
+		setOpen((previous) => {
+			const next = new Set(previous);
+			if (!next.delete(id)) {
+				next.add(id);
+			}
+			return next;
+		});
+	}
+	return { open, toggle };
+}
+
+// A folded section answers for its hidden h3s: the reader's place falls back
+// to the h2 that holds them.
+function visibleId(
+	id: string | null | undefined,
+	sections: readonly TocSection[],
+	open: ReadonlySet<string>
+): string | undefined {
+	if (id === null || id === undefined) {
+		return undefined;
+	}
+	const holder = sections.find(({ children }) =>
+		children.some((child) => child.id === id)
+	);
+	if (holder === undefined || open.has(holder.entry.id)) {
+		return id;
+	}
+	return holder.entry.id;
+}
+
+// One h2 and, once unfolded, the h3s beneath it.
+function TocSectionItem({
+	section: { entry, children },
+	expanded,
+	onToggle,
+	activeId,
+}: {
+	section: TocSection;
+	expanded: boolean;
+	onToggle: () => void;
+	activeId?: string;
+}) {
+	// The leaf's index and the phone's list can both be in the page at once.
+	const listId = useId();
+	return (
+		<li>
+			<div className="flex items-baseline gap-1">
+				<TocLink entry={entry} active={entry.id === activeId} />
+				{children.length > 0 && (
+					<button
+						type="button"
+						aria-expanded={expanded}
+						aria-controls={listId}
+						aria-label={`Subsections of ${entry.text}`}
+						onClick={onToggle}
+						className="shrink-0 cursor-pointer self-center p-1 text-ink-faint transition-colors hover:text-ink"
+					>
+						<CaretRightIcon
+							aria-hidden="true"
+							className={`size-3 transition-transform duration-200 ease-out motion-reduce:transition-none ${expanded ? "rotate-90" : ""}`}
+						/>
+					</button>
+				)}
+			</div>
+			{children.length > 0 && (
+				<ul id={listId} hidden={!expanded} className="pl-4">
+					{children.map((child) => (
+						<li key={child.id}>
+							<TocLink entry={child} active={child.id === activeId} />
+						</li>
+					))}
+				</ul>
+			)}
+		</li>
+	);
+}
+
+// The phone's sections list, folded the same way but with no place kept.
+export function FoldedSections({ toc }: { toc: readonly TocEntry[] }) {
+	const { open, toggle } = useOpenSections();
+	return (
+		<ul className="mt-3 text-sm leading-snug">
+			{groupSections(toc).map((section) => (
+				<TocSectionItem
+					key={section.entry.id}
+					section={section}
+					expanded={open.has(section.entry.id)}
+					onToggle={() => {
+						toggle(section.entry.id);
+					}}
+				/>
+			))}
+		</ul>
 	);
 }
 
@@ -140,21 +178,34 @@ function useGlidingManicule(activeId: string | undefined) {
 	const markRef = useRef<HTMLSpanElement>(null);
 
 	useEffect(() => {
-		const list = listRef.current;
-		const mark = markRef.current;
-		if (list === null || mark === null) {
-			return;
+		function place() {
+			const list = listRef.current;
+			const mark = markRef.current;
+			if (list === null || mark === null) {
+				return;
+			}
+			const link =
+				activeId === undefined
+					? null
+					: list.querySelector<HTMLElement>(
+							`a[href="#${CSS.escape(activeId)}"]`
+						);
+			if (link === null) {
+				mark.style.opacity = "0";
+				return;
+			}
+			mark.style.transform = `translateY(${link.offsetTop - list.offsetTop}px)`;
+			mark.style.opacity = "1";
 		}
-		const link =
-			activeId === undefined
-				? null
-				: list.querySelector<HTMLElement>(`a[href="#${CSS.escape(activeId)}"]`);
-		if (link === null) {
-			mark.style.opacity = "0";
-			return;
+		place();
+		// Unfolding a section above the mark moves its row down.
+		const observer = new ResizeObserver(place);
+		if (listRef.current !== null) {
+			observer.observe(listRef.current);
 		}
-		mark.style.transform = `translateY(${link.offsetTop - list.offsetTop}px)`;
-		mark.style.opacity = "1";
+		return () => {
+			observer.disconnect();
+		};
 	}, [activeId]);
 
 	return { listRef, markRef };
@@ -162,20 +213,11 @@ function useGlidingManicule(activeId: string | undefined) {
 
 // The open post's headings, set into the leaf beneath the site tabs. The
 // manicule points at the section under the reader's eye.
-export function ThumbIndexSections({
-	toc,
-	postKey,
-}: {
-	toc: readonly TocEntry[];
-	postKey: string;
-}) {
-	const activeId = useActiveHeading(toc);
-	const ribbonId = useRibbon(postKey, activeId);
-	const { listRef, markRef } = useGlidingManicule(activeId);
+export function ThumbIndexSections({ toc }: { toc: readonly TocEntry[] }) {
 	const sections = groupSections(toc);
-	// A ribbon at the very first section marks nothing worth pointing at.
-	const ribbonAt =
-		ribbonId !== null && ribbonId !== sections[0]?.entry.id ? ribbonId : null;
+	const { open, toggle } = useOpenSections();
+	const activeId = visibleId(useActiveHeading(toc), sections, open);
+	const { listRef, markRef } = useGlidingManicule(activeId);
 
 	if (sections.length === 0) {
 		return null;
@@ -197,27 +239,16 @@ export function ThumbIndexSections({
 				☞
 			</span>
 			<ul ref={listRef} className="pl-6">
-				{sections.map(({ entry, children }) => (
-					<li key={entry.id}>
-						<TocLink
-							entry={entry}
-							active={entry.id === activeId}
-							ribbon={entry.id === ribbonAt}
-						/>
-						{children.length > 0 && (
-							<ul className="pl-4">
-								{children.map((child) => (
-									<li key={child.id}>
-										<TocLink
-											entry={child}
-											active={child.id === activeId}
-											ribbon={child.id === ribbonAt}
-										/>
-									</li>
-								))}
-							</ul>
-						)}
-					</li>
+				{sections.map((section) => (
+					<TocSectionItem
+						key={section.entry.id}
+						section={section}
+						expanded={open.has(section.entry.id)}
+						onToggle={() => {
+							toggle(section.entry.id);
+						}}
+						activeId={activeId}
+					/>
 				))}
 			</ul>
 		</nav>
