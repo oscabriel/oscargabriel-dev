@@ -7,10 +7,11 @@ import { orpc } from "@/rpc/client";
 const DESCRIPTION =
 	"Things Oscar Gabriel has built, each linked to its source.";
 
-const launchedFormat = new Intl.DateTimeFormat("en-US", {
+// A push is an instant; the month is the one it fell in where the author works.
+const monthFormat = new Intl.DateTimeFormat("en-US", {
 	year: "numeric",
 	month: "short",
-	timeZone: "UTC",
+	timeZone: "America/Los_Angeles",
 });
 
 export const Route = createFileRoute("/_book/projects")({
@@ -30,7 +31,7 @@ export const Route = createFileRoute("/_book/projects")({
 	component: ProjectsPage,
 });
 
-// The same contents page as the writing, with a launch month for the date.
+// The same contents page as the writing, newest push first.
 function ProjectsPage() {
 	const { data: projects } = useSuspenseQuery(
 		orpc.projects.list.queryOptions()
@@ -45,7 +46,7 @@ function ProjectsPage() {
 				<ol className="max-w-prose">
 					{projects.map((project) => (
 						<li
-							key={project.id}
+							key={project.repoName}
 							className="border-t border-rule py-6 first:border-t-0 first:pt-0"
 						>
 							<div className="md:flex md:items-baseline md:gap-3">
@@ -55,16 +56,20 @@ function ProjectsPage() {
 								>
 									{project.title}
 								</a>
-								<span
-									aria-hidden="true"
-									className="mb-1 hidden min-w-6 flex-1 border-b border-dotted border-ink-faint md:block"
-								/>
-								<time
-									dateTime={project.launchedAt.toISOString()}
-									className="mt-1 block shrink-0 text-xs smallcaps text-ink-soft md:mt-0 md:inline"
-								>
-									{launchedFormat.format(project.launchedAt)}
-								</time>
+								{project.updatedAt !== null && (
+									<>
+										<span
+											aria-hidden="true"
+											className="mb-1 hidden min-w-6 flex-1 border-b border-dotted border-ink-faint md:block"
+										/>
+										<time
+											dateTime={project.updatedAt.toISOString()}
+											className="mt-1 block shrink-0 text-xs smallcaps text-ink-soft md:mt-0 md:inline"
+										>
+											{monthFormat.format(project.updatedAt)}
+										</time>
+									</>
+								)}
 							</div>
 							<p className="mt-2 max-w-[60ch] justified leading-relaxed text-ink-soft">
 								{project.description}
@@ -76,7 +81,12 @@ function ProjectsPage() {
 								>
 									Source
 								</a>
-								{project.stats && <span>{project.stats.stars} stars</span>}
+								{project.stats && (
+									<span>
+										{project.stats.stars}{" "}
+										{project.stats.stars === 1 ? "star" : "stars"}
+									</span>
+								)}
 							</p>
 						</li>
 					))}

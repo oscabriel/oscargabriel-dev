@@ -1,10 +1,5 @@
 import { sql } from "drizzle-orm";
-import {
-	integer,
-	sqliteTable,
-	text,
-	uniqueIndex,
-} from "drizzle-orm/sqlite-core";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export interface TocEntry {
 	id: string;
@@ -46,19 +41,3 @@ export const Posts = sqliteTable("posts", {
 		.notNull()
 		.default(sql`(unixepoch())`),
 });
-
-export const Projects = sqliteTable(
-	"projects",
-	{
-		id: integer("id").primaryKey({ autoIncrement: true }),
-		title: text("title").notNull(),
-		description: text("description").notNull(),
-		liveUrl: text("live_url").notNull(),
-		repoOwner: text("repo_owner").notNull(),
-		repoName: text("repo_name").notNull(),
-		launchedAt: integer("launched_at", { mode: "timestamp" }).notNull(),
-	},
-	(table) => [
-		uniqueIndex("projects_repo_idx").on(table.repoOwner, table.repoName),
-	]
-);
