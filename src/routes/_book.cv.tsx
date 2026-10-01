@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
+import { LinkOut } from "@/components/link-out";
 import { CV_EDUCATION, CV_EXPERIENCE } from "@/cv/cv";
 import type { Employer, Role } from "@/cv/cv";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
@@ -146,12 +147,12 @@ function CvPage() {
 										{school.href === undefined ? (
 											school.credential
 										) : (
-											<a
+											<LinkOut
 												href={school.href}
 												className="underline decoration-ink-faint hover:decoration-ink"
 											>
 												{school.credential}
-											</a>
+											</LinkOut>
 										)}
 									</p>
 								)}

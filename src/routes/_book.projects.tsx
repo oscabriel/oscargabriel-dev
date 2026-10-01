@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
+import { LinkOut } from "@/components/link-out";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { orpc } from "@/rpc/client";
 
@@ -50,12 +51,12 @@ function ProjectsPage() {
 							className="border-t border-rule py-6 first:border-t-0 first:pt-0"
 						>
 							<div className="md:flex md:items-baseline md:gap-3">
-								<a
+								<LinkOut
 									href={project.liveUrl}
 									className="text-xl font-medium text-ink no-underline hover:underline"
 								>
 									{project.title}
-								</a>
+								</LinkOut>
 								{project.updatedAt !== null && (
 									<>
 										<span
@@ -75,12 +76,12 @@ function ProjectsPage() {
 								{project.description}
 							</p>
 							<p className="mt-2 flex gap-5 text-xs smallcaps text-ink-soft">
-								<a
+								<LinkOut
 									href={`https://github.com/${project.repoOwner}/${project.repoName}`}
 									className="underline decoration-ink-faint hover:text-ink"
 								>
 									Source
-								</a>
+								</LinkOut>
 								{project.stats && (
 									<span>
 										{project.stats.stars}{" "}

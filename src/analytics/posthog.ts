@@ -1,6 +1,6 @@
 import type { CaptureResult } from "posthog-js";
 
-import { SITE_URL } from "@/lib/site";
+import { SITE_HOST } from "@/lib/site";
 
 // Web analytics only. Page views and page leaves are the only events; every
 // other feature is switched off at init, so none of its lazy bundles load and
@@ -16,7 +16,6 @@ import { SITE_URL } from "@/lib/site";
 // once analytics are known to be on, and after the page, so its weight stays
 // out of the bundle every page waits for.
 const ADMIN_PREFIX = "/admin";
-const SITE_HOST = new URL(SITE_URL).hostname;
 
 // The admin area stays out of the public dashboard.
 function dropAdminEvents(event: CaptureResult | null): CaptureResult | null {

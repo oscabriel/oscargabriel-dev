@@ -225,6 +225,8 @@ A paper-and-ink palette: off-white (`#fafafa`) and dark grey (`#2a2722`) with th
 
 **The Underline Rule.** Links in running text are ink with a faint-ink underline that darkens to ink on hover (150ms). Navigational links (titles, tabs, "Turn to") carry no underline at rest and gain one on hover. Underline offset is 0.18em, thickness 1px.
 
+**The Link Out Rule.** A link to another site opens in a new tab, so the reader's place in the book stays open; the site's own pages, by path or by full `https://oscargabriel.dev` URL, stay in the tab. `leavesSite` in `src/lib/site.ts` decides. In components the link is `LinkOut` (`src/components/link-out.tsx`), which also tells screen readers "(opens in a new tab)"; in posts the `links-out` extension in `src/posts/render.ts` adds the target when the post is rendered.
+
 ## Layout
 
 The book is a two-column grid from the `md` breakpoint (48rem): `22rem minmax(0, 1fr)`. The left leaf is `position: sticky; top: 0; height: 100dvh` with its own vertical scroll, so it stays on screen across every navigation and every scroll position of the right leaf. A one-pixel pseudo-element hairline in `rule` runs the leaf's full height at its right edge.

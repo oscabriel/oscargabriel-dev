@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { HoverHand } from "@/components/hover-hand";
+import { LinkOut } from "@/components/link-out";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { orpc } from "@/rpc/client";
 import type { DiaryEntry as DiaryEntrySchema } from "@/watching/feed";
@@ -100,12 +101,12 @@ function Latest({ entry, recent }: { entry: DiaryEntry; recent: boolean }) {
 				)}
 				<div className="min-w-0">
 					<p className="text-3xl leading-tight font-medium text-balance text-ink">
-						<a
+						<LinkOut
 							href={entry.url}
 							className="text-ink no-underline hover:underline"
 						>
 							{entry.title}
-						</a>
+						</LinkOut>
 					</p>
 					{entry.year !== null && (
 						<p className="mt-1 text-ink-soft">
@@ -135,12 +136,12 @@ function DiaryLine({ entry }: { entry: DiaryEntry }) {
 		<li className="border-t border-rule py-3">
 			<div className="md:flex md:items-baseline md:gap-3">
 				<p className="min-w-0">
-					<a
+					<LinkOut
 						href={entry.url}
 						className="text-lg font-medium text-ink no-underline hover:underline"
 					>
 						{entry.title}
-					</a>
+					</LinkOut>
 					{entry.year !== null && (
 						<span className="text-ink-soft">, {entry.year}</span>
 					)}
@@ -193,12 +194,12 @@ function WatchingPage() {
 				<p className="justified text-ink-soft">
 					What I’ve watched lately and what I made of it, copied from my diary
 					on{" "}
-					<a
+					<LinkOut
 						href={data.profile}
 						className="text-ink underline decoration-ink-faint hover:decoration-ink"
 					>
 						Letterboxd
-					</a>
+					</LinkOut>
 					.
 				</p>
 				{latest === undefined ? (
@@ -228,7 +229,7 @@ function WatchingPage() {
 							))}
 						</section>
 						<p className="mt-16 border-t border-rule pt-6">
-							<a
+							<LinkOut
 								href={data.profile}
 								className="group text-ink no-underline hover:underline"
 							>
@@ -237,7 +238,7 @@ function WatchingPage() {
 								</span>
 								the whole diary on Letterboxd
 								<HoverHand />
-							</a>
+							</LinkOut>
 						</p>
 					</>
 				)}

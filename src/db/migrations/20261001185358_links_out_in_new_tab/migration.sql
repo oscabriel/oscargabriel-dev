@@ -1,0 +1,2 @@
+UPDATE `posts` SET `html` = replace(`html`, '<a href="http', '<a target="_blank" rel="noopener noreferrer" href="http') WHERE instr(`html`, '<a href="http') > 0;--> statement-breakpoint
+UPDATE `posts` SET `html` = replace(`html`, '<a target="_blank" rel="noopener noreferrer" href="https://oscargabriel.dev', '<a href="https://oscargabriel.dev') WHERE instr(`html`, '<a target="_blank" rel="noopener noreferrer" href="https://oscargabriel.dev') > 0;

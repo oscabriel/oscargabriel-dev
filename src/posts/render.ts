@@ -1,4 +1,8 @@
-import type { MarkdownExtension } from "@tanstack/markdown";
+import type {
+	HtmlRenderContext,
+	LinkNode,
+	MarkdownExtension,
+} from "@tanstack/markdown";
 import { headingCollectionExtension } from "@tanstack/markdown/extensions/headings";
 import { renderHtml } from "@tanstack/markdown/html";
 import { parseMarkdown } from "@tanstack/markdown/parser";
@@ -14,6 +18,7 @@ import { language as typescript } from "@twinkleplop/typescript";
 import GithubSlugger from "github-slugger";
 
 import type { TocEntry } from "@/db/schema";
+import { leavesSite } from "@/lib/site";
 
 export interface RenderedPost {
 	html: string;
@@ -48,7 +53,34 @@ const twinkleplop: MarkdownExtension = {
 			: undefined,
 };
 
-const extensions = [headingCollectionExtension(), twinkleplop];
+// Links out of the book open in a new tab (see leavesSite). The library
+// draws the link as usual and this adds the target in front of the href, so
+// the markup stays the library's own; the data migration
+// 20261001185358_links_out_in_new_tab rewrites stored posts to match.
+const LINK_OPEN = /^<a /u;
+const NEW_TAB_LINK_OPEN = '<a target="_blank" rel="noopener noreferrer" ';
+const drawing = new WeakSet<LinkNode>();
+
+// Seen again while the library draws it, the link falls through to it.
+function drawInNewTab(
+	link: LinkNode,
+	renderInline: HtmlRenderContext["renderInline"]
+): string {
+	drawing.add(link);
+	const html = renderInline(link);
+	drawing.delete(link);
+	return html.replace(LINK_OPEN, NEW_TAB_LINK_OPEN);
+}
+
+const linksOut: MarkdownExtension = {
+	name: "links-out",
+	renderHtml: (node, { renderInline }) =>
+		node.type === "link" && leavesSite(node.href) && !drawing.has(node)
+			? drawInNewTab(node, renderInline)
+			: undefined,
+};
+
+const extensions = [headingCollectionExtension(), twinkleplop, linksOut];
 
 export function renderPost(body: string): RenderedPost {
 	const slugger = new GithubSlugger();
