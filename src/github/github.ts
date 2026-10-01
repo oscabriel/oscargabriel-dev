@@ -60,7 +60,10 @@ export class GitHub extends Context.Service<GitHub>()("app/GitHub", {
 			})
 		);
 
-		// The cache is best effort: a failed read counts as a miss, and a failed write is ignored.
+		// Two keys per repo. `repo:` is the fresh copy, kept five minutes so the
+		// page doesn't call GitHub on every request. `repo-last:` never expires:
+		// it is what the page shows when GitHub can't be read. The cache is best
+		// effort: a failed read counts as a miss, and a failed write is ignored.
 		function readCache(key: string) {
 			return Effect.tryPromise(async () => await cache.get(key, "json")).pipe(
 				Effect.flatMap(Schema.decodeUnknownEffect(RepoStats)),
@@ -68,11 +71,15 @@ export class GitHub extends Context.Service<GitHub>()("app/GitHub", {
 			);
 		}
 
-		function writeCache(key: string, stats: typeof RepoStats.Type) {
+		function writeCache(
+			key: string,
+			stats: typeof RepoStats.Type,
+			ttlSeconds?: number
+		) {
+			const options =
+				ttlSeconds === undefined ? undefined : { expirationTtl: ttlSeconds };
 			return Effect.tryPromise(async () => {
-				await cache.put(key, JSON.stringify(stats), {
-					expirationTtl: CACHE_TTL_SECONDS,
-				});
+				await cache.put(key, JSON.stringify(stats), options);
 			}).pipe(Effect.ignore);
 		}
 
@@ -90,16 +97,43 @@ export class GitHub extends Context.Service<GitHub>()("app/GitHub", {
 			owner: string,
 			repo: string
 		) {
-			const key = `repo:${owner}/${repo}`;
-			const cached = yield* readCache(key);
+			const freshKey = `repo:${owner}/${repo}`;
+			const lastKey = `repo-last:${owner}/${repo}`;
+			const cached = yield* readCache(freshKey);
 			if (Option.isSome(cached)) {
 				return cached.value;
 			}
-			const stats = yield* fetchStats(owner, repo).pipe(
-				Effect.mapError((cause) => new GitHubError({ owner, repo, cause }))
+			return yield* fetchStats(owner, repo).pipe(
+				Effect.mapError((cause) => new GitHubError({ owner, repo, cause })),
+				Effect.tap((stats) =>
+					Effect.all([
+						writeCache(freshKey, stats, CACHE_TTL_SECONDS),
+						writeCache(lastKey, stats),
+					])
+				),
+				// GitHub down: serve the last stats it gave, and hold them as the
+				// fresh copy too so every request doesn't retry. Only a repo that
+				// has never been read fails.
+				Effect.catchTag("GitHubError", (error) =>
+					readCache(lastKey).pipe(
+						Effect.flatMap(
+							Option.match({
+								onNone: () => Effect.fail(error),
+								onSome: (last) =>
+									Effect.logWarning(
+										"GitHub unavailable, serving last known stats",
+										error
+									).pipe(
+										Effect.andThen(
+											writeCache(freshKey, last, CACHE_TTL_SECONDS)
+										),
+										Effect.as(last)
+									),
+							})
+						)
+					)
+				)
 			);
-			yield* writeCache(key, stats);
-			return stats;
 		});
 
 		return { repoStats };
