@@ -70,7 +70,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 // Analytics start in an effect, so never during server rendering.
 function RootDocument({ children }: { children: React.ReactNode }) {
 	useEffect(() => {
-		startAnalytics();
+		void startAnalytics();
 	}, []);
 
 	return (

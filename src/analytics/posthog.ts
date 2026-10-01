@@ -1,5 +1,4 @@
 import type { CaptureResult } from "posthog-js";
-import { posthog } from "posthog-js";
 
 import { SITE_URL } from "@/lib/site";
 
@@ -13,7 +12,9 @@ import { SITE_URL } from "@/lib/site";
 // is daily uniques and no country data. The key is public (it
 // ships in the bundle); an empty one keeps analytics off, which is how dev
 // runs, and so does any host but the site's own, so a preview deploy with
-// the key baked in stays out of the dashboard.
+// the key baked in stays out of the dashboard. The library is loaded only
+// once analytics are known to be on, and after the page, so its weight stays
+// out of the bundle every page waits for.
 const ADMIN_PREFIX = "/admin";
 const SITE_HOST = new URL(SITE_URL).hostname;
 
@@ -27,7 +28,7 @@ function dropAdminEvents(event: CaptureResult | null): CaptureResult | null {
 
 let started = false;
 
-export function startAnalytics(): void {
+export async function startAnalytics(): Promise<void> {
 	const key = import.meta.env.VITE_POSTHOG_KEY ?? "";
 	const off =
 		typeof window === "undefined" ||
@@ -38,6 +39,7 @@ export function startAnalytics(): void {
 		return;
 	}
 	started = true;
+	const { posthog } = await import("posthog-js");
 	posthog.init(key, {
 		api_host: "/ingest",
 		ui_host: "https://us.posthog.com",
