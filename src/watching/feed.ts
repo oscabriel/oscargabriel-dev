@@ -7,7 +7,6 @@ export const DiaryEntry = Schema.Struct({
 	year: Schema.NullOr(Schema.Int),
 	// Half stars out of five, so 3.5 is ★★★½; null when the watch went unrated.
 	rating: Schema.NullOr(Schema.Finite),
-	liked: Schema.Boolean,
 	rewatch: Schema.Boolean,
 	// The calendar day the member logged, "YYYY-MM-DD", with no time or zone.
 	watchedOn: Schema.String,
@@ -120,7 +119,6 @@ function parseItem(item: string): typeof DiaryEntry.Type | null {
 		title,
 		year: year !== null && Number.isInteger(year) ? year : null,
 		rating: toRating(tag(item, "letterboxd:memberRating")),
-		liked: tag(item, "letterboxd:memberLike") === "Yes",
 		rewatch: tag(item, "letterboxd:rewatch") === "Yes",
 		watchedOn,
 		url,
