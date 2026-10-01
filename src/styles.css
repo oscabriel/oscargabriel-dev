@@ -388,21 +388,6 @@ body {
 	hyphenate-limit-chars: 7 3 3;
 }
 
-/* A list marked with pilcrows, as the article's lists are. */
-@utility pilcrows {
-	list-style: none;
-	padding-left: 1.5em;
-	& > li::before {
-		content: "¶";
-		position: absolute;
-		margin-left: -1.5em;
-		color: var(--ink-faint);
-	}
-	& > li + li {
-		margin-top: 0.35em;
-	}
-}
-
 /* The page turn. The left leaf holds still; the right leaf slides in from
    the fore-edge. One authored moment, and none under reduced motion.
    The turn runs on the root snapshot, which is only ever viewport-sized:
