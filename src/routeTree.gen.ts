@@ -13,7 +13,9 @@ import { Route as BookRouteImport } from './routes/_book'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as BookIndexRouteImport } from './routes/_book.index'
 import { Route as BookCvRouteImport } from './routes/_book.cv'
+import { Route as BookGalleryRouteImport } from './routes/_book.gallery'
 import { Route as BookProjectsRouteImport } from './routes/_book.projects'
+import { Route as BookWatchingRouteImport } from './routes/_book.watching'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as MediaSplatRouteImport } from './routes/media.$'
 import { Route as BookBlogIndexRouteImport } from './routes/_book.blog.index'
@@ -42,9 +44,19 @@ const BookCvRoute = BookCvRouteImport.update({
   path: '/cv',
   getParentRoute: () => BookRoute,
 } as any)
+const BookGalleryRoute = BookGalleryRouteImport.update({
+  id: '/gallery',
+  path: '/gallery',
+  getParentRoute: () => BookRoute,
+} as any)
 const BookProjectsRoute = BookProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
+  getParentRoute: () => BookRoute,
+} as any)
+const BookWatchingRoute = BookWatchingRouteImport.update({
+  id: '/watching',
+  path: '/watching',
   getParentRoute: () => BookRoute,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -92,7 +104,9 @@ export interface FileRoutesByFullPath {
   '/': typeof BookIndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/cv': typeof BookCvRoute
+  '/gallery': typeof BookGalleryRoute
   '/projects': typeof BookProjectsRoute
+  '/watching': typeof BookWatchingRoute
   '/media/$': typeof MediaSplatRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/$slug': typeof BookBlogSlugRoute
@@ -104,7 +118,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/cv': typeof BookCvRoute
+  '/gallery': typeof BookGalleryRoute
   '/projects': typeof BookProjectsRoute
+  '/watching': typeof BookWatchingRoute
   '/media/$': typeof MediaSplatRoute
   '/': typeof BookIndexRoute
   '/admin': typeof AdminIndexRoute
@@ -120,7 +136,9 @@ export interface FileRoutesById {
   '/_book': typeof BookRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
   '/_book/cv': typeof BookCvRoute
+  '/_book/gallery': typeof BookGalleryRoute
   '/_book/projects': typeof BookProjectsRoute
+  '/_book/watching': typeof BookWatchingRoute
   '/media/$': typeof MediaSplatRoute
   '/_book/': typeof BookIndexRoute
   '/admin/': typeof AdminIndexRoute
@@ -137,7 +155,9 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/cv'
+    | '/gallery'
     | '/projects'
+    | '/watching'
     | '/media/$'
     | '/admin/'
     | '/blog/$slug'
@@ -149,7 +169,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/cv'
+    | '/gallery'
     | '/projects'
+    | '/watching'
     | '/media/$'
     | '/'
     | '/admin'
@@ -164,7 +186,9 @@ export interface FileRouteTypes {
     | '/_book'
     | '/admin'
     | '/_book/cv'
+    | '/_book/gallery'
     | '/_book/projects'
+    | '/_book/watching'
     | '/media/$'
     | '/_book/'
     | '/admin/'
@@ -214,11 +238,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BookCvRouteImport
       parentRoute: typeof BookRoute
     }
+    '/_book/gallery': {
+      id: '/_book/gallery'
+      path: '/gallery'
+      fullPath: '/gallery'
+      preLoaderRoute: typeof BookGalleryRouteImport
+      parentRoute: typeof BookRoute
+    }
     '/_book/projects': {
       id: '/_book/projects'
       path: '/projects'
       fullPath: '/projects'
       preLoaderRoute: typeof BookProjectsRouteImport
+      parentRoute: typeof BookRoute
+    }
+    '/_book/watching': {
+      id: '/_book/watching'
+      path: '/watching'
+      fullPath: '/watching'
+      preLoaderRoute: typeof BookWatchingRouteImport
       parentRoute: typeof BookRoute
     }
     '/admin/': {
@@ -282,7 +320,9 @@ declare module '@tanstack/react-router' {
 
 interface BookRouteChildren {
   BookCvRoute: typeof BookCvRoute
+  BookGalleryRoute: typeof BookGalleryRoute
   BookProjectsRoute: typeof BookProjectsRoute
+  BookWatchingRoute: typeof BookWatchingRoute
   BookIndexRoute: typeof BookIndexRoute
   BookBlogSlugRoute: typeof BookBlogSlugRoute
   BookBlogIndexRoute: typeof BookBlogIndexRoute
@@ -290,7 +330,9 @@ interface BookRouteChildren {
 
 const BookRouteChildren: BookRouteChildren = {
   BookCvRoute: BookCvRoute,
+  BookGalleryRoute: BookGalleryRoute,
   BookProjectsRoute: BookProjectsRoute,
+  BookWatchingRoute: BookWatchingRoute,
   BookIndexRoute: BookIndexRoute,
   BookBlogSlugRoute: BookBlogSlugRoute,
   BookBlogIndexRoute: BookBlogIndexRoute,

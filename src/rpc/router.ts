@@ -4,6 +4,7 @@ import * as Schema from "effect/Schema";
 import { Posts } from "@/posts/posts";
 import { Projects } from "@/projects/projects";
 import { pub } from "@/rpc/base";
+import { Letterboxd } from "@/watching/letterboxd";
 
 export const router = {
 	projects: {
@@ -30,5 +31,14 @@ export const router = {
 						)
 					);
 			}),
+	},
+	watching: {
+		// Provided here rather than in AppLayer, so no other page builds it.
+		list: pub.effect(function* () {
+			return yield* Effect.gen(function* () {
+				const letterboxd = yield* Letterboxd;
+				return yield* letterboxd.diary();
+			}).pipe(Effect.provide(Letterboxd.layer));
+		}),
 	},
 };
