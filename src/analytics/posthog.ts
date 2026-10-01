@@ -2,9 +2,12 @@ import type { CaptureResult } from "posthog-js";
 
 import { SITE_HOST } from "@/lib/site";
 
-// Web analytics only. Page views and page leaves are the only events; every
-// other feature is switched off at init, so none of its lazy bundles load and
-// no /flags request is made. Events go through /ingest on this origin (see
+// Web analytics only. Page views, page leaves and web vitals are the only
+// events; every other feature is switched off at init, so none of its lazy
+// bundles load and no /flags request is made. Web vitals (LCP, CLS, FCP, INP)
+// come without attribution, the lighter of PostHog's two web-vitals bundles,
+// which is imported with the library rather than fetched from PostHog, since
+// external loading is off. Events go through /ingest on this origin (see
 // src/routes/ingest.$.ts) so they stay first-party. Cookieless: nothing is
 // stored in the browser, so there is no banner; PostHog counts a visitor by a
 // daily hash of IP and user agent, which needs Cookieless tracking switched on
@@ -38,7 +41,12 @@ export async function startAnalytics(): Promise<void> {
 		return;
 	}
 	started = true;
-	const { posthog } = await import("posthog-js");
+	// The web-vitals bundle registers itself where PostHog looks for it, so
+	// it must be in place before init.
+	const [{ posthog }] = await Promise.all([
+		import("posthog-js"),
+		import("posthog-js/dist/web-vitals"),
+	]);
 	posthog.init(key, {
 		api_host: "/ingest",
 		ui_host: "https://us.posthog.com",
@@ -50,7 +58,11 @@ export async function startAnalytics(): Promise<void> {
 		autocapture: false,
 		capture_dead_clicks: false,
 		capture_heatmaps: false,
-		capture_performance: false,
+		capture_performance: {
+			web_vitals: true,
+			web_vitals_attribution: false,
+			network_timing: false,
+		},
 		capture_exceptions: false,
 		disable_session_recording: true,
 		disable_surveys: true,
