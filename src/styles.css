@@ -41,6 +41,32 @@ body {
 	margin: 0;
 }
 
+/* The criblé O as the name's initial. A flex baseline puts the SVG's bottom
+   edge on the line; the field inside its outer rule ends 4.6 of the viewBox's
+   172.8 units higher, so the block drops by that much to stand on the line. */
+.initial-on-field {
+	transform: translateY(calc(4.6 / 172.8 * 100%));
+}
+
+/* The ink of the sun and moon at the leaf's foot: a mask over the current
+   colour, so the woodcut's strokes take the theme's ink. Forced colours
+   would blank the background and lose the drawing, so the mask keeps its
+   paint there. */
+.sun-moon-ink {
+	mask-image: url("./components/sun-moon/ink.webp");
+	mask-size: 100% 100%;
+	mask-repeat: no-repeat;
+	forced-color-adjust: none;
+}
+
+/* No rubber-band bounce past the page's edges under a mouse or trackpad.
+   Touch keeps its native overscroll, so pull to refresh still works. */
+@media (pointer: fine) {
+	html {
+		overscroll-behavior: none;
+	}
+}
+
 @theme inline {
 	--font-serif: "EB Garamond", Garamond, "Iowan Old Style", Georgia, serif;
 	--font-mono: "Courier Prime", "Courier New", monospace;

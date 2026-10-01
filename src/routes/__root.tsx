@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
+import inkUrl from "@/components/sun-moon/ink.webp";
 import { SITE_NAME } from "@/lib/site";
 import { THEME_SCRIPT } from "@/theme/theme";
 
@@ -31,6 +32,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 				{
 					rel: "stylesheet",
 					href: appCss,
+				},
+				// The sun and moon's ink is a CSS mask, which the browser would only
+				// fetch after the stylesheet; preloaded, it lands with the washes.
+				{
+					rel: "preload",
+					as: "image",
+					href: inkUrl,
 				},
 			],
 			scripts: [{ children: THEME_SCRIPT }],

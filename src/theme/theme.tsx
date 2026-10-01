@@ -1,4 +1,7 @@
+import { cn } from "cn";
 import { useSyncExternalStore } from "react";
+
+import { SunMoon } from "@/components/sun-moon";
 
 // Two states shown, three stored: nothing (follow the system), "light" or
 // "dark" (an override). Storing a value that matches the system would pin it
@@ -72,24 +75,37 @@ function choose(next: boolean) {
 	apply(next);
 }
 
-// A line of type, not an icon: it names the light you would switch to.
+// The sun and moon at the foot of the leaf: the sun's wash shows by day and
+// the crescent's by night, and hovering hints at the other. The server can't
+// know the theme, so the pressed state and the title wait for the client;
+// the washes don't, since the theme class is set before first paint.
 export function ThemeToggle({ className }: { className?: string }) {
 	const dark = useResolvedDark();
 
-	if (dark === undefined) {
-		return <span className={className} aria-hidden="true" />;
+	function handleClick() {
+		if (dark !== undefined) {
+			choose(!dark);
+		}
+	}
+
+	let title: string | undefined;
+	if (dark !== undefined) {
+		title = dark ? "Read by daylight" : "Read by moonlight";
 	}
 
 	return (
 		<button
 			type="button"
-			className={className}
-			aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
-			onClick={() => {
-				choose(!dark);
-			}}
+			aria-label="Dark theme"
+			aria-pressed={dark}
+			title={title}
+			onClick={handleClick}
+			className={cn(
+				"group block w-fit cursor-pointer text-ink transition-colors motion-reduce:transition-none dark:text-ink-soft dark:hover:text-ink dark:focus-visible:text-ink",
+				className
+			)}
 		>
-			{dark ? "Read by daylight" : "Read by lamplight"}
+			<SunMoon className="h-28 w-fit md:h-40" />
 		</button>
 	);
 }
