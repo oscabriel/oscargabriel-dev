@@ -106,7 +106,7 @@ function Introduction({ className }: { className?: string }) {
 			<p className="justified text-sm leading-relaxed text-ink">
 				Full-stack engineer learning in public. Drawn to software with clear
 				interfaces, a human point of view, and a malleable heart. Constantly
-				testing the limits of coding agents. Based in Portland, OR.
+				testing the limits of coding agents. Currently based in Portland, OR.
 			</p>
 			<p className="mt-3 text-sm leading-relaxed text-ink">
 				Looking for my next role.
