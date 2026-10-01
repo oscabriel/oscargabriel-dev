@@ -64,7 +64,7 @@ function TocLink({ entry, active }: { entry: TocEntry; active: boolean }) {
 		<a
 			href={`#${entry.id}`}
 			aria-current={active ? "location" : undefined}
-			className="block min-w-0 py-1 text-ink-soft transition-colors hover:text-ink aria-[current=location]:text-ink"
+			className="block min-w-0 py-1 text-ink"
 		>
 			{entry.text}
 		</a>
@@ -228,7 +228,7 @@ export function ThumbIndexSections({ toc }: { toc: readonly TocEntry[] }) {
 			aria-labelledby="toc-label"
 			className="relative mt-8 border-t border-dashed border-rule px-6 pt-5 text-sm leading-snug"
 		>
-			<p id="toc-label" className="mb-3 text-xs smallcaps text-ink-soft">
+			<p id="toc-label" className="mb-3 text-xs smallcaps text-ink">
 				In this post
 			</p>
 			<span

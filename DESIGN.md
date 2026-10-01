@@ -113,20 +113,14 @@ spacing:
   leaf-width: "22rem"
 components:
   thumb-tab:
-    textColor: "{colors.ink-soft}"
+    textColor: "{colors.ink}"
     typography: "{typography.tab}"
     padding: "0.375rem 1.25rem 0.375rem 1.5rem"
     rounded: "{rounded.none}"
-  thumb-tab-hover:
-    textColor: "{colors.ink}"
-  thumb-tab-current:
-    textColor: "{colors.ink}"
   index-link:
-    textColor: "{colors.ink-soft}"
+    textColor: "{colors.ink}"
     typography: "{typography.marginalia}"
     padding: "0.25rem 0"
-  index-link-current:
-    textColor: "{colors.ink}"
   turn-link:
     textColor: "{colors.ink}"
     typography: "{typography.body}"
@@ -184,7 +178,7 @@ A paper-and-ink palette: off-white (`#fafafa`) and dark grey (`#2a2722`) with th
 ### Neutral
 
 - **Paper** (`paper`, night: `paper-night`): the page. The only background the public site uses; also `--background`, `--card`, `--popover` and `--sidebar` in the shadcn mapping. The current thumb tab paints its right edge in paper to break the hairline.
-- **Soft ink** (`ink-soft`, night: `ink-soft-night`): marginalia. The intro paragraph, summaries, dates, labels, captions, inactive tabs and index entries, code punctuation and comments, the colophon, `--muted-foreground` and `--ring`.
+- **Soft ink** (`ink-soft`, night: `ink-soft-night`): marginalia on the right leaf. Summaries, dates, labels, captions, code punctuation and comments, the colophon, `--muted-foreground` and `--ring`.
 - **Faint ink** (`ink-faint`, night: `ink-faint-night`): the lightest mark that still reads. Underlines at rest, dotted leaders on contents pages, the ¶ list mark, blockquote and `hr` rules, the hidden heading anchor.
 - **Rule** (`rule`, night: `rule-night`): hairlines. The leaf's fore-edge, the tab hairline, contents-entry separators, code-block top and bottom rules, table cell rules, the mobile header band border, `--border` and `--input`.
 - **Wash** (`wash`, night: `wash-night`): the only filled surface, a neutral grey a step off the paper. Code-block background (`--twp-background` is a shade of it) and the shadcn `--secondary`, `--muted`, `--accent` and `--sidebar-accent` for admin controls. Never used as a card or panel on the public site.
@@ -225,10 +219,10 @@ A paper-and-ink palette: off-white (`#fafafa`) and dark grey (`#2a2722`) with th
 - **Entry** (500, 1.5rem): a post, project, employer or school title on a contents page, followed by a dotted leader. A CV role under an employer is italic at 1.375rem.
 - **Body** (400, 1.25rem/1.6 from `md`, 1.125rem below, measure `max-w-prose` = 65ch): the article and all page text by default (`body` is `text-base`). Paragraph spacing is 1.25em; heading-to-first-paragraph is 0.75em.
 - **Body lead** (400, 1.375rem, 1.625, soft ink): the CV summary.
-- **Marginalia** (400, 1.0625rem, soft ink): the leaf intro, index entries, captions (italic).
+- **Marginalia** (400, 1.0625rem): the leaf intro and index entries in ink; captions in italic soft ink.
 - **Aside** (400 italic, 0.9375rem, soft ink): the colophon and "left off here".
 - **Tab** (400, 1.0625rem, all small caps, 0.06em): the thumb index tabs.
-- **Label** (400, 0.9375rem, all small caps, 0.06em, soft ink): dates, "Plate I", "In this post", "Turn to", table headers, project link rows, CV skill labels. Set with the `smallcaps` utility.
+- **Label** (400, 0.9375rem, all small caps, 0.06em, soft ink): dates, "Plate I", "Turn to", table headers, project link rows, CV skill labels. Set with the `smallcaps` utility.
 - **Code** (Courier 400, 0.875rem, 1.6 in blocks; 0.8em inline to match Garamond's x-height, ink): typewritten inserts between ruled lines.
 
 ### Named Rules
@@ -273,11 +267,11 @@ The recurring silhouette is the notch: the current thumb tab breaking the fore-e
 
 ### Thumb Index (navigation)
 
-A vertical stack of stepped tabs on the leaf's fore-edge, in Garamond small caps (1.0625rem, 0.06em), soft ink at rest, ink on hover with a colour transition. Each tab carries a 1px right border; the current tab (`aria-current="page"`) turns its border paper so it visibly cuts the hairline, and a manicule ☞ fades in at its left (a fixed 1rem slot keeps the labels aligned). The GitHub tab is an external link and never shows the manicule. On mobile the tabs sit in a horizontal row under the wordmark and the current one is underlined with a 1px ink bottom border instead. Tabs: Writing, Projects, CV, GitHub. There is no Email tab by decision.
+A vertical stack of stepped tabs on the leaf's fore-edge, in Garamond small caps (1.0625rem, 0.06em), in ink at rest and on hover alike: the leaf is the author's own page, so its text is never muted. Each tab carries a 1px right border; the current tab (`aria-current="page"`) turns its border paper so it visibly cuts the hairline, and a manicule ☞ fades in at its left (a fixed 1rem slot keeps the labels aligned). The GitHub tab is an external link and never shows the manicule. On mobile the tabs sit in a horizontal row under the wordmark and the current one is underlined with a 1px ink bottom border instead. Tabs: Writing, Projects, CV, GitHub. There is no Email tab by decision.
 
 ### Section Index (thumb index, open post)
 
-When a post is open the leaf grows "In this post" beneath a dashed hairline: a nested list of the article's `h2`s with `h3`s indented 1rem beneath them, in marginalia with 0.25rem vertical padding per link. A single manicule glides (`transition: all 300ms ease-out`) to the entry whose heading is the last one above a line a quarter of the way down the viewport; when the page can scroll no further it points at the last heading. The active link is ink, the rest soft ink. The ribbon is a 2px ink left bar with 0.5rem padding on the entry the reader was last at, followed by "left off here" in the aside style; it is read once per visit from `localStorage["ribbon:<slug>"]` and does not move while the reader reads on. A ribbon at the first section is not shown. Clicking an entry is a hash-only navigation and never plays the page turn (see Page Turn).
+When a post is open the leaf grows "In this post" beneath a dashed hairline: a nested list of the article's `h2`s with `h3`s indented 1rem beneath them, in marginalia with 0.25rem vertical padding per link, under an "In this post" label in ink small caps. A single manicule glides (`transition: all 300ms ease-out`) to the entry whose heading is the last one above a line a quarter of the way down the viewport; when the page can scroll no further it points at the last heading. Every link is ink; the manicule alone marks the active one. The ribbon is a 2px ink left bar with 0.5rem padding on the entry the reader was last at, followed by "left off here" in the aside style; it is read once per visit from `localStorage["ribbon:<slug>"]` and does not move while the reader reads on. A ribbon at the first section is not shown. Clicking an entry is a hash-only navigation and never plays the page turn (see Page Turn).
 
 ### Contents Entry
 
@@ -311,7 +305,7 @@ The leaf's foot: "Set in EB Garamond & Courier Prime." in the aside style, and b
 
 ### Mobile Sections Disclosure
 
-On small screens the section index becomes a `<details>` between the plate and the body: 1px `rule` top and bottom, 0.75rem padding, a small-caps "In this post" summary, then an ordered list in marginalia with `h3`s indented 1rem, links soft ink to ink on hover.
+On small screens the section index becomes a `<details>` between the plate and the body: 1px `rule` top and bottom, 0.75rem padding, a small-caps "In this post" summary, then an ordered list in marginalia with `h3`s indented 1rem, links in ink.
 
 ### Article Body (`.post-body`)
 

@@ -27,7 +27,7 @@ const ELSEWHERE = [
 // The groups stack as the index, with a gap between the two: down the leaf's
 // edge from md, and in the menu under the running header on phones.
 const TAB_CLASS =
-	"group relative flex items-baseline py-1.5 pr-5 pl-6 smallcaps text-sm text-ink-soft transition-colors hover:text-ink aria-[current=page]:text-ink";
+	"group relative flex items-baseline py-1.5 pr-5 pl-6 smallcaps text-sm text-ink";
 
 // At rest a tab's label lines up with the name. The current one steps right
 // as the manicule slides in to point at it; both move by transform alone, so
@@ -177,13 +177,13 @@ export function Leaf() {
 				<div className="flex items-center justify-between gap-4 px-6 py-4 md:block md:pt-10 md:pb-6">
 					<div>
 						<Wordmark />
-						<p className="mt-5 hidden justified text-sm leading-relaxed text-ink-soft md:block">
+						<p className="mt-5 hidden justified text-sm leading-relaxed text-ink md:block">
 							Rising software engineer sharing what I learn and build online.
 							Focused on learning strategic programming from a beginner
 							perspective. Constantly experimenting with agents. Based in
 							Portland, OR.
 						</p>
-						<p className="mt-3 hidden text-sm leading-relaxed text-ink-soft md:block">
+						<p className="mt-3 hidden text-sm leading-relaxed text-ink md:block">
 							Currently looking for something new.
 						</p>
 					</div>
@@ -194,7 +194,7 @@ export function Leaf() {
 						aria-expanded={open}
 						aria-controls={MENU_ID}
 						onClick={handleToggle}
-						className="-mr-2 cursor-pointer p-2 text-ink-soft transition-colors hover:text-ink md:hidden"
+						className="-mr-2 cursor-pointer p-2 text-ink md:hidden"
 					>
 						{open ? (
 							<XIcon aria-hidden="true" className="size-6" />
