@@ -39,14 +39,14 @@ export const CV_EXPERIENCE: Employer[] = [
 				start: "2024-07",
 				end: "2026-09",
 				summary:
-					"Nominally the job was sending out the daily plans. In practice I also did the plant’s operations analysis and built its tools, and planning for roasting, packaging, cold brew, logistics, procurement and sales ran through my desk.",
+					"Ostensibly the job was sending out the daily plans. In practice I did operations analysis and built internal tooling from scratch. The tooling included scripted spreadsheets and bespoke apps—production trackers, manager dashboards, small utilities—using handmade datasets and the careful craft for good software I’ve been learning on my own.",
 			},
 			{
 				title: "Manufacturing Operations Specialist",
 				start: "2023-01",
 				end: "2024-07",
 				summary:
-					"Collected the machines’ output data by hand every day, and used it to cut unplanned downtime 15% and bag waste by half.",
+					"Operated machines and collected data by hand to conduct efficiency experiments, and used it to cut unplanned downtime 15% and bag waste by half.",
 			},
 		],
 	},
@@ -74,7 +74,7 @@ export const CV_EXPERIENCE: Employer[] = [
 				summary: "Portraits and art projects for paying clients.",
 			},
 			{
-				title: "Math and Statistics Tutor",
+				title: "Calculus and Statistics Tutor",
 				start: "2014-08",
 				end: "2017-03",
 				place: "University of New Orleans, part-time",
@@ -90,7 +90,7 @@ export const CV_EDUCATION: Schooling[] = [
 		credential: "Full-Stack on Cloudflare course",
 		end: "2025-08",
 		detail:
-			"Building production apps on Workers, D1, Durable Objects and Workflows.",
+			"Building production apps on Workers, D1, Durable Objects, Queues and Workflows.",
 		href: "https://learn.backpine.com/",
 	},
 	{
@@ -98,13 +98,13 @@ export const CV_EDUCATION: Schooling[] = [
 		credential: "BI Analytics certificate",
 		start: "2023-08",
 		end: "2023-12",
-		detail: "SQL, Jupyter Notebook, Tableau, Power BI.",
+		detail: "SQL, Python, Jupyter Notebook, Power BI, Tableau.",
 	},
 	{
 		name: "University of New Orleans",
 		start: "2014-08",
 		end: "2016-05",
 		detail:
-			"Mathematics coursework: Calculus I–III, Mathematical Statistics, Applied Statistics, Programming in C++, Technical Writing.",
+			"Math and CS coursework: Calculus I–III, Mathematical Statistics, Applied Statistics, Programming in Java and C++, Data Structures, Technical Writing.",
 	},
 ];
