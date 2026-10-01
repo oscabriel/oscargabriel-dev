@@ -25,7 +25,8 @@ export function PostArticle({
 	return (
 		<article className="max-w-prose">
 			<header>
-				<h1 className="text-4xl leading-tight font-medium tracking-tight text-balance text-ink md:text-5xl">
+				{/* Set flush on both edges like the body, but never hyphenated. */}
+				<h1 className="text-justify text-4xl leading-tight font-medium tracking-tight text-ink md:text-5xl">
 					{title}
 				</h1>
 				{publishedAt && (

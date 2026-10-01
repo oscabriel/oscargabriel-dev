@@ -159,7 +159,7 @@ function PostNotFound() {
 			<h1 className="text-4xl leading-tight font-medium tracking-tight text-ink">
 				No such page
 			</h1>
-			<p className="mt-4 max-w-prose text-ink-soft">
+			<p className="mt-4 max-w-prose justified text-ink-soft">
 				There’s no post at this address. It may have been unpublished, or the
 				link was copied wrong.
 			</p>

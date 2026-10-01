@@ -379,6 +379,15 @@ body {
 	letter-spacing: 0.06em;
 }
 
+/* Prose set as a block, flush on both edges. Hyphenation keeps the word
+   spaces even on a narrow measure; it relies on <html lang="en">. */
+@utility justified {
+	text-align: justify;
+	text-wrap: pretty;
+	hyphens: auto;
+	hyphenate-limit-chars: 7 3 3;
+}
+
 /* A list marked with pilcrows, as the article's lists are. */
 @utility pilcrows {
 	list-style: none;
@@ -526,6 +535,19 @@ body {
 		& li::marker {
 			color: var(--ink-soft);
 		}
+		& :is(p, li, blockquote, figcaption) {
+			@apply justified;
+		}
+		/* List items are short and full of code and names, which leaves
+		   justification nothing to work with, so they set ragged. */
+		& li,
+		& li p {
+			text-align: start;
+		}
+		/* A URL has no syllables to break at. */
+		& :is(code, a[href^="http"]) {
+			hyphens: manual;
+		}
 		& blockquote {
 			padding-left: 1.25em;
 			border-left: 1px solid var(--ink-faint);
@@ -548,8 +570,7 @@ body {
 		}
 		& pre.twinkleplop {
 			overflow-x: auto;
-			border-top: 1px solid var(--rule);
-			border-bottom: 1px solid var(--rule);
+			border: 1px solid var(--rule);
 			background: var(--twp-background);
 			padding: 1rem 1.25rem;
 			font-size: 0.875rem;

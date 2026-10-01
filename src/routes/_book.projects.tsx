@@ -65,7 +65,7 @@ function ProjectsPage() {
 									{launchedFormat.format(project.launchedAt)}
 								</time>
 							</div>
-							<p className="mt-2 max-w-[60ch] leading-relaxed text-ink-soft">
+							<p className="mt-2 max-w-[60ch] justified leading-relaxed text-ink-soft">
 								{project.description}
 							</p>
 							<p className="mt-2 flex gap-5 text-xs smallcaps text-ink-soft">
