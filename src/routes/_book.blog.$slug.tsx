@@ -1,9 +1,11 @@
 import { ORPCError } from "@orpc/client";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 import { FoldedSections } from "@/components/table-of-contents";
 import { SITE_NAME, SITE_URL, mediaPath } from "@/lib/site";
+import { markOpened } from "@/posts/opened";
 import { PostArticle } from "@/posts/post-article";
 import { orpc } from "@/rpc/client";
 
@@ -67,6 +69,9 @@ function PostPage() {
 	const { data: post } = useSuspenseQuery(
 		orpc.posts.bySlug.queryOptions({ input: { slug } })
 	);
+	useEffect(() => {
+		markOpened(slug);
+	}, [slug]);
 
 	return (
 		/* The pages pad so their title baselines meet the name's on the leaf,

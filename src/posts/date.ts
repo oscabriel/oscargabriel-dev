@@ -9,3 +9,15 @@ const publishedFormat = new Intl.DateTimeFormat("en-US", {
 export function formatPublishedAt(date: Date): string {
 	return publishedFormat.format(date);
 }
+
+// Contents lines abbreviate the month so a title keeps most of the line.
+const contentsFormat = new Intl.DateTimeFormat("en-US", {
+	year: "numeric",
+	month: "short",
+	day: "numeric",
+	timeZone: "UTC",
+});
+
+export function formatContentsDate(date: Date): string {
+	return contentsFormat.format(date);
+}
