@@ -104,12 +104,12 @@ function Introduction({ className }: { className?: string }) {
 	return (
 		<div className={className}>
 			<p className="justified text-sm leading-relaxed text-ink">
-				Rising software engineer sharing what I learn and build online. Focused
-				on learning strategic programming from a beginner perspective.
-				Constantly experimenting with agents. Based in Portland, OR.
+				Full-stack engineer learning in public. Drawn to software with clear
+				interfaces, a human point of view, and a malleable heart. Constantly
+				testing the limits of coding agents. Based in Portland, OR.
 			</p>
 			<p className="mt-3 text-sm leading-relaxed text-ink">
-				Currently looking for something new.
+				Looking for my next role.
 			</p>
 		</div>
 	);
