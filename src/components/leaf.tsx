@@ -99,14 +99,16 @@ const NAME_AFTER_INITIAL = SITE_NAME.slice(1);
 
 function Wordmark() {
 	return (
-		<p className="text-2xl md:text-3xl">
+		<p className="text-wordmark md:text-wordmark-lg">
 			<Link
 				to="/"
 				aria-label={`${SITE_NAME}, home`}
 				className="inline-flex items-baseline gap-1 text-ink transition-colors duration-200 hover:text-ink-soft focus-visible:text-ink-soft"
 			>
 				<DropCapO className="initial-on-field h-10 w-auto shrink-0 md:h-16" />
-				<span aria-hidden="true">{NAME_AFTER_INITIAL}</span>
+				<span aria-hidden="true" className="font-medium">
+					{NAME_AFTER_INITIAL}
+				</span>
 			</Link>
 		</p>
 	);

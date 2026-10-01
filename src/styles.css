@@ -91,6 +91,13 @@ body {
 	--text-4xl--line-height: 1.1;
 	--text-5xl: 3.5rem;
 	--text-5xl--line-height: 1.05;
+	/* The name beside the ornamental O, between steps of the scale on
+	   purpose: 2xl and 3xl read too slight beside the block, 3xl and 4xl
+	   compete with it. */
+	--text-wordmark: 1.9375rem;
+	--text-wordmark--line-height: 1.25;
+	--text-wordmark-lg: 2.375rem;
+	--text-wordmark-lg--line-height: 1.2;
 	--tracking-tight: -0.01em;
 	--color-paper: var(--paper);
 	--color-ink: var(--ink);
