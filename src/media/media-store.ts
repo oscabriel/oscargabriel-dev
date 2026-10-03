@@ -1,6 +1,6 @@
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
-import * as Encoding from "effect/Encoding";
+import * as Hex from "effect/encoding/Hex";
 import * as Layer from "effect/Layer";
 import * as Schema from "effect/Schema";
 
@@ -43,7 +43,7 @@ export class MediaStore extends Context.Service<MediaStore>()(
 				const digest = yield* Effect.promise(
 					async () => await crypto.subtle.digest("SHA-256", bytes)
 				);
-				const key = `images/${Encoding.encodeHex(new Uint8Array(digest))}.${type.extension}`;
+				const key = `images/${Hex.encode(new Uint8Array(digest))}.${type.extension}`;
 				// Object first, then row: a row never points at a missing object.
 				yield* Effect.promise(
 					async () =>
