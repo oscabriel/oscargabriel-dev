@@ -623,3 +623,257 @@ body {
 		}
 	}
 }
+
+/* The Roll of Arms' cards and field. These are things laid on the page,
+   not the page: printed card stock with its own ink, a shadow under it, and
+   a card's rounded corners. The page reverses at night; a card doesn't, so
+   its stock and ink stay as they are in both themes. */
+.arms-card,
+.arms-field {
+	--stock: #ebe3cf;
+	--stock-edge: rgb(150 118 64 / 0.22);
+	--stock-ink: #2a2722;
+	--stock-ink-soft: #6b6255;
+	--grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .25 0 0 0 0 .14 0 0 0 .7 -.22'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+	color: var(--stock-ink);
+	forced-color-adjust: none;
+}
+
+.arms-card {
+	--lift:
+		0 1px 1px rgb(42 39 34 / 0.18), 0 6px 12px -4px rgb(42 39 34 / 0.22),
+		0 18px 36px -12px rgb(42 39 34 / 0.3);
+	container-type: inline-size;
+	position: relative;
+	display: block;
+	aspect-ratio: 7 / 12;
+	perspective: 1400px;
+	font-variant-numeric: lining-nums;
+}
+.dark .arms-card {
+	--lift:
+		0 1px 1px rgb(0 0 0 / 0.4), 0 8px 16px -4px rgb(0 0 0 / 0.45),
+		0 22px 40px -12px rgb(0 0 0 / 0.6);
+}
+
+/* Tipped toward the pointer; the variables are set as it moves. */
+.arms-card-tilt {
+	position: absolute;
+	inset: 0;
+	transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+	transform-style: preserve-3d;
+	transition: transform 200ms ease-out;
+}
+
+.arms-card-inner {
+	position: absolute;
+	inset: 0;
+	transform-style: preserve-3d;
+	transition: transform 800ms cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+.arms-card-inner[data-turned="true"] {
+	transform: rotateY(180deg);
+}
+
+.arms-card-face {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	padding: 4.5cqw;
+	border-radius: 3.5cqw;
+	background-color: var(--stock);
+	background-image: var(--grain);
+	background-size: 180px 180px;
+	box-shadow:
+		inset 0 0 7cqw var(--stock-edge),
+		var(--lift);
+	backface-visibility: hidden;
+	overflow: hidden;
+}
+.arms-card-back {
+	transform: rotateY(180deg);
+}
+
+/* Light catching the stock where the pointer is. */
+.arms-card-face::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	background: radial-gradient(
+		circle at var(--glare-x, 50%) var(--glare-y, 20%),
+		rgb(255 255 255 / 0.55),
+		transparent 60%
+	);
+	mix-blend-mode: soft-light;
+	opacity: var(--glare, 0);
+	transition: opacity 300ms ease-out;
+	pointer-events: none;
+}
+
+/* The printed border inside the margin. */
+.arms-card-frame {
+	position: relative;
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	min-height: 0;
+	border: max(1px, 0.7cqw) solid var(--stock-ink);
+}
+
+/* The card's own type, in container units so it scales with the card. */
+.arms-card-numeral {
+	display: block;
+	border-bottom: 1px solid currentColor;
+	padding-block: 1.6cqw;
+	text-align: center;
+	font-size: 7cqw;
+	line-height: 1;
+	letter-spacing: 0.08em;
+}
+.arms-card-name {
+	display: block;
+	overflow: hidden;
+	border-top: 1px solid currentColor;
+	padding: 1.2cqw 2cqw 2cqw;
+	text-align: center;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 7.5cqw;
+	line-height: 1;
+	font-variant-caps: all-small-caps;
+	letter-spacing: 0.06em;
+}
+.arms-card-reverse {
+	padding: 3.5cqw 4cqw;
+	text-align: center;
+}
+.arms-card-class {
+	display: block;
+	font-size: 9cqw;
+	font-weight: 500;
+	line-height: 1.25;
+}
+.arms-card-drawn {
+	display: block;
+	margin-top: 0.5cqw;
+	color: var(--stock-ink-soft);
+	font-size: 4.6cqw;
+	font-style: italic;
+}
+.arms-card-stats {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 2.4cqw 2cqw;
+	margin-top: 4cqw;
+	border-block: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+	padding-block: 3.5cqw;
+}
+.arms-card-stat {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	font-size: 8cqw;
+	line-height: 1;
+}
+.arms-card-label,
+.arms-card-power {
+	display: block;
+	color: var(--stock-ink-soft);
+	font-size: 4.2cqw;
+	line-height: 1;
+	font-variant-caps: all-small-caps;
+	letter-spacing: 0.06em;
+}
+.arms-card-label {
+	margin-top: 0.8cqw;
+}
+/* Skills and traits fill the middle of the back, centred in what's left. */
+.arms-card-lore {
+	display: flex;
+	flex-direction: column;
+	gap: 2.2cqw;
+	margin-block: auto;
+	padding-top: 3cqw;
+}
+.arms-card-skill {
+	display: block;
+	font-size: 4.6cqw;
+	line-height: 1.25;
+	font-variant-caps: all-small-caps;
+	letter-spacing: 0.06em;
+}
+.arms-card-flavor {
+	display: block;
+	color: var(--stock-ink-soft);
+	font-size: calc(4.2 / 4.6 * 1em);
+	font-style: italic;
+	font-variant-caps: normal;
+	letter-spacing: normal;
+}
+.arms-card-trait,
+.arms-card-weapon {
+	display: block;
+	font-size: 4.2cqw;
+	font-style: italic;
+	line-height: 1.375;
+}
+.arms-card-trait-label {
+	font-style: normal;
+	font-variant-caps: all-small-caps;
+	letter-spacing: 0.06em;
+}
+.arms-card-weapon {
+	margin-top: 3cqw;
+	font-size: 4.4cqw;
+}
+.arms-card-power {
+	margin-top: 1.5cqw;
+}
+
+/* The trump's picture: one-bit, so it keeps its pixels when enlarged. */
+.arms-card-art {
+	display: block;
+	flex: 1;
+	min-height: 0;
+	width: 100%;
+	object-fit: cover;
+	image-rendering: pixelated;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.arms-card-tilt {
+		transform: none;
+	}
+	.arms-card-tilt,
+	.arms-card-inner,
+	.arms-card-face::after {
+		transition: none;
+	}
+}
+
+/* The field a bout is played on: the same stock, laid landscape. */
+.arms-field {
+	position: relative;
+	padding: 0.75rem;
+	border-radius: 0.375rem;
+	background-color: var(--stock);
+	background-image: var(--grain);
+	background-size: 180px 180px;
+	box-shadow:
+		inset 0 0 2.5rem var(--stock-edge),
+		0 1px 1px rgb(42 39 34 / 0.18),
+		0 8px 20px -8px rgb(42 39 34 / 0.3);
+}
+.dark .arms-field {
+	box-shadow:
+		inset 0 0 2.5rem rgb(150 118 64 / 0.2),
+		0 1px 1px rgb(0 0 0 / 0.4),
+		0 10px 24px -8px rgb(0 0 0 / 0.6);
+}
+.arms-field canvas {
+	display: block;
+	margin-inline: auto;
+	image-rendering: pixelated;
+}

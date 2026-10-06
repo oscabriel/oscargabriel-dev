@@ -4,10 +4,12 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
+import { trumpAt } from "@/arms/arcana";
 import { CALLINGS, JUDGED_STATS, TOP_SCORE } from "@/arms/judge";
 import type { JudgedStat } from "@/arms/judge";
 import { SLOTS, STATS } from "@/arms/set-world";
 import type { Slot, Stat } from "@/arms/set-world";
+import { TurnableCard } from "@/components/arms-card";
 import { LinkOut } from "@/components/link-out";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { orpc } from "@/rpc/client";
@@ -199,6 +201,40 @@ function Heading({ arms }: { arms: ArmsSheet }) {
 	);
 }
 
+function Card({ arms }: { arms: ArmsSheet }) {
+	const trump = trumpAt(arms.trump);
+	const drawn = arms.reading?.trump;
+	const { character, sheet } = arms;
+	return (
+		<figure className="mt-10 flex flex-col gap-x-8 gap-y-5 sm:flex-row sm:items-end">
+			<TurnableCard
+				host={arms.host}
+				trump={arms.trump}
+				back={{
+					className: character.class.name,
+					stats: sheet.stats,
+					skills: character.traits.skills,
+					blessings:
+						character.traits.advantages?.map((trait) => trait.name) ?? [],
+					curses:
+						character.traits.disadvantages?.map((trait) => trait.name) ?? [],
+					weapon: arms.weapon,
+					powerRating: sheet.powerRating,
+				}}
+				className="w-full max-w-[21rem] shrink-0"
+			/>
+			<figcaption className="text-sm leading-relaxed text-ink-soft italic sm:pb-2">
+				<span className="mr-3 text-xs smallcaps not-italic">Plate I</span>
+				{trump.numeral}, {trump.name}: {trump.meaning}.{" "}
+				{drawn === undefined
+					? `It fell to ${arms.host} by fate.`
+					: `The judge drew it for ${arms.host} (${percent(drawn.probabilities[drawn.choice] ?? 0)}).`}{" "}
+				Turn the card over for what it holds.
+			</figcaption>
+		</figure>
+	);
+}
+
 function Plate({ arms }: { arms: ArmsSheet }) {
 	if (arms.plate === null) {
 		return null;
@@ -213,7 +249,7 @@ function Plate({ arms }: { arms: ArmsSheet }) {
 				className="aspect-[16/10] w-full border border-rule object-cover object-top"
 			/>
 			<figcaption className="mt-3 text-sm text-ink-soft italic">
-				<span className="mr-3 text-xs smallcaps not-italic">Plate I</span>
+				<span className="mr-3 text-xs smallcaps not-italic">Plate II</span>
 				<LinkOut
 					href={arms.url}
 					className="underline decoration-ink-faint hover:text-ink hover:decoration-ink"
@@ -393,13 +429,13 @@ function Traits({ arms }: { arms: ArmsSheet }) {
 				))}
 				{traits.advantages?.map((trait) => (
 					<li key={trait.name} className={HEDERA_ITEM}>
-						<span className="text-ink-soft italic">Blessed with </span>
+						<span className="text-xs smallcaps text-ink-soft">Blessed </span>
 						{trait.name}.
 					</li>
 				))}
 				{traits.disadvantages?.map((trait) => (
 					<li key={trait.name} className={HEDERA_ITEM}>
-						<span className="text-ink-soft italic">Cursed with </span>
+						<span className="text-xs smallcaps text-ink-soft">Cursed </span>
 						{trait.name}.
 					</li>
 				))}
@@ -458,9 +494,10 @@ function SheetPage() {
 		<main className="px-6 py-10 md:px-12 md:pt-10 md:pb-16">
 			<article className="max-w-prose">
 				<Heading arms={arms} />
-				<Plate arms={arms} />
+				<Card arms={arms} />
 				<Stats arms={arms} />
 				<TheReading arms={arms} />
+				<Plate arms={arms} />
 				<Equipment arms={arms} />
 				<Traits arms={arms} />
 				<Challenges arms={arms} />

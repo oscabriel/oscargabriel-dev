@@ -3,8 +3,12 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
 import * as Option from "effect/Option";
 import * as Schema from "effect/Schema";
+import { useMemo } from "react";
 
 import type { Paragraph } from "@/arms/chronicle";
+import type { FieldBout } from "@/arms/field";
+import { ArmsCard } from "@/components/arms-card";
+import { ArmsField } from "@/components/arms-field";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { orpc } from "@/rpc/client";
 
@@ -102,8 +106,19 @@ function BoutPage() {
 	const { data } = useSuspenseQuery(
 		orpc.arms.bout.queryOptions({ input: { host, rival, bout } })
 	);
-	const { fight } = data;
+	const { fight, challenger, defender } = data;
 	const hosts = [host, rival] as const;
+	const field = useMemo<FieldBout>(
+		() => ({
+			number: bout,
+			fighters: [challenger, defender],
+			events: fight.events,
+			winner: fight.winner,
+			maxHealth: fight.maxHealth,
+			maxStamina: fight.maxStamina,
+		}),
+		[bout, challenger, defender, fight]
+	);
 	const [opening] = fight.paragraphs;
 	const closing = fight.paragraphs.at(-1);
 	const exchanges = fight.paragraphs.slice(1, -1);
@@ -123,6 +138,26 @@ function BoutPage() {
 				<p className="mt-2 text-xs smallcaps text-ink-soft">
 					The {boutName(bout)} bout, {fight.turns} turns
 				</p>
+
+				<div className="mt-10 flex items-center justify-center gap-6 sm:gap-10">
+					{[challenger, defender].map((corner, index) => (
+						<Link
+							key={corner.host}
+							to="/arms/$host"
+							params={{ host: corner.host }}
+							aria-label={`${corner.host}’s arms`}
+							className={`group block w-32 sm:w-40 ${index === 0 ? "-rotate-3" : "rotate-3"}`}
+						>
+							<ArmsCard
+								host={corner.host}
+								trump={corner.trump}
+								className="transition-transform duration-300 group-hover:-translate-y-1 motion-reduce:transition-none"
+							/>
+						</Link>
+					))}
+				</div>
+
+				<ArmsField key={`${host}|${rival}|${bout}`} bout={field} />
 
 				{opening !== undefined && (
 					<Told

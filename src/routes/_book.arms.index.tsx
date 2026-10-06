@@ -6,7 +6,9 @@ import {
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
+import { fnv1a } from "@/arms/host";
 import { CALLINGS } from "@/arms/judge";
+import { ArmsCard } from "@/components/arms-card";
 import { LinkOut } from "@/components/link-out";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { adminOrpc } from "@/rpc/admin-client";
@@ -40,6 +42,13 @@ function callingLabel(calling: string | null): string | null {
 		return null;
 	}
 	return Object.hasOwn(CALLINGS, calling) ? calling.replace("-", " ") : null;
+}
+
+// Cards laid by hand never sit quite square; each keeps its own angle.
+const LAID = ["-rotate-2", "-rotate-1", "rotate-1", "rotate-2", "rotate-0"];
+
+function layAt(host: string): string {
+	return LAID[fnv1a(host) % LAID.length] ?? "rotate-0";
 }
 
 // Reading a site takes a while: the browser draws it, Set rolls eight
@@ -143,33 +152,31 @@ function RollPage() {
 					No arms have been entered yet.
 				</p>
 			) : (
-				<ol className="mt-10 max-w-prose">
+				<ol className="mt-12 grid max-w-prose grid-cols-2 gap-x-6 gap-y-12 sm:grid-cols-3 sm:gap-x-8">
 					{roll.map((entry) => {
 						const calling = callingLabel(entry.calling);
 						return (
-							<li
-								key={entry.host}
-								className="border-t border-rule py-6 first:border-t-0 first:pt-0"
-							>
-								<div className="md:flex md:items-baseline md:gap-3">
-									<Link
-										to="/arms/$host"
-										params={{ host: entry.host }}
-										className="text-xl font-medium text-ink no-underline hover:underline"
-									>
-										{entry.host}
-									</Link>
-									<span
-										aria-hidden="true"
-										className="mb-1 hidden min-w-6 flex-1 border-b border-dotted border-ink-faint md:block"
+							<li key={entry.host}>
+								<Link
+									to="/arms/$host"
+									params={{ host: entry.host }}
+									className="group block no-underline"
+								>
+									<ArmsCard
+										host={entry.host}
+										trump={entry.trump}
+										className={`transition-transform duration-300 ease-out group-hover:-translate-y-1.5 group-hover:rotate-0 group-focus-visible:rotate-0 motion-reduce:transition-none ${layAt(entry.host)}`}
 									/>
-									<span className="mt-1 block shrink-0 text-xs smallcaps text-ink-soft md:mt-0 md:inline">
-										Power {numberFormat.format(entry.powerRating)}
+									<span className="mt-4 block text-ink group-hover:underline">
+										{entry.host}
 									</span>
-								</div>
-								<p className="mt-1 text-ink-soft italic">
+								</Link>
+								<p className="mt-0.5 text-sm text-ink-soft italic">
 									{entry.className}
 									{calling !== null && `, ${calling}`}
+								</p>
+								<p className="mt-0.5 text-xs smallcaps text-ink-soft">
+									Power {numberFormat.format(entry.powerRating)}
 								</p>
 							</li>
 						);
@@ -186,7 +193,16 @@ function RollPage() {
 					Set
 				</LinkOut>
 				, by Jimmy Lee. The sites are read by Cloudflare’s Clef, which answers
-				only in probabilities and never writes a word of what’s here.
+				only in probabilities and never writes a word of what’s here. The cards
+				are the twenty-two trumps of the Rider–Waite–Smith tarot, drawn by
+				Pamela Colman Smith in 1909 and long in the public domain, from the{" "}
+				<LinkOut
+					href="https://commons.wikimedia.org/wiki/Category:Rider-Waite_tarot_deck_(Roses_%26_Lilies)"
+					className="underline decoration-ink-faint hover:text-ink hover:decoration-ink"
+				>
+					scans on Wikimedia Commons
+				</LinkOut>
+				.
 			</p>
 		</main>
 	);

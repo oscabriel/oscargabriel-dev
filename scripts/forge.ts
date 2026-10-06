@@ -23,6 +23,7 @@ import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import * as Schema from "effect/Schema";
 
+import { trumpAt } from "@/arms/arcana";
 import { contender, fight } from "@/arms/bout";
 import type { Paragraph } from "@/arms/chronicle";
 import { Clef, ClefError, ClefResponse } from "@/arms/clef";
@@ -171,6 +172,11 @@ function sheetLines(forged: Forged): string[] {
 		"",
 		`   candidates  ${forged.candidates.map((candidate, index) => `${index === forged.castIndex ? "☞ " : ""}${candidate.className}`).join(" · ")}`,
 	];
+	const trump = trumpAt(forged.trump);
+	const drawn = reading?.trump;
+	lines.push(
+		`   drawn       ${trump.numeral} ${trump.name}${drawn === undefined ? " (by fate)" : ` (${percent(drawn.probabilities[drawn.choice] ?? 0)})`}`
+	);
 	if (reading === null) {
 		lines.push("   fate alone: no reading, the first candidate, no orbs");
 	} else {

@@ -6,10 +6,13 @@ import type * as HttpClient from "effect/http/HttpClient";
 import * as Layer from "effect/Layer";
 import * as Schema from "effect/Schema";
 
+import { dealtTrump } from "@/arms/arcana";
 import { contender, fight } from "@/arms/bout";
+import type { Contender } from "@/arms/bout";
 import { CLEF_MODEL, Clef, ClefError, ClefResponse } from "@/arms/clef";
 import { forge } from "@/arms/forge";
 import { NotASite, parseSite } from "@/arms/host";
+import type { Reading } from "@/arms/judge";
 import { Character, SetWorld } from "@/arms/set-world";
 import {
 	Camera,
@@ -85,6 +88,25 @@ const cameraBinding = Layer.succeed(Camera, {
 		),
 });
 
+// What the field shows of a fighter: its card and the thing in its hand.
+function corner(
+	arms: {
+		readonly host: string;
+		readonly className: string;
+		readonly seed: number;
+		readonly reading: Reading | null;
+	},
+	tale: Contender
+) {
+	return {
+		host: arms.host,
+		className: arms.className,
+		trump: dealtTrump(arms.reading, arms.seed),
+		weapon: tale.weapon,
+		mainhand: tale.mainhand,
+	};
+}
+
 export class RollOfArms extends Context.Service<RollOfArms>()(
 	"arms/RollOfArms",
 	{
@@ -92,16 +114,22 @@ export class RollOfArms extends Context.Service<RollOfArms>()(
 			const db = yield* Db;
 
 			const list = Effect.fn("RollOfArms.list")(function* () {
-				return yield* db.query.Arms.findMany({
+				const rows = yield* db.query.Arms.findMany({
 					columns: {
 						host: true,
+						seed: true,
 						className: true,
 						calling: true,
 						powerRating: true,
+						reading: true,
 						forgedAt: true,
 					},
 					orderBy: { forgedAt: "desc" },
 				}).pipe(Effect.orDie);
+				return rows.map(({ seed, reading, ...row }) => ({
+					...row,
+					trump: dealtTrump(reading, seed),
+				}));
 			});
 
 			const load = Effect.fn("RollOfArms.load")(function* (host: string) {
@@ -126,6 +154,8 @@ export class RollOfArms extends Context.Service<RollOfArms>()(
 					url: arms.url,
 					seed: arms.seed,
 					castIndex: arms.castIndex,
+					trump: dealtTrump(arms.reading, arms.seed),
+					weapon: contender(host, arms.character, arms.sheet).weapon,
 					candidates: arms.candidates,
 					contentVersion: arms.contentVersion,
 					character: arms.character,
@@ -150,17 +180,14 @@ export class RollOfArms extends Context.Service<RollOfArms>()(
 			) {
 				const challenger = yield* load(host);
 				const defender = yield* load(rival);
+				const tales = [
+					contender(host, challenger.character, challenger.sheet),
+					contender(rival, defender.character, defender.sheet),
+				] as const;
 				return {
-					challenger: {
-						host: challenger.host,
-						className: challenger.className,
-					},
-					defender: { host: defender.host, className: defender.className },
-					fight: fight(
-						contender(host, challenger.character, challenger.sheet),
-						contender(rival, defender.character, defender.sheet),
-						number
-					),
+					challenger: corner(challenger, tales[0]),
+					defender: corner(defender, tales[1]),
+					fight: fight(tales[0], tales[1], number),
 				};
 			});
 

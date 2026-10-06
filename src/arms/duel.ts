@@ -15,6 +15,8 @@ export interface TurnEvent {
 	readonly damage: number;
 	// The other fighter's health after the turn.
 	readonly healthAfter: number;
+	// Both fighters' stamina after the turn, challenger first.
+	readonly staminaAfter: readonly [number, number];
 }
 
 export interface Bout {
@@ -23,6 +25,7 @@ export interface Bout {
 	readonly winner: Corner | null;
 	readonly health: readonly [number, number];
 	readonly maxHealth: readonly [number, number];
+	readonly maxStamina: readonly [number, number];
 }
 
 type Attributes = Readonly<Record<string, number>>;
@@ -82,6 +85,12 @@ function enter(attributes: Attributes): FighterState {
 	};
 }
 
+function staminas(
+	fighters: readonly [FighterState, FighterState]
+): readonly [number, number] {
+	return [fighters[0].stamina, fighters[1].stamina];
+}
+
 function nextAt(fighter: FighterState): number {
 	return (fighter.ordinal * MILLIS_PER_RATE_UNIT) / fighter.rateUnits;
 }
@@ -100,6 +109,7 @@ export function duel(
 	const random = mulberry32(seed);
 	const fighters = [enter(challenger), enter(defender)] as const;
 	const maxHealth = [fighters[0].health, fighters[1].health] as const;
+	const maxStamina = [fighters[0].maxStamina, fighters[1].maxStamina] as const;
 	const events: TurnEvent[] = [];
 	let clock = 0;
 
@@ -134,6 +144,7 @@ export function duel(
 				critical: false,
 				damage: 0,
 				healthAfter: target.health,
+				staminaAfter: staminas(fighters),
 			});
 			continue;
 		}
@@ -152,6 +163,7 @@ export function duel(
 				critical: false,
 				damage: 0,
 				healthAfter: target.health,
+				staminaAfter: staminas(fighters),
 			});
 			continue;
 		}
@@ -176,6 +188,7 @@ export function duel(
 			critical,
 			damage,
 			healthAfter: target.health,
+			staminaAfter: staminas(fighters),
 		});
 	}
 
@@ -190,5 +203,6 @@ export function duel(
 		winner,
 		health: [fighters[0].health, fighters[1].health],
 		maxHealth,
+		maxStamina,
 	};
 }

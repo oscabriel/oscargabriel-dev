@@ -62,7 +62,7 @@ const TOOLS_BY_ACTION = [
 	["whirl", "sling"],
 ] as const;
 
-type Action = (typeof TOOLS_BY_ACTION)[number][0];
+export type Action = (typeof TOOLS_BY_ACTION)[number][0];
 
 const ACTION_BY_TOOL = new Map<string, Action>(
 	TOOLS_BY_ACTION.flatMap(([action, tools]) =>
@@ -136,9 +136,22 @@ function teller(seed: number): Teller {
 	};
 }
 
+// How a mainhand is used, after Set's Anima System; anything unknown is
+// swung like a club.
+export function actionOf(mainhand: string): Action {
+	return ACTION_BY_TOOL.get(mainhand) ?? "bash";
+}
+
+// The plainest way to say a blow, for a running log.
+export function strikeVerb(mainhand: string): string {
+	const [first = "strikes at"] = VERBS[actionOf(mainhand)];
+	return first.replace(MAINHAND_SLOT, mainhand);
+}
+
 function verb(tale: FighterTale, tell: Teller): string {
-	const action = ACTION_BY_TOOL.get(tale.mainhand) ?? "bash";
-	return tell.pick(VERBS[action]).replace(MAINHAND_SLOT, tale.mainhand);
+	return tell
+		.pick(VERBS[actionOf(tale.mainhand)])
+		.replace(MAINHAND_SLOT, tale.mainhand);
 }
 
 function other(corner: Corner): Corner {

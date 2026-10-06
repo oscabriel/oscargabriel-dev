@@ -1,7 +1,7 @@
 import { chronicle, toolIn } from "@/arms/chronicle";
 import type { FighterTale, Paragraph } from "@/arms/chronicle";
 import { duel } from "@/arms/duel";
-import type { Corner } from "@/arms/duel";
+import type { Corner, TurnEvent } from "@/arms/duel";
 import type { Sheet } from "@/arms/forge";
 import { fnv1a } from "@/arms/host";
 import type { Character } from "@/arms/set-world";
@@ -39,6 +39,9 @@ export interface Fight {
 	readonly turns: number;
 	readonly health: readonly [number, number];
 	readonly maxHealth: readonly [number, number];
+	readonly maxStamina: readonly [number, number];
+	// Every turn, for playing the bout out.
+	readonly events: readonly TurnEvent[];
 	readonly paragraphs: readonly Paragraph[];
 }
 
@@ -55,6 +58,8 @@ export function fight(
 		turns: result.events.length,
 		health: result.health,
 		maxHealth: result.maxHealth,
+		maxStamina: result.maxStamina,
+		events: result.events,
 		// The words have their own seed, so retelling never changes the fight.
 		paragraphs: chronicle(
 			result,

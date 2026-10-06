@@ -1,5 +1,6 @@
 import * as Effect from "effect/Effect";
 
+import { dealtTrump } from "@/arms/arcana";
 import { Clef } from "@/arms/clef";
 import { deriveSeed, hostSeed } from "@/arms/host";
 import type { Site } from "@/arms/host";
@@ -49,6 +50,8 @@ export interface Forged {
 	readonly seed: number;
 	readonly candidates: readonly { seed: number; className: string }[];
 	readonly castIndex: number;
+	// The trump dealt to the site, by the judge or by fate.
+	readonly trump: number;
 	// Set's response for the chosen candidate, unedited.
 	readonly birth: unknown;
 	readonly character: typeof Character.Type;
@@ -244,6 +247,7 @@ export const forge = Effect.fn("forge")(function* (
 			className: roll.character.class.name,
 		})),
 		castIndex,
+		trump: dealtTrump(reading, seed),
 		birth: chosen.raw,
 		character,
 		reading,

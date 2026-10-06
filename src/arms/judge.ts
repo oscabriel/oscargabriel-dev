@@ -1,6 +1,7 @@
 import * as Effect from "effect/Effect";
 import * as Schema from "effect/Schema";
 
+import { isTrump, TRUMPS } from "@/arms/arcana";
 import type { ClefQuestion, ClefRequest, ClefResponse } from "@/arms/clef";
 import type { Character, Stat } from "@/arms/set-world";
 import type { Survey } from "@/arms/survey";
@@ -152,6 +153,10 @@ function describeCandidate(character: typeof Character.Type): string {
 	return `${character.class.name}. ${character.class.flavor}. Skills: ${skills}.`;
 }
 
+function trumpId(index: number): string {
+	return `t${index}`;
+}
+
 function statQuestionId(stat: JudgedStat): string {
 	return `stat.${stat}`;
 }
@@ -206,6 +211,17 @@ export function questions(candidates: readonly (typeof Character.Type)[]) {
 				])
 			),
 		},
+		trump: {
+			type: "choice",
+			instructions:
+				"Each option is a trump of the tarot. Which one would a reader draw for this site: for the temper of the person who made it and the spirit of their work?",
+			criteria: Object.fromEntries(
+				TRUMPS.map((trump, index) => [
+					trumpId(index),
+					`${trump.name}: ${trump.meaning}.`,
+				])
+			),
+		},
 		...Object.fromEntries(
 			JUDGED_STATS.map((stat) => [statQuestionId(stat), scoreQuestion(stat)])
 		),
@@ -247,6 +263,9 @@ export interface Reading {
 	readonly trickery: number;
 	readonly calling: Choice<Calling>;
 	readonly cast: Choice<string> & { readonly index: number };
+	// The card drawn for the site. Readings kept before cards were dealt
+	// have none; theirs falls by fate.
+	readonly trump?: Choice<string> & { readonly index: number };
 	// 0 to 4 per stat; luck is never read.
 	readonly scores: Readonly<Record<JudgedStat | "agility", number>>;
 	readonly usage: { readonly inputTokens: number };
@@ -297,6 +316,12 @@ export const interpret = Effect.fn("interpret")(function* (
 		return yield* new UnreadableAnswer({ questionId: "cast" });
 	}
 
+	const trump = yield* choice(response, "trump");
+	const trumpIndex = Number(trump.choice.slice(1));
+	if (!isTrump(trumpIndex)) {
+		return yield* new UnreadableAnswer({ questionId: "trump" });
+	}
+
 	const scores: Record<JudgedStat | "agility", number> = {
 		strength: 0,
 		dexterity: 0,
@@ -317,6 +342,7 @@ export const interpret = Effect.fn("interpret")(function* (
 		trickery: yield* noul(response, "trickery"),
 		calling: { ...calling, choice: calling.choice },
 		cast: { ...cast, index: castIndex },
+		trump: { ...trump, index: trumpIndex },
 		scores,
 		usage: { inputTokens: response.usage.input_tokens },
 	} satisfies Reading;
