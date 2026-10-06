@@ -93,6 +93,11 @@ export class Website extends Cloudflare.Website.Vite<Website>()(
 				REPO_CACHE: RepoCache,
 				GITHUB_TOKEN: Config.Redacted("GITHUB_TOKEN"),
 				ADMIN_EMAIL: Config.String("ADMIN_EMAIL"),
+				// The Roll of Arms: Clef reads a site, the browser draws it. Both
+				// reach the real services even in dev: AI has no local stand-in,
+				// and the local browser can't take the snapshot the forge asks for.
+				AI: Cloudflare.Workers.AI(),
+				BROWSER: Cloudflare.Workers.Browser().pipe(Alchemy.remote()),
 				...(yield* accessEnv),
 			},
 		};

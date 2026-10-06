@@ -1,6 +1,7 @@
 import * as Effect from "effect/Effect";
 import * as Schema from "effect/Schema";
 
+import { ArmsSmith } from "@/arms/roll";
 import { MediaStore, MediaUpload } from "@/media/media-store";
 import { AdminPosts, PostDraft } from "@/posts/admin-posts";
 import { admin } from "@/rpc/base";
@@ -11,7 +12,42 @@ const withNotFound = admin.errors({
 	NOT_FOUND: { message: "Post not found" },
 });
 
+// Forging spends Clef and browser time, so only the author can do it for now.
+const forgeArms = admin
+	.errors({
+		NOT_A_SITE: { message: "That isn't a public site" },
+		REFUSED: { message: "The judge refused the site" },
+		UNREADABLE: { message: "The site couldn't be read" },
+		UNAVAILABLE: { message: "Set or Clef didn't answer" },
+	})
+	.input(Schema.Struct({ url: Schema.String, judge: Schema.Boolean }))
+	.effect(function* ({ input, errors }) {
+		const smith = yield* ArmsSmith;
+		return yield* smith.forgeAndKeep(input.url, input.judge).pipe(
+			Effect.catchTags({
+				NotASite: (refusal) =>
+					Effect.fail(errors.NOT_A_SITE({ message: refusal.reason })),
+				ArmsRefused: (refusal) =>
+					Effect.fail(errors.REFUSED({ message: refusal.reasons.join(" ") })),
+				SurveyError: () => Effect.fail(errors.UNREADABLE()),
+				SetWorldError: (error) =>
+					Effect.logError("Set failed", error).pipe(
+						Effect.andThen(Effect.fail(errors.UNAVAILABLE()))
+					),
+				ClefError: (error) =>
+					Effect.logError("Clef failed", error).pipe(
+						Effect.andThen(Effect.fail(errors.UNAVAILABLE()))
+					),
+				UnreadableAnswer: (error) =>
+					Effect.logError("Clef answered oddly", error).pipe(
+						Effect.andThen(Effect.fail(errors.UNAVAILABLE()))
+					),
+			})
+		);
+	});
+
 export const adminRouter = {
+	arms: { forge: forgeArms },
 	posts: {
 		listAll: admin.effect(function* () {
 			const posts = yield* AdminPosts;

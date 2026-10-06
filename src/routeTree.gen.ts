@@ -19,12 +19,15 @@ import { Route as BookWatchingRouteImport } from './routes/_book.watching'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as IngestSplatRouteImport } from './routes/ingest.$'
 import { Route as MediaSplatRouteImport } from './routes/media.$'
+import { Route as BookArmsIndexRouteImport } from './routes/_book.arms.index'
 import { Route as BookBlogIndexRouteImport } from './routes/_book.blog.index'
 import { Route as BookBlogSlugRouteImport } from './routes/_book.blog.$slug'
 import { Route as AdminPostsIdRouteImport } from './routes/admin.posts.$id'
 import { Route as AdminPostsNewRouteImport } from './routes/admin.posts.new'
 import { Route as ApiRpcSplatRouteImport } from './routes/api.rpc.$'
+import { Route as BookArmsHostIndexRouteImport } from './routes/_book.arms.$host.index'
 import { Route as ApiAdminRpcSplatRouteImport } from './routes/api.admin.rpc.$'
+import { Route as BookArmsHostVsRivalRouteImport } from './routes/_book.arms.$host.vs.$rival'
 
 const BookRoute = BookRouteImport.update({
   id: '/_book',
@@ -75,6 +78,11 @@ const MediaSplatRoute = MediaSplatRouteImport.update({
   path: '/media/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BookArmsIndexRoute = BookArmsIndexRouteImport.update({
+  id: '/arms/',
+  path: '/arms/',
+  getParentRoute: () => BookRoute,
+} as any)
 const BookBlogIndexRoute = BookBlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
@@ -100,10 +108,20 @@ const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
   path: '/api/rpc/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BookArmsHostIndexRoute = BookArmsHostIndexRouteImport.update({
+  id: '/arms/$host/',
+  path: '/arms/$host/',
+  getParentRoute: () => BookRoute,
+} as any)
 const ApiAdminRpcSplatRoute = ApiAdminRpcSplatRouteImport.update({
   id: '/api/admin/rpc/$',
   path: '/api/admin/rpc/$',
   getParentRoute: () => rootRouteImport,
+} as any)
+const BookArmsHostVsRivalRoute = BookArmsHostVsRivalRouteImport.update({
+  id: '/arms/$host/vs/$rival',
+  path: '/arms/$host/vs/$rival',
+  getParentRoute: () => BookRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -120,8 +138,11 @@ export interface FileRoutesByFullPath {
   '/admin/posts/$id': typeof AdminPostsIdRoute
   '/admin/posts/new': typeof AdminPostsNewRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/arms/': typeof BookArmsIndexRoute
   '/blog/': typeof BookBlogIndexRoute
   '/api/admin/rpc/$': typeof ApiAdminRpcSplatRoute
+  '/arms/$host/': typeof BookArmsHostIndexRoute
+  '/arms/$host/vs/$rival': typeof BookArmsHostVsRivalRoute
 }
 export interface FileRoutesByTo {
   '/cv': typeof BookCvRoute
@@ -136,8 +157,11 @@ export interface FileRoutesByTo {
   '/admin/posts/$id': typeof AdminPostsIdRoute
   '/admin/posts/new': typeof AdminPostsNewRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/arms': typeof BookArmsIndexRoute
   '/blog': typeof BookBlogIndexRoute
   '/api/admin/rpc/$': typeof ApiAdminRpcSplatRoute
+  '/arms/$host': typeof BookArmsHostIndexRoute
+  '/arms/$host/vs/$rival': typeof BookArmsHostVsRivalRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -155,8 +179,11 @@ export interface FileRoutesById {
   '/admin/posts/$id': typeof AdminPostsIdRoute
   '/admin/posts/new': typeof AdminPostsNewRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/_book/arms/': typeof BookArmsIndexRoute
   '/_book/blog/': typeof BookBlogIndexRoute
   '/api/admin/rpc/$': typeof ApiAdminRpcSplatRoute
+  '/_book/arms/$host/': typeof BookArmsHostIndexRoute
+  '/_book/arms/$host/vs/$rival': typeof BookArmsHostVsRivalRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -174,8 +201,11 @@ export interface FileRouteTypes {
     | '/admin/posts/$id'
     | '/admin/posts/new'
     | '/api/rpc/$'
+    | '/arms/'
     | '/blog/'
     | '/api/admin/rpc/$'
+    | '/arms/$host/'
+    | '/arms/$host/vs/$rival'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/cv'
@@ -190,8 +220,11 @@ export interface FileRouteTypes {
     | '/admin/posts/$id'
     | '/admin/posts/new'
     | '/api/rpc/$'
+    | '/arms'
     | '/blog'
     | '/api/admin/rpc/$'
+    | '/arms/$host'
+    | '/arms/$host/vs/$rival'
   id:
     | '__root__'
     | '/_book'
@@ -208,8 +241,11 @@ export interface FileRouteTypes {
     | '/admin/posts/$id'
     | '/admin/posts/new'
     | '/api/rpc/$'
+    | '/_book/arms/'
     | '/_book/blog/'
     | '/api/admin/rpc/$'
+    | '/_book/arms/$host/'
+    | '/_book/arms/$host/vs/$rival'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -293,6 +329,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MediaSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_book/arms/': {
+      id: '/_book/arms/'
+      path: '/arms'
+      fullPath: '/arms/'
+      preLoaderRoute: typeof BookArmsIndexRouteImport
+      parentRoute: typeof BookRoute
+    }
     '/_book/blog/': {
       id: '/_book/blog/'
       path: '/blog'
@@ -328,12 +371,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiRpcSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_book/arms/$host/': {
+      id: '/_book/arms/$host/'
+      path: '/arms/$host'
+      fullPath: '/arms/$host/'
+      preLoaderRoute: typeof BookArmsHostIndexRouteImport
+      parentRoute: typeof BookRoute
+    }
     '/api/admin/rpc/$': {
       id: '/api/admin/rpc/$'
       path: '/api/admin/rpc/$'
       fullPath: '/api/admin/rpc/$'
       preLoaderRoute: typeof ApiAdminRpcSplatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_book/arms/$host/vs/$rival': {
+      id: '/_book/arms/$host/vs/$rival'
+      path: '/arms/$host/vs/$rival'
+      fullPath: '/arms/$host/vs/$rival'
+      preLoaderRoute: typeof BookArmsHostVsRivalRouteImport
+      parentRoute: typeof BookRoute
     }
   }
 }
@@ -345,7 +402,10 @@ interface BookRouteChildren {
   BookWatchingRoute: typeof BookWatchingRoute
   BookIndexRoute: typeof BookIndexRoute
   BookBlogSlugRoute: typeof BookBlogSlugRoute
+  BookArmsIndexRoute: typeof BookArmsIndexRoute
   BookBlogIndexRoute: typeof BookBlogIndexRoute
+  BookArmsHostIndexRoute: typeof BookArmsHostIndexRoute
+  BookArmsHostVsRivalRoute: typeof BookArmsHostVsRivalRoute
 }
 
 const BookRouteChildren: BookRouteChildren = {
@@ -355,7 +415,10 @@ const BookRouteChildren: BookRouteChildren = {
   BookWatchingRoute: BookWatchingRoute,
   BookIndexRoute: BookIndexRoute,
   BookBlogSlugRoute: BookBlogSlugRoute,
+  BookArmsIndexRoute: BookArmsIndexRoute,
   BookBlogIndexRoute: BookBlogIndexRoute,
+  BookArmsHostIndexRoute: BookArmsHostIndexRoute,
+  BookArmsHostVsRivalRoute: BookArmsHostVsRivalRoute,
 }
 
 const BookRouteWithChildren = BookRoute._addFileChildren(BookRouteChildren)

@@ -7,14 +7,19 @@ import * as Layer from "effect/Layer";
 
 import { verifyAdmin } from "@/admin/access";
 import type { AdminIdentity } from "@/admin/access";
+import { ArmsSmith, RollOfArms } from "@/arms/roll";
 import { MediaStore } from "@/media/media-store";
 import { AdminPosts } from "@/posts/admin-posts";
 import { Posts } from "@/posts/posts";
 import { Projects } from "@/projects/projects";
 
-const AppLayer = Layer.mergeAll(Posts.layer, Projects.layer);
+const AppLayer = Layer.mergeAll(Posts.layer, Projects.layer, RollOfArms.layer);
 
-const AdminLayer = Layer.mergeAll(AdminPosts.layer, MediaStore.layer);
+const AdminLayer = Layer.mergeAll(
+	AdminPosts.layer,
+	MediaStore.layer,
+	ArmsSmith.layer
+);
 
 // Build the layers per call: workerd pins I/O objects to the request that created them.
 function provideLayer<ROut, E>(layer: Layer.Layer<ROut, E>) {
