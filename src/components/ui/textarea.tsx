@@ -9,7 +9,7 @@ const textareaVariants = cva(
       variant: {
         default: "text-xs md:text-xs",
         // Long-form drafting, like a post body: larger text, looser lines.
-        writing: "px-3 py-3 text-sm leading-relaxed",
+        writing: "px-3 py-3 text-sm leading-normal",
       },
     },
     defaultVariants: {

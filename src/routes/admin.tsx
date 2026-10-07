@@ -36,7 +36,10 @@ export const Route = createFileRoute("/admin")({
 
 function AdminLayout() {
 	return (
-		<div className="min-h-dvh md:grid md:grid-cols-[17rem_minmax(0,1fr)]">
+		<div
+			data-admin
+			className="min-h-dvh md:grid md:grid-cols-[17rem_minmax(0,1fr)]"
+		>
 			<aside className="flex flex-col border-b md:sticky md:top-0 md:h-dvh md:border-r md:border-b-0">
 				<div className="flex items-center justify-between gap-2 px-4 py-3">
 					<Link to="/admin" className="text-sm font-semibold">
@@ -108,7 +111,10 @@ function PostList() {
 // Also what the server renders, since the layout itself never runs there.
 function AdminPending() {
 	return (
-		<div className="min-h-dvh md:grid md:grid-cols-[17rem_minmax(0,1fr)]">
+		<div
+			data-admin
+			className="min-h-dvh md:grid md:grid-cols-[17rem_minmax(0,1fr)]"
+		>
 			<div className="space-y-4 border-b px-4 py-3 md:h-dvh md:border-r md:border-b-0">
 				<Skeleton className="h-7 w-full" />
 				{SKELETON_ROWS.map((row) => (
@@ -127,7 +133,7 @@ function AdminError({ error }: ErrorComponentProps) {
 	const signedOut = error instanceof ORPCError && error.code === "UNAUTHORIZED";
 
 	return (
-		<main className="max-w-md p-8">
+		<main data-admin className="max-w-md p-8">
 			<h1 className="text-lg font-semibold">
 				{signedOut ? "You’re not signed in" : "The admin didn’t load"}
 			</h1>

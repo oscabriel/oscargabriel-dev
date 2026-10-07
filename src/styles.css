@@ -4,6 +4,10 @@
 @import "@fontsource/courier-prime/400.css";
 @import "@fontsource/courier-prime/400-italic.css";
 @import "@fontsource/courier-prime/700.css";
+/* The admin's face (see --font-ui). The browser fetches a @font-face's file
+   only when text uses it, so the public pages never download Jost. */
+@import "@fontsource-variable/jost/wght.css";
+@import "@fontsource-variable/jost/wght-italic.css";
 /* Only for its class-to-variable rules; the colours are set below. */
 @import "@twinkleplop/theme-github";
 
@@ -71,6 +75,14 @@ body {
 	--font-serif: "EB Garamond", Garamond, "Iowan Old Style", Georgia, serif;
 	--font-mono: "Courier Prime", "Courier New", monospace;
 	--font-sans: var(--font-serif);
+	/* The admin's face only, so the editor reads as a tool and not as the
+	   book (see the admin rules below). Jost is an OFL revival of Futura,
+	   self-hosted and variable, so it renders the same everywhere and the
+	   admin's 450 is a real 450. Futura itself is licensed and can't be
+	   self-hosted. */
+	--font-ui:
+		"Jost Variable", Futura, ui-sans-serif, system-ui, -apple-system,
+		"Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 	/* Garamond's x-height is 0.40em against Literata's 0.51, so the scale runs
 	   about a step larger than Tailwind's to read at the same size. */
 	--text-xs: 0.9375rem;
@@ -360,6 +372,28 @@ body {
 		font-variant-numeric: oldstyle-nums;
 		text-rendering: optimizeLegibility;
 		-webkit-font-smoothing: antialiased;
+	}
+	/* The admin sets everything in the system sans. The rule sits on html
+	   rather than the layout because menus and dialogs render at the end of
+	   <body>, outside it. The scale's line heights were set for Garamond and
+	   read loose in a sans, so the admin's default leading is tighter; a
+	   leading-* utility still wins, since utilities outrank this layer. The
+	   sans also reads light at 400, so plain text sits at 450. The preview
+	   goes back to the book's own type. */
+	html:has([data-admin]) {
+		font-family: var(--font-ui);
+		font-variant-numeric: normal;
+		font-weight: 450;
+	}
+	:where(html:has([data-admin]))
+		:where(:not([data-admin-preview], [data-admin-preview] *)) {
+		--tw-leading: 1.3;
+	}
+	[data-admin-preview] {
+		font-family: var(--font-serif);
+		font-variant-numeric: oldstyle-nums;
+		font-weight: 400;
+		line-height: var(--text-base--line-height);
 	}
 	/* The parts the browser draws still belong to the book. */
 	::selection {

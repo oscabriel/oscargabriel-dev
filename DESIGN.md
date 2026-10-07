@@ -196,7 +196,7 @@ A paper-and-ink palette: off-white (`#fafafa`) and dark grey (`#2a2722`) with th
 
 ## Typography
 
-**Text Font:** EB Garamond (with Garamond, Iowan Old Style, Georgia, serif), variable weight 400–800, roman and italic. Self-hosted from `src/fonts/` (licence `src/fonts/OFL.txt`): a Latin and Latin Extended-A subset cut from the Google Fonts source with every OpenType feature kept, because the Fontsource build drops `smcp`/`c2sc`, `onum`/`lnum` and the ☞ and → glyphs. `--font-sans` aliases `--font-serif`, so there is no sans in the system. **Code Font:** Courier Prime (with Courier New, monospace), code blocks and inline code only.
+**Text Font:** EB Garamond (with Garamond, Iowan Old Style, Georgia, serif), variable weight 400–800, roman and italic. Self-hosted from `src/fonts/` (licence `src/fonts/OFL.txt`): a Latin and Latin Extended-A subset cut from the Google Fonts source with every OpenType feature kept, because the Fontsource build drops `smcp`/`c2sc`, `onum`/`lnum` and the ☞ and → glyphs. `--font-sans` aliases `--font-serif`, so the public site has no sans. **Admin Font:** Jost (`--font-ui`: Jost Variable, then Futura, then the system sans), admin only, except the preview pane. Jost is an OFL revival of Futura, self-hosted from `@fontsource-variable/jost` with variable weight 100–900, roman and italic. Futura itself is licensed, so it can't be self-hosted. The browser downloads Jost only on pages that use it, so public pages never fetch it. **Code Font:** Courier Prime (with Courier New, monospace), code blocks and inline code only.
 
 **Character:** A Renaissance book face with a small x-height (0.40em), so the whole Tailwind size scale is redefined one step larger in `@theme` (`--text-xs` 0.9375rem through `--text-5xl` 3.5rem) and `--tracking-tight` is loosened to −0.01em. Figures are old-style everywhere (`font-variant-numeric: oldstyle-nums` on `html`). Nothing is set in bold except `strong` (600) inside an article.
 
@@ -217,7 +217,7 @@ A paper-and-ink palette: off-white (`#fafafa`) and dark grey (`#2a2722`) with th
 
 ### Named Rules
 
-**The One Face Rule.** EB Garamond for everything that is not code, with roman, italic and small caps doing the work a second face would. Courier Prime is for code blocks and inline code only; it is never a costume for labels. No sans.
+**The One Face Rule.** EB Garamond for everything that is not code, with roman, italic and small caps doing the work a second face would. Courier Prime is for code blocks and inline code only; it is never a costume for labels. No sans, except in the admin, which is a tool and not the book.
 
 **The Real Small Caps Rule.** Labels use `font-variant-caps: all-small-caps` (the `smallcaps` utility), which EB Garamond draws with true small caps; never `text-transform: uppercase` plus wide tracking, and never a font build that has lost `smcp`.
 
@@ -309,14 +309,14 @@ The one place the book holds objects rather than print. A site's arms are a taro
 
 ### Inputs / Buttons (admin only)
 
-The admin uses the shadcn primitives in `src/components/ui/` untouched, styled entirely by the token mapping: paper background, ink foreground and primary, wash for secondary/muted/accent, rule for borders and inputs, soft ink for the ring, 0.125rem radius. It inherits EB Garamond and the enlarged size scale. It gets no leaf, no tabs, no plates, no page turn and no identity of its own.
+The admin uses the shadcn primitives in `src/components/ui/` untouched, styled entirely by the token mapping: paper background, ink foreground and primary, wash for secondary/muted/accent, rule for borders and inputs, soft ink for the ring, 0.125rem radius. It sets everything except the preview in Jost (`--font-ui`): plain text at weight 450 with a default leading of 1.3, because the scale's line heights were set for Garamond. Since menus and dialogs render outside the layout, the rule keys on `html:has([data-admin])`. The preview (`[data-admin-preview]`) goes back to EB Garamond 400 with old-style figures, so it matches the published post exactly. The admin keeps the enlarged size scale. It gets no leaf, no tabs, no plates, no page turn and no identity of its own.
 
 ## Do's and Don'ts
 
 ### Do:
 
 - **Do** derive every colour from the five tokens `--paper`, `--ink`, `--ink-soft`, `--ink-faint`, `--rule`, and let `.dark` redefine only those five.
-- **Do** set everything that is not code in EB Garamond at 400 or 500, labels in true small caps with the `smallcaps` utility, and code in Courier Prime.
+- **Do** set everything on the public site that is not code in EB Garamond at 400 or 500, labels in true small caps with the `smallcaps` utility, and code in Courier Prime.
 - **Do** size type from the redefined Tailwind scale (`text-xs` … `text-5xl`) rather than literal rems, so the Garamond compensation stays in one place.
 - **Do** mark state with a glyph or a rule: the manicule ☞ for the current tab or section, the dagger † for an opened post.
 - **Do** make every image a numbered plate: a `figure` with a small-caps "Plate n" label and an italic soft-ink caption; let `.post-body`'s counter number in-body plates from II.
@@ -332,7 +332,7 @@ The admin uses the shadcn primitives in `src/components/ui/` untouched, styled e
 - **Don't** use interface icons beyond the section index's unfold caret. The system's other pictographs are the typographic glyphs ☞ † ¶ → and the woodcuts: the criblé O and the sun and moon.
 - **Don't** use a radius on the public site, and don't raise `--radius` (0.125rem) for the admin.
 - **Don't** set headings in bold; 500 is the heading weight, 600 is reserved for `strong` in running text.
-- **Don't** introduce a sans-serif or a second text face, and don't use Courier for anything but code.
+- **Don't** introduce a sans-serif or a second text face outside the admin, and don't use Courier for anything but code.
 - **Don't** give a tall element its own `view-transition-name`: a named snapshot is captured whole (a long post is over 20,000px) and a `clip-path` animation repaints all of it every frame.
 - **Don't** add a second motion. The page turn is the one authored moment; everything else is a 150–300ms colour or position ease.
 - **Don't** give the admin leaf treatment, tabs, plates or any identity beyond the inherited token mapping.

@@ -603,6 +603,7 @@ export function PostEditor({ post }: { post?: EditablePost }) {
 				{previewOpen && (
 					<section
 						aria-label="Preview"
+						data-admin-preview
 						className="min-w-0 px-6 py-8 xl:sticky xl:top-12 xl:h-[calc(100dvh-3rem)] xl:overflow-y-auto xl:border-l"
 					>
 						<PostPreview
