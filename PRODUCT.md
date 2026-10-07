@@ -9,7 +9,7 @@ web
 ## Users
 
 - **Readers:** developers who arrive at long technical blog posts, usually from a shared link or a search, and read one post end to end.
-- **The author:** Oscar Gabriel, the only person who writes or edits anything. The author drafts, edits and publishes posts entirely inside the site's own admin editor, not in an outside tool.
+- **The author:** Oscar Gabriel, the only person who writes or edits anything. The author drafts, edits and publishes posts in the site's own admin editor, and sometimes has coding agents edit them from the terminal through `bun run posts`.
 
 ## Product Purpose
 

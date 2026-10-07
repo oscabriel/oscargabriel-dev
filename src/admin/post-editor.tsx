@@ -35,7 +35,7 @@ import type { adminRouter } from "@/rpc/admin-router";
 
 type SaveInput = InferRouterInputs<typeof adminRouter>["posts"]["save"];
 type EditablePost = InferRouterOutputs<typeof adminRouter>["posts"]["byId"];
-type DraftFields = Omit<SaveInput, "id">;
+type DraftFields = Omit<SaveInput, "id" | "baseUpdatedAt">;
 
 const DRAFT_KEYS = [
 	"slug",
@@ -80,6 +80,10 @@ function resolveHeaderImage(
 		return saved;
 	}
 	return library?.find((file) => file.id === id);
+}
+
+function unixSeconds(date: Date): number {
+	return Math.floor(date.getTime() / 1000);
 }
 
 function sameDraft(a: DraftFields, b: DraftFields): boolean {
@@ -170,6 +174,9 @@ function describeFailure(
 	publish: Error | null,
 	unpublish: Error | null
 ): string | undefined {
+	if (save instanceof ORPCError && save.code === "PRECONDITION_FAILED") {
+		return "The post didn’t save: it changed somewhere else since you opened it, maybe from the terminal. Copy your text, reload the page and paste it back in.";
+	}
 	if (save !== null) {
 		return `The post didn’t save: ${save.message}. Your text is still here; try saving again.`;
 	}
@@ -387,6 +394,11 @@ export function PostEditor({ post }: { post?: EditablePost }) {
 		post === undefined ? EMPTY_DRAFT : toDraft(post)
 	);
 	const [draft, setDraft] = useState(baseline);
+	// The version this editor last loaded or saved. Saves send it, so one made
+	// over a newer edit (say, an agent's) fails instead of erasing it.
+	const [baseUpdatedAt, setBaseUpdatedAt] = useState(() =>
+		post === undefined ? undefined : unixSeconds(post.updatedAt)
+	);
 	// A new post's slug follows its title until the slug is edited by hand.
 	const [slugEdited, setSlugEdited] = useState(post !== undefined);
 	const [showErrors, setShowErrors] = useState(false);
@@ -414,6 +426,7 @@ export function PostEditor({ post }: { post?: EditablePost }) {
 		adminOrpc.posts.save.mutationOptions({
 			onSuccess: async (saved) => {
 				setBaseline(toDraft(saved));
+				setBaseUpdatedAt(unixSeconds(saved.updatedAt));
 				setShowErrors(false);
 				await refreshPosts();
 				if (post === undefined) {
@@ -499,7 +512,9 @@ export function PostEditor({ post }: { post?: EditablePost }) {
 	function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
 		if (checkDraft()) {
-			save.mutate(post === undefined ? draft : { ...draft, id: post.id });
+			save.mutate(
+				post === undefined ? draft : { ...draft, id: post.id, baseUpdatedAt }
+			);
 		}
 	}
 
@@ -510,7 +525,7 @@ export function PostEditor({ post }: { post?: EditablePost }) {
 		}
 		if (dirty) {
 			try {
-				await save.mutateAsync({ ...draft, id });
+				await save.mutateAsync({ ...draft, id, baseUpdatedAt });
 			} catch {
 				// A failed save already reports itself through `save.error`.
 				return;

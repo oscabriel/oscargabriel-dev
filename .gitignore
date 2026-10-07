@@ -14,3 +14,6 @@ todos.json
 .alchemy
 *.tsbuildinfo
 .impeccable
+
+# Posts pulled with `bun run posts pull`; the site's D1 database is the source of truth
+/posts/

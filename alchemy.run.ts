@@ -41,10 +41,19 @@ export const OneTimePin = Cloudflare.Access.IdentityProvider("OneTimePin", {
 	type: "onetimepin",
 }).pipe(AdoptPolicy.adopt(true), RemovalPolicy.retain());
 
+// Lets agents and scripts/posts.ts reach the admin API without a browser
+// login. Cloudflare reveals the secret only on create, so Alchemy keeps it in
+// state: `alchemy state read oscargabriel-dev/prod/AgentToken` shows it.
+// It lasts a year; bump `clientSecretVersion` to rotate the secret.
+export const AgentToken = Cloudflare.Access.ServiceToken("AgentToken", {
+	name: "oscargabriel-dev-agents",
+});
+
 // Access gates only the admin paths; the public site stays open. `/admin/*`
 // doesn't cover `/admin` itself, so both are listed.
 export const AdminAccess = Effect.gen(function* () {
 	const pin = yield* OneTimePin;
+	const agentToken = yield* AgentToken;
 	// Same value the Worker checks the JWT email against; it's required, so a
 	// missing one should stop the deploy.
 	const adminEmail = yield* Config.String("ADMIN_EMAIL").pipe(Effect.orDie);
@@ -58,7 +67,14 @@ export const AdminAccess = Effect.gen(function* () {
 		],
 		allowedIdps: [pin.identityProviderId],
 		autoRedirectToIdentity: true,
-		policies: [{ decision: "allow", include: [{ email: adminEmail }] }],
+		policies: [
+			{ decision: "allow", include: [{ email: adminEmail }] },
+			// `non_identity` admits the token without the PIN login.
+			{
+				decision: "non_identity",
+				include: [{ serviceToken: agentToken.serviceTokenId }],
+			},
+		],
 	});
 });
 
@@ -67,10 +83,20 @@ export const AdminAccess = Effect.gen(function* () {
 const accessEnv = Effect.gen(function* () {
 	const { stage } = yield* Alchemy.Stack;
 	if (stage !== "prod") {
-		return { ACCESS_TEAM_DOMAIN: "", ACCESS_AUD: "" };
+		return {
+			ACCESS_TEAM_DOMAIN: "",
+			ACCESS_AUD: "",
+			ACCESS_AGENT_CLIENT_ID: "",
+		};
 	}
 	const admin = yield* AdminAccess;
-	return { ACCESS_TEAM_DOMAIN, ACCESS_AUD: admin.aud };
+	const agentToken = yield* AgentToken;
+	return {
+		ACCESS_TEAM_DOMAIN,
+		ACCESS_AUD: admin.aud,
+		// The JWT's `common_name` for requests made with the agent token.
+		ACCESS_AGENT_CLIENT_ID: agentToken.clientId,
+	};
 });
 
 export class Website extends Cloudflare.Website.Vite<Website>()(

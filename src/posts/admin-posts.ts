@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -20,8 +20,22 @@ export const PostDraft = Schema.Struct({
 	headerImageCaption: Schema.NullOr(Schema.String),
 });
 
+// What a save sends: the draft, plus the `updatedAt` (in unix seconds) the
+// sender last saw. With it, the save fails if the post changed since, so the
+// browser and an agent can't silently overwrite each other. Without it, the
+// save overwrites whatever is there.
+export const PostSave = Schema.Struct({
+	...PostDraft.fields,
+	baseUpdatedAt: Schema.optional(Schema.Int),
+});
+
 export class PostIdNotFound extends Schema.TaggedError<PostIdNotFound>()(
 	"PostIdNotFound",
+	{ id: Schema.Int }
+) {}
+
+export class PostChanged extends Schema.TaggedError<PostChanged>()(
+	"PostChanged",
 	{ id: Schema.Int }
 ) {}
 
@@ -72,9 +86,9 @@ export class AdminPosts extends Context.Service<AdminPosts>()(
 
 			// Renders on save, so readers only ever get stored HTML.
 			const save = Effect.fn("AdminPosts.save")(function* (
-				draft: typeof PostDraft.Type
+				draft: typeof PostSave.Type
 			) {
-				const { id, ...fields } = draft;
+				const { id, baseUpdatedAt, ...fields } = draft;
 				const clash = yield* db.query.Posts.findFirst({
 					columns: { id: true },
 					where:
@@ -98,13 +112,34 @@ export class AdminPosts extends Context.Service<AdminPosts>()(
 						.pipe(Effect.orDie);
 					return yield* Effect.fromNullishOr(created[0]).pipe(Effect.orDie);
 				}
+				// The check sits in the WHERE clause, so no write can land between it
+				// and this one. `updatedAt` counts seconds: two saves inside the
+				// same second look alike, which one author can live with.
 				const updated = yield* db
 					.update(Posts)
 					.set(values)
-					.where(eq(Posts.id, id))
+					.where(
+						baseUpdatedAt === undefined
+							? eq(Posts.id, id)
+							: and(
+									eq(Posts.id, id),
+									eq(Posts.updatedAt, new Date(baseUpdatedAt * 1000))
+								)
+					)
 					.returning()
 					.pipe(Effect.orDie);
-				return yield* onlyRow(updated, id);
+				const [row] = updated;
+				if (row !== undefined) {
+					return row;
+				}
+				// Nothing matched: either the post is gone or it moved on.
+				const exists = yield* db.query.Posts.findFirst({
+					columns: { id: true },
+					where: { id },
+				}).pipe(Effect.orDie);
+				return yield* exists === undefined
+					? new PostIdNotFound({ id })
+					: new PostChanged({ id });
 			});
 
 			// `publishedAt` is set on the first publish only; unpublishing keeps
