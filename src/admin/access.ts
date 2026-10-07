@@ -6,16 +6,21 @@ import { createRemoteJWKSet, jwtVerify } from "jose";
 
 import { env } from "@/env";
 
-export interface AdminIdentity {
-	email: string;
-}
+// The author signs in through a browser; agents send the Access service token
+// that alchemy.run.ts makes for them.
+export type AdminIdentity =
+	| { kind: "author"; email: string }
+	| { kind: "agent"; clientId: string };
 
 export class AccessDenied extends Schema.TaggedError<AccessDenied>()(
 	"AccessDenied",
 	{ reason: Schema.String }
 ) {}
 
-const AccessClaims = Schema.Struct({ email: Schema.String });
+// A browser login's token carries the email. A service token's carries
+// `common_name`, the token's client ID, and no email.
+const PersonClaims = Schema.Struct({ email: Schema.String });
+const ServiceTokenClaims = Schema.Struct({ common_name: Schema.String });
 
 // `alchemy dev` sets ALCHEMY_DEV_ACCESS from `dev.access` in alchemy.run.ts. A
 // deployed Worker never has it, so the bypass can't reach production.
@@ -27,7 +32,10 @@ const DevAccessEnv = Schema.Struct({
 
 function readDevAccess(): Option.Option<AdminIdentity> {
 	return Schema.decodeUnknownOption(DevAccessEnv)(cf.env).pipe(
-		Option.map(({ ALCHEMY_DEV_ACCESS }) => ALCHEMY_DEV_ACCESS.identity)
+		Option.map(({ ALCHEMY_DEV_ACCESS }): AdminIdentity => ({
+			kind: "author",
+			email: ALCHEMY_DEV_ACCESS.identity.email,
+		}))
 	);
 }
 
@@ -75,11 +83,22 @@ export const verifyAdmin = Effect.fn("verifyAdmin")(function* (
 			}),
 		catch: () => new AccessDenied({ reason: "Invalid Access token" }),
 	});
-	const claims = yield* Schema.decodeUnknownEffect(AccessClaims)(payload).pipe(
-		Effect.mapError(() => new AccessDenied({ reason: "Token has no email" }))
-	);
-	if (claims.email !== env.ADMIN_EMAIL) {
-		return yield* new AccessDenied({ reason: "Not the admin" });
+	const person = Schema.decodeUnknownOption(PersonClaims)(payload);
+	if (Option.isSome(person)) {
+		if (person.value.email !== env.ADMIN_EMAIL) {
+			return yield* new AccessDenied({ reason: "Not the admin" });
+		}
+		return { kind: "author", email: person.value.email } as const;
 	}
-	return { email: claims.email } satisfies AdminIdentity;
+
+	const service = Schema.decodeUnknownOption(ServiceTokenClaims)(payload);
+	if (Option.isNone(service)) {
+		return yield* new AccessDenied({ reason: "Token names no one" });
+	}
+	// Empty outside prod, where no agent token exists, so this fails closed.
+	const agentClientId = env.ACCESS_AGENT_CLIENT_ID;
+	if (agentClientId === "" || service.value.common_name !== agentClientId) {
+		return yield* new AccessDenied({ reason: "Not the agent token" });
+	}
+	return { kind: "agent", clientId: agentClientId } as const;
 });

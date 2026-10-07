@@ -3,7 +3,7 @@ import * as Schema from "effect/Schema";
 
 import { ArmsSmith } from "@/arms/roll";
 import { MediaStore, MediaUpload } from "@/media/media-store";
-import { AdminPosts, PostDraft } from "@/posts/admin-posts";
+import { AdminPosts, PostSave } from "@/posts/admin-posts";
 import { admin } from "@/rpc/base";
 
 const PostId = Schema.Struct({ id: Schema.Int });
@@ -64,13 +64,19 @@ export const adminRouter = {
 				);
 		}),
 		save: withNotFound
-			.errors({ CONFLICT: { message: "Slug already in use" } })
-			.input(PostDraft)
+			.errors({
+				CONFLICT: { message: "Slug already in use" },
+				PRECONDITION_FAILED: {
+					message: "The post changed since you last loaded it",
+				},
+			})
+			.input(PostSave)
 			.effect(function* ({ input, errors }) {
 				const posts = yield* AdminPosts;
 				return yield* posts.save(input).pipe(
 					Effect.catchTags({
 						PostIdNotFound: () => Effect.fail(errors.NOT_FOUND()),
+						PostChanged: () => Effect.fail(errors.PRECONDITION_FAILED()),
 						SlugTaken: () => Effect.fail(errors.CONFLICT()),
 					})
 				);
