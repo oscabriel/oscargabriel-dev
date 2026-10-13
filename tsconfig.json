@@ -23,7 +23,11 @@
 		"plugins": [
 			{
 				"name": "@effect/language-service",
-				"allowedUnstableApis": ["effect/http", "@effect/sql-d1/D1Client"]
+				"allowedUnstableApis": [
+					"effect/http",
+					"@effect/sql-d1/D1Client",
+					"@effect/platform-bun/BunRuntime#runMain"
+				]
 			}
 		]
 	}
