@@ -41,3 +41,28 @@ export const Posts = sqliteTable("posts", {
 		.notNull()
 		.default(sql`(unixepoch())`),
 });
+
+// The Roll of Arms lives on the roll-of-arms branch and is off the site, but
+// prod's D1 already has this table and its migration. Alchemy won't deploy a
+// migration history that is missing an applied file, so the table stays
+// declared here, unused, with its rows kept for when the branch comes back.
+export const Arms = sqliteTable("arms", {
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	host: text("host").notNull().unique(),
+	url: text("url").notNull(),
+	seed: integer("seed").notNull(),
+	castIndex: integer("cast_index").notNull(),
+	candidates: text("candidates", { mode: "json" }).notNull(),
+	birth: text("birth", { mode: "json" }).notNull(),
+	contentVersion: text("content_version").notNull(),
+	reading: text("reading", { mode: "json" }),
+	sheet: text("sheet", { mode: "json" }).notNull(),
+	page: text("page", { mode: "json" }).notNull(),
+	plateKey: text("plate_key"),
+	className: text("class_name").notNull(),
+	calling: text("calling"),
+	powerRating: integer("power_rating").notNull(),
+	forgedAt: integer("forged_at", { mode: "timestamp" })
+		.notNull()
+		.default(sql`(unixepoch())`),
+});
