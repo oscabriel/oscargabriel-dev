@@ -10,6 +10,7 @@ import type { DiaryEntry as DiaryEntrySchema } from "@/watching/feed";
 type DiaryEntry = typeof DiaryEntrySchema.Type;
 
 const TITLE = `Watching | ${SITE_NAME}`;
+
 const DESCRIPTION =
 	"The films Oscar Gabriel has watched lately, with his ratings, from his Letterboxd diary.";
 
@@ -24,11 +25,13 @@ const longDay = new Intl.DateTimeFormat("en-US", {
 	day: "numeric",
 	timeZone: "UTC",
 });
+
 const shortDay = new Intl.DateTimeFormat("en-US", {
 	month: "short",
 	day: "numeric",
 	timeZone: "UTC",
 });
+
 const monthYear = new Intl.DateTimeFormat("en-US", {
 	year: "numeric",
 	month: "long",
@@ -62,9 +65,11 @@ function Rating({ value }: { value: number | null }) {
 	if (value === null) {
 		return <span className="text-ink-faint italic">unrated</span>;
 	}
+
 	const whole = Math.floor(value);
 	const half = value - whole >= 0.5;
 	const label = `${value} stars out of 5`;
+
 	return (
 		<span title={label}>
 			<span aria-hidden="true" className="tracking-wide">
@@ -171,15 +176,18 @@ function DiaryLine({ entry }: { entry: DiaryEntry }) {
 
 function groupByMonth(entries: readonly DiaryEntry[]) {
 	const months = new Map<string, DiaryEntry[]>();
+
 	for (const entry of entries) {
 		const month = entry.watchedOn.slice(0, 7);
 		const group = months.get(month);
+
 		if (group) {
 			group.push(entry);
 		} else {
 			months.set(month, [entry]);
 		}
 	}
+
 	return [...months];
 }
 

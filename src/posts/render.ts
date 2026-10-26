@@ -69,6 +69,7 @@ function drawInNewTab(
 	drawing.add(link);
 	const html = renderInline(link);
 	drawing.delete(link);
+
 	return html.replace(LINK_OPEN, NEW_TAB_LINK_OPEN);
 }
 
@@ -84,17 +85,21 @@ const extensions = [headingCollectionExtension(), twinkleplop, linksOut];
 
 export function renderPost(body: string): RenderedPost {
 	const slugger = new GithubSlugger();
+
 	const options = {
 		allowHtml: true,
 		extensions,
 		headingAnchors: true,
 		headingIds: (text: string) => slugger.slug(text),
 	};
+
 	const document = parseMarkdown(body, options);
+
 	const toc = (document.headings ?? []).map(({ id, text, level }) => ({
 		id,
 		level,
 		text,
 	}));
+
 	return { html: renderHtml(document, options), toc };
 }

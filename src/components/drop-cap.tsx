@@ -19,6 +19,7 @@ interface DropCapOProps {
 
 export function DropCapO({ className, title }: DropCapOProps) {
 	const labelled = title !== undefined;
+
 	return (
 		<svg
 			aria-hidden={labelled ? undefined : true}

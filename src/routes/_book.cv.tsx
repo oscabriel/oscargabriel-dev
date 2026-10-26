@@ -7,6 +7,7 @@ import type { Employer, Role } from "@/cv/cv";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 const TITLE = `CV | ${SITE_NAME}`;
+
 const DESCRIPTION =
 	"Oscar Gabriel’s curriculum vitae: experience in operations, analysis and tooling, from a trading card warehouse to a coffee roastery’s packaging line, and education.";
 

@@ -15,10 +15,12 @@ export const adminRouter = {
 	posts: {
 		listAll: admin.effect(function* () {
 			const posts = yield* AdminPosts;
+
 			return yield* posts.listAll();
 		}),
 		byId: withNotFound.input(PostId).effect(function* ({ input, errors }) {
 			const posts = yield* AdminPosts;
+
 			return yield* posts
 				.byId(input.id)
 				.pipe(
@@ -37,6 +39,7 @@ export const adminRouter = {
 			.input(PostSave)
 			.effect(function* ({ input, errors }) {
 				const posts = yield* AdminPosts;
+
 				return yield* posts.save(input).pipe(
 					Effect.catchTags({
 						PostIdNotFound: () => Effect.fail(errors.NOT_FOUND()),
@@ -47,6 +50,7 @@ export const adminRouter = {
 			}),
 		publish: withNotFound.input(PostId).effect(function* ({ input, errors }) {
 			const posts = yield* AdminPosts;
+
 			return yield* posts
 				.publish(input.id)
 				.pipe(
@@ -57,6 +61,7 @@ export const adminRouter = {
 		}),
 		unpublish: withNotFound.input(PostId).effect(function* ({ input, errors }) {
 			const posts = yield* AdminPosts;
+
 			return yield* posts
 				.unpublish(input.id)
 				.pipe(
@@ -67,6 +72,7 @@ export const adminRouter = {
 		}),
 		delete: withNotFound.input(PostId).effect(function* ({ input, errors }) {
 			const posts = yield* AdminPosts;
+
 			return yield* posts
 				.remove(input.id)
 				.pipe(
@@ -79,6 +85,7 @@ export const adminRouter = {
 	media: {
 		list: admin.effect(function* () {
 			const media = yield* MediaStore;
+
 			return yield* media.list();
 		}),
 		upload: admin
@@ -90,6 +97,7 @@ export const adminRouter = {
 			.input(MediaUpload)
 			.effect(function* ({ input, errors }) {
 				const media = yield* MediaStore;
+
 				return yield* media
 					.upload(input)
 					.pipe(

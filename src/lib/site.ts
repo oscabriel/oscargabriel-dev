@@ -21,7 +21,9 @@ export function leavesSite(href: string): boolean {
 	if (!URL.canParse(href)) {
 		return false;
 	}
+
 	const { protocol, hostname } = new URL(href);
+
 	return (
 		(protocol === "https:" || protocol === "http:") && hostname !== SITE_HOST
 	);

@@ -41,6 +41,7 @@ export class GitHub extends Context.Service<GitHub>()("app/GitHub", {
 	make: Effect.gen(function* () {
 		const cache = env.REPO_CACHE;
 		const token = Redacted.make(env.GITHUB_TOKEN);
+
 		const client = (yield* HttpClient.HttpClient).pipe(
 			HttpClient.mapRequest(
 				flow(
@@ -78,6 +79,7 @@ export class GitHub extends Context.Service<GitHub>()("app/GitHub", {
 		) {
 			const options =
 				ttlSeconds === undefined ? undefined : { expirationTtl: ttlSeconds };
+
 			return Effect.tryPromise(async () => {
 				await cache.put(key, JSON.stringify(stats), options);
 			}).pipe(Effect.ignore);
@@ -100,9 +102,11 @@ export class GitHub extends Context.Service<GitHub>()("app/GitHub", {
 			const freshKey = `repo:${owner}/${repo}`;
 			const lastKey = `repo-last:${owner}/${repo}`;
 			const cached = yield* readCache(freshKey);
+
 			if (Option.isSome(cached)) {
 				return cached.value;
 			}
+
 			return yield* fetchStats(owner, repo).pipe(
 				Effect.mapError((cause) => new GitHubError({ owner, repo, cause })),
 				Effect.tap((stats) =>

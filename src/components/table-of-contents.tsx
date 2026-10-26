@@ -11,6 +11,7 @@ interface TocSection {
 // Nest each h3 under the h2 before it. Deeper headings stay out of the list.
 function groupSections(toc: readonly TocEntry[]): TocSection[] {
 	const sections: TocSection[] = [];
+
 	for (const entry of toc) {
 		if (entry.level === 2) {
 			sections.push({ entry, children: [] });
@@ -18,6 +19,7 @@ function groupSections(toc: readonly TocEntry[]): TocSection[] {
 			sections.at(-1)?.children.push(entry);
 		}
 	}
+
 	return sections;
 }
 
@@ -39,23 +41,30 @@ function useActiveHeading(toc: readonly TocEntry[]): string | undefined {
 
 		function update() {
 			const { scrollHeight } = document.documentElement;
+
 			if (Math.ceil(window.scrollY + window.innerHeight) >= scrollHeight) {
 				setActiveId(headings.at(-1)?.id);
+
 				return;
 			}
+
 			const line = window.innerHeight / 4;
 			let current: Element | undefined;
+
 			for (const heading of headings) {
 				if (heading.getBoundingClientRect().top > line) {
 					break;
 				}
+
 				current = heading;
 			}
+
 			setActiveId(current?.id);
 		}
 
 		update();
 		window.addEventListener("scroll", update, { passive: true });
+
 		return () => {
 			window.removeEventListener("scroll", update);
 		};
@@ -79,15 +88,19 @@ function TocLink({ entry, active }: { entry: TocEntry; active: boolean }) {
 // Which sections are unfolded. Every section starts folded to its h2.
 function useOpenSections() {
 	const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
+
 	function toggle(id: string) {
 		setOpen((previous) => {
 			const next = new Set(previous);
+
 			if (!next.delete(id)) {
 				next.add(id);
 			}
+
 			return next;
 		});
 	}
+
 	return { open, toggle };
 }
 
@@ -101,12 +114,15 @@ function visibleId(
 	if (id === null || id === undefined) {
 		return undefined;
 	}
+
 	const holder = sections.find(({ children }) =>
 		children.some((child) => child.id === id)
 	);
+
 	if (holder === undefined || open.has(holder.entry.id)) {
 		return id;
 	}
+
 	return holder.entry.id;
 }
 
@@ -124,6 +140,7 @@ function TocSectionItem({
 }) {
 	// The leaf's index and the phone's list can both be in the page at once.
 	const listId = useId();
+
 	return (
 		<li>
 			<div className="flex items-baseline gap-1">
@@ -160,6 +177,7 @@ function TocSectionItem({
 // The phone's sections list, folded the same way but with no place kept.
 export function FoldedSections({ toc }: { toc: readonly TocEntry[] }) {
 	const { open, toggle } = useOpenSections();
+
 	return (
 		<ul className="mt-3 text-sm leading-snug">
 			{groupSections(toc).map((section) => (
@@ -186,28 +204,36 @@ function useGlidingManicule(activeId: string | undefined) {
 		function place() {
 			const list = listRef.current;
 			const mark = markRef.current;
+
 			if (list === null || mark === null) {
 				return;
 			}
+
 			const link =
 				activeId === undefined
 					? null
 					: list.querySelector<HTMLElement>(
 							`a[href="#${CSS.escape(activeId)}"]`
 						);
+
 			if (link === null) {
 				mark.style.opacity = "0";
+
 				return;
 			}
+
 			mark.style.transform = `translateY(${link.offsetTop - list.offsetTop}px)`;
 			mark.style.opacity = "1";
 		}
+
 		place();
 		// Unfolding a section above the mark moves its row down.
 		const observer = new ResizeObserver(place);
+
 		if (listRef.current !== null) {
 			observer.observe(listRef.current);
 		}
+
 		return () => {
 			observer.disconnect();
 		};

@@ -21,9 +21,11 @@ export const Route = createFileRoute("/media/$")({
 		handlers: {
 			GET: async ({ params, request }) => {
 				const key = params._splat ?? "";
+
 				const object = await env.MEDIA.get(key, {
 					onlyIf: request.headers,
 				});
+
 				if (object === null) {
 					return new Response("Not found", { status: 404 });
 				}
@@ -38,13 +40,17 @@ export const Route = createFileRoute("/media/$")({
 				if (!("body" in object)) {
 					return new Response(null, { status: 304, headers });
 				}
+
 				const storedType = object.httpMetadata?.contentType;
+
 				if (storedType === undefined || storedType === GENERIC_CONTENT_TYPE) {
 					const contentType = await lookupContentType(key);
+
 					if (contentType !== null) {
 						headers.set("content-type", contentType);
 					}
 				}
+
 				return new Response(object.body, { headers });
 			},
 		},

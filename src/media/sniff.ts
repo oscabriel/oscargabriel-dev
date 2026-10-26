@@ -41,11 +41,14 @@ function isAvif(bytes: Uint8Array): boolean {
 	if (!matchesAt(bytes, FTYP_OFFSET, FTYP)) {
 		return false;
 	}
+
 	const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
 	const boxSize = Math.min(view.getUint32(0), bytes.byteLength);
+
 	if (hasAvifBrand(bytes, MAJOR_BRAND_OFFSET)) {
 		return true;
 	}
+
 	for (
 		let at = COMPATIBLE_BRANDS_OFFSET;
 		at + BRAND_SIZE <= boxSize;
@@ -55,6 +58,7 @@ function isAvif(bytes: Uint8Array): boolean {
 			return true;
 		}
 	}
+
 	return false;
 }
 
@@ -64,17 +68,22 @@ export function sniffImageType(bytes: Uint8Array): ImageType | undefined {
 	if (matchesAt(bytes, 0, PNG)) {
 		return { contentType: "image/png", extension: "png" };
 	}
+
 	if (matchesAt(bytes, 0, JPEG)) {
 		return { contentType: "image/jpeg", extension: "jpg" };
 	}
+
 	if (matchesAt(bytes, 0, GIF87A) || matchesAt(bytes, 0, GIF89A)) {
 		return { contentType: "image/gif", extension: "gif" };
 	}
+
 	if (matchesAt(bytes, 0, RIFF) && matchesAt(bytes, WEBP_OFFSET, WEBP)) {
 		return { contentType: "image/webp", extension: "webp" };
 	}
+
 	if (isAvif(bytes)) {
 		return { contentType: "image/avif", extension: "avif" };
 	}
+
 	return undefined;
 }

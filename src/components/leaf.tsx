@@ -119,6 +119,7 @@ function Introduction({ className }: { className?: string }) {
 function OpenPostSections() {
 	const match = useMatch({ from: "/_book/blog/$slug", shouldThrow: false });
 	const slug = match?.params.slug;
+
 	const { data: post } = useQuery({
 		...orpc.posts.bySlug.queryOptions({ input: { slug: slug ?? "" } }),
 		enabled: slug !== undefined,
@@ -127,6 +128,7 @@ function OpenPostSections() {
 	if (post === undefined) {
 		return null;
 	}
+
 	// Keyed so a newly opened post starts with its sections folded.
 	return <ThumbIndexSections key={post.slug} toc={post.toc} />;
 }
@@ -143,6 +145,7 @@ const FORE_EDGE_CLASS =
 export function Leaf() {
 	const atHome =
 		useMatch({ from: "/_book/", shouldThrow: false }) !== undefined;
+
 	const phoneShown = atHome ? "block" : "hidden md:block";
 	const foreEdge = atHome ? "md:before:opacity-0" : "";
 

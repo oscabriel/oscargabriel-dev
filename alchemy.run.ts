@@ -82,6 +82,7 @@ export const AdminAccess = Effect.gen(function* () {
 // the dev bypass, and their empty Access config makes the admin API fail closed.
 const accessEnv = Effect.gen(function* () {
 	const { stage } = yield* Alchemy.Stack;
+
 	if (stage !== "prod") {
 		return {
 			ACCESS_TEAM_DOMAIN: "",
@@ -89,8 +90,10 @@ const accessEnv = Effect.gen(function* () {
 			ACCESS_AGENT_CLIENT_ID: "",
 		};
 	}
+
 	const admin = yield* AdminAccess;
 	const agentToken = yield* AgentToken;
+
 	return {
 		ACCESS_TEAM_DOMAIN,
 		ACCESS_AUD: admin.aud,

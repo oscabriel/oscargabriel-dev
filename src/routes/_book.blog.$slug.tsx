@@ -15,6 +15,7 @@ export const Route = createFileRoute("/_book/blog/$slug")({
 			const post = await context.queryClient.query(
 				orpc.posts.bySlug.queryOptions({ input: { slug: params.slug } })
 			);
+
 			// Only what head() needs. The page reads the full post from the query cache.
 			return {
 				title: post.title,
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/_book/blog/$slug")({
 			if (error instanceof ORPCError && error.code === "NOT_FOUND") {
 				throw notFound();
 			}
+
 			throw error;
 		}
 	},
@@ -34,7 +36,9 @@ export const Route = createFileRoute("/_book/blog/$slug")({
 		if (loaderData === undefined) {
 			return {};
 		}
+
 		const url = `${SITE_URL}/blog/${params.slug}`;
+
 		const meta = [
 			{ title: `${loaderData.title} | ${SITE_NAME}` },
 			{ name: "description", content: loaderData.summary },
@@ -43,6 +47,7 @@ export const Route = createFileRoute("/_book/blog/$slug")({
 			{ property: "og:description", content: loaderData.summary },
 			{ property: "og:url", content: url },
 		];
+
 		if (loaderData.imageKey !== undefined) {
 			meta.push(
 				{
@@ -52,12 +57,14 @@ export const Route = createFileRoute("/_book/blog/$slug")({
 				{ name: "twitter:card", content: "summary_large_image" }
 			);
 		}
+
 		if (loaderData.publishedAt) {
 			meta.push({
 				property: "article:published_time",
 				content: loaderData.publishedAt.toISOString(),
 			});
 		}
+
 		return { meta, links: [{ rel: "canonical", href: url }] };
 	},
 	component: PostPage,
@@ -66,9 +73,11 @@ export const Route = createFileRoute("/_book/blog/$slug")({
 
 function PostPage() {
 	const { slug } = Route.useParams();
+
 	const { data: post } = useSuspenseQuery(
 		orpc.posts.bySlug.queryOptions({ input: { slug } })
 	);
+
 	useEffect(() => {
 		markOpened(slug);
 	}, [slug]);
@@ -106,16 +115,21 @@ function PostPage() {
 // The turn at the foot of the page: the next post to read, and the one before.
 function PostTurn({ slug }: { slug: string }) {
 	const { data: posts } = useQuery(orpc.posts.list.queryOptions());
+
 	if (posts === undefined) {
 		return null;
 	}
+
 	const index = posts.findIndex((post) => post.slug === slug);
+
 	if (index === -1) {
 		return null;
 	}
+
 	// The list is newest first, so the next thing to read is the older post.
 	const next = posts[index + 1];
 	const previous = posts[index - 1];
+
 	if (next === undefined && previous === undefined) {
 		return null;
 	}

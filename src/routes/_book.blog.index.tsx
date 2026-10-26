@@ -42,9 +42,11 @@ function VisitedMark({ slug }: { slug: string }) {
 		() => wasOpened(slug),
 		() => false
 	);
+
 	if (!opened) {
 		return null;
 	}
+
 	return (
 		<span
 			className="-ml-2 shrink-0 text-ink-soft"

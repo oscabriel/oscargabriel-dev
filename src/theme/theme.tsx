@@ -16,6 +16,7 @@ export const THEME_SCRIPT = `(function(){try{var s=localStorage.getItem(${JSON.s
 function readStored(): "light" | "dark" | null {
 	try {
 		const value = localStorage.getItem(STORAGE_KEY);
+
 		return value === "light" || value === "dark" ? value : null;
 	} catch {
 		return null;
@@ -35,13 +36,17 @@ function subscribe(onChange: () => void) {
 		attributeFilter: ["class"],
 	});
 	const media = matchMedia(DARK_QUERY);
+
 	function onSystemChange(event: MediaQueryListEvent) {
 		if (readStored() === null) {
 			apply(event.matches);
 		}
+
 		onChange();
 	}
+
 	media.addEventListener("change", onSystemChange);
+
 	return () => {
 		observer.disconnect();
 		media.removeEventListener("change", onSystemChange);
@@ -63,6 +68,7 @@ function useResolvedDark(): boolean | undefined {
 
 function choose(next: boolean) {
 	const system = matchMedia(DARK_QUERY).matches;
+
 	try {
 		if (next === system) {
 			localStorage.removeItem(STORAGE_KEY);
@@ -72,6 +78,7 @@ function choose(next: boolean) {
 	} catch {
 		// Private windows may refuse storage; the page still switches.
 	}
+
 	apply(next);
 }
 
@@ -89,6 +96,7 @@ export function ThemeToggle({ className }: { className?: string }) {
 	}
 
 	let title: string | undefined;
+
 	if (dark !== undefined) {
 		title = dark ? "Read by daylight" : "Read by moonlight";
 	}

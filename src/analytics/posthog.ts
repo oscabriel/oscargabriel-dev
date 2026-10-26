@@ -25,6 +25,7 @@ function dropAdminEvents(event: CaptureResult | null): CaptureResult | null {
 	if (window.location.pathname.startsWith(ADMIN_PREFIX)) {
 		return null;
 	}
+
 	return event;
 }
 
@@ -32,21 +33,26 @@ let started = false;
 
 export async function startAnalytics(): Promise<void> {
 	const key = import.meta.env.VITE_POSTHOG_KEY ?? "";
+
 	const off =
 		typeof window === "undefined" ||
 		import.meta.env.DEV ||
 		key === "" ||
 		window.location.hostname !== SITE_HOST;
+
 	if (off || started) {
 		return;
 	}
+
 	started = true;
+
 	// The web-vitals bundle registers itself where PostHog looks for it, so
 	// it must be in place before init.
 	const [{ posthog }] = await Promise.all([
 		import("posthog-js"),
 		import("posthog-js/dist/web-vitals"),
 	]);
+
 	posthog.init(key, {
 		api_host: "/ingest",
 		ui_host: "https://us.posthog.com",

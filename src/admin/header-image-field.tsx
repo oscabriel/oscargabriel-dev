@@ -30,9 +30,11 @@ function uploadProblem(error: Error): string {
 	if (error instanceof ORPCError && error.code === "UNSUPPORTED_MEDIA_TYPE") {
 		return "That file isn’t a PNG, JPEG, GIF, WebP or AVIF image.";
 	}
+
 	if (error instanceof ORPCError && error.code === "PAYLOAD_TOO_LARGE") {
 		return TOO_LARGE;
 	}
+
 	return `The upload failed: ${error.message}`;
 }
 
@@ -43,6 +45,7 @@ function useObjectUrl(file: File | undefined): string | undefined {
 		() => (file === undefined ? undefined : URL.createObjectURL(file)),
 		[file]
 	);
+
 	useEffect(
 		() => () => {
 			if (url !== undefined) {
@@ -51,6 +54,7 @@ function useObjectUrl(file: File | undefined): string | undefined {
 		},
 		[url]
 	);
+
 	return url;
 }
 
@@ -89,16 +93,22 @@ function ImageUpload({
 	function start() {
 		if (file === undefined) {
 			setProblem("Choose an image file first.");
+
 			return;
 		}
+
 		if (file.size > MAX_BODY_BYTES) {
 			setProblem(TOO_LARGE);
+
 			return;
 		}
+
 		if (alt.trim() === "") {
 			setProblem("Add alt text describing the image.");
+
 			return;
 		}
+
 		setProblem(undefined);
 		upload.mutate({ file, alt: alt.trim() });
 	}
@@ -187,6 +197,7 @@ function MediaLibrary({ selectedId, onSelect }: MediaLibraryProps) {
 			</div>
 		);
 	}
+
 	if (media.isError) {
 		return (
 			<p role="alert" className="text-xs text-destructive">
@@ -194,6 +205,7 @@ function MediaLibrary({ selectedId, onSelect }: MediaLibraryProps) {
 			</p>
 		);
 	}
+
 	if (media.data.length === 0) {
 		return (
 			<p className="text-xs text-muted-foreground">

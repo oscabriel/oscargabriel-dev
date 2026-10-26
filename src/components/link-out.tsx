@@ -17,6 +17,7 @@ export function LinkOut({ href, children, ...props }: LinkOutProps) {
 			</a>
 		);
 	}
+
 	return (
 		<a href={href} target="_blank" rel="noopener noreferrer" {...props}>
 			{children}

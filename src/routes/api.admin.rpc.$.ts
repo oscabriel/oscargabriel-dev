@@ -18,6 +18,7 @@ export const Route = createFileRoute("/api/admin/rpc/$")({
 					prefix: "/api/admin/rpc",
 					context: { headers: request.headers },
 				});
+
 				return response ?? new Response("Not found", { status: 404 });
 			},
 		},

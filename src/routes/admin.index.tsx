@@ -10,9 +10,11 @@ function AdminHome() {
 	const { data: posts } = useSuspenseQuery(
 		adminOrpc.posts.listAll.queryOptions()
 	);
+
 	const drafts = posts.filter((post) => post.status === "draft").length;
 	const published = posts.length - drafts;
 	let tally = `${published} published, no drafts.`;
+
 	if (drafts > 0) {
 		tally = `${published} published, ${drafts} ${drafts === 1 ? "draft" : "drafts"}.`;
 	}

@@ -25,20 +25,26 @@ function upstreamUrl(
 	method: string
 ): URL | undefined {
 	const url = new URL(`https://${API_HOST}/${path}${search}`);
+
 	const withSlash = url.pathname.endsWith("/")
 		? url.pathname
 		: `${url.pathname}/`;
+
 	if (method === "POST" && CAPTURE_PATHS.has(withSlash)) {
 		return url;
 	}
+
 	const isRead = method === "GET" || method === "HEAD";
+
 	if (
 		isRead &&
 		ASSET_PREFIXES.some((prefix) => url.pathname.startsWith(prefix))
 	) {
 		url.host = ASSET_HOST;
+
 		return url;
 	}
+
 	return undefined;
 }
 
@@ -48,6 +54,7 @@ export const Route = createFileRoute("/ingest/$")({
 			ANY: async ({ params, request }) => {
 				const { search } = new URL(request.url);
 				const target = upstreamUrl(params._splat ?? "", search, request.method);
+
 				if (target === undefined) {
 					return new Response("Not found", { status: 404 });
 				}
@@ -59,12 +66,15 @@ export const Route = createFileRoute("/ingest/$")({
 				headers.delete("host");
 				headers.delete("cookie");
 				headers.delete("authorization");
+
 				const cloudflareNames = [...headers.keys()].filter((name) =>
 					name.startsWith("cf-")
 				);
+
 				for (const name of cloudflareNames) {
 					headers.delete(name);
 				}
+
 				headers.set(
 					"x-forwarded-for",
 					request.headers.get("cf-connecting-ip") ?? ""
@@ -72,6 +82,7 @@ export const Route = createFileRoute("/ingest/$")({
 
 				// The body is read in full: a forwarded stream can drop POSTs.
 				const hasBody = request.method !== "GET" && request.method !== "HEAD";
+
 				return await fetch(target, {
 					method: request.method,
 					headers,

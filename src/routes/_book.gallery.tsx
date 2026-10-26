@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 const TITLE = `Gallery | ${SITE_NAME}`;
+
 const DESCRIPTION =
 	"Film photographs by Oscar Gabriel, to be bound in as plates once they are scanned.";
 

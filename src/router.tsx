@@ -32,6 +32,7 @@ export function getRouter() {
 	router.subscribe("onBeforeNavigate", ({ pathChanged }) => {
 		const onPhone =
 			typeof window !== "undefined" && window.matchMedia(PHONE_QUERY).matches;
+
 		if (!pathChanged || onPhone) {
 			router.shouldViewTransition = false;
 		}

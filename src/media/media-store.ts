@@ -36,13 +36,17 @@ export class MediaStore extends Context.Service<MediaStore>()(
 				const bytes = new Uint8Array(
 					yield* Effect.promise(async () => await file.arrayBuffer())
 				);
+
 				const type = sniffImageType(bytes);
+
 				if (type === undefined) {
 					return yield* new UnsupportedImage({ name: file.name });
 				}
+
 				const digest = yield* Effect.promise(
 					async () => await crypto.subtle.digest("SHA-256", bytes)
 				);
+
 				const key = `images/${Hex.encode(new Uint8Array(digest))}.${type.extension}`;
 				// Object first, then row: a row never points at a missing object.
 				yield* Effect.promise(
@@ -51,6 +55,7 @@ export class MediaStore extends Context.Service<MediaStore>()(
 							httpMetadata: { contentType: type.contentType },
 						})
 				);
+
 				const rows = yield* db
 					.insert(MediaFiles)
 					.values({
@@ -62,6 +67,7 @@ export class MediaStore extends Context.Service<MediaStore>()(
 					.onConflictDoUpdate({ target: MediaFiles.key, set: { alt } })
 					.returning()
 					.pipe(Effect.orDie);
+
 				return yield* Effect.fromNullishOr(rows[0]).pipe(Effect.orDie);
 			});
 

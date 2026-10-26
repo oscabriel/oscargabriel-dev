@@ -18,10 +18,13 @@ export const LETTERBOXD_PROFILE = `https://letterboxd.com/${LETTERBOXD_USERNAME}
 const FEED_URL = `${LETTERBOXD_PROFILE}rss/`;
 const USER_AGENT = "oscargabriel.dev";
 const CACHE_KEY = `letterboxd:diary:${LETTERBOXD_USERNAME}`;
+
 // A diary changes a few times a week, so an hour-old copy is fresh enough.
 const FRESH_MILLIS = 60 * 60 * 1000;
+
 // KV keeps the copy for a month past that, to serve while Letterboxd is down.
 const KEEP_SECONDS = 30 * 24 * 60 * 60;
+
 // The author's days: "today" on this page is a day in Portland.
 const HOME_ZONE = "America/Los_Angeles";
 const DAY_MILLIS = 24 * 60 * 60 * 1000;
@@ -47,6 +50,7 @@ const dayFormat = new Intl.DateTimeFormat("en-CA", {
 function isRecent(watchedOn: string, now: number): boolean {
 	const today = dayFormat.format(now);
 	const yesterday = dayFormat.format(now - DAY_MILLIS);
+
 	return watchedOn === today || watchedOn === yesterday;
 }
 
@@ -55,6 +59,7 @@ export class Letterboxd extends Context.Service<Letterboxd>()(
 	{
 		make: Effect.gen(function* () {
 			const cache = env.REPO_CACHE;
+
 			const client = (yield* HttpClient.HttpClient).pipe(
 				HttpClient.mapRequest(
 					HttpClientRequest.setHeaders({
@@ -107,12 +112,14 @@ export class Letterboxd extends Context.Service<Letterboxd>()(
 
 			const entries = Effect.fn("Letterboxd.entries")(function* (now: number) {
 				const cached = yield* readCache;
+
 				if (
 					Option.isSome(cached) &&
 					now - cached.value.fetchedAt < FRESH_MILLIS
 				) {
 					return cached.value.entries;
 				}
+
 				return yield* fetchDiary.pipe(
 					Effect.tap((fresh) => writeCache(now, fresh)),
 					// Letterboxd down: an old diary beats an empty page.
@@ -132,6 +139,7 @@ export class Letterboxd extends Context.Service<Letterboxd>()(
 			// The page still renders with no copy at all; it just says so.
 			const diary = Effect.fn("Letterboxd.diary")(function* () {
 				const now = yield* Clock.currentTimeMillis;
+
 				const list = yield* entries(now).pipe(
 					Effect.catchTag("LetterboxdError", (error) =>
 						Effect.logWarning("Letterboxd diary unavailable", error).pipe(
@@ -139,7 +147,9 @@ export class Letterboxd extends Context.Service<Letterboxd>()(
 						)
 					)
 				);
+
 				const latest = list?.[0];
+
 				return {
 					profile: LETTERBOXD_PROFILE,
 					available: list !== null,

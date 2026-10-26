@@ -78,9 +78,11 @@ export class AdminPosts extends Context.Service<AdminPosts>()(
 					where: { id },
 					with: { headerImage: true },
 				}).pipe(Effect.orDie);
+
 				if (post === undefined) {
 					return yield* new PostIdNotFound({ id });
 				}
+
 				return post;
 			});
 
@@ -89,6 +91,7 @@ export class AdminPosts extends Context.Service<AdminPosts>()(
 				draft: typeof PostSave.Type
 			) {
 				const { id, baseUpdatedAt, ...fields } = draft;
+
 				const clash = yield* db.query.Posts.findFirst({
 					columns: { id: true },
 					where:
@@ -96,22 +99,27 @@ export class AdminPosts extends Context.Service<AdminPosts>()(
 							? { slug: fields.slug }
 							: { slug: fields.slug, id: { ne: id } },
 				}).pipe(Effect.orDie);
+
 				if (clash !== undefined) {
 					return yield* new SlugTaken({ slug: fields.slug });
 				}
+
 				const values = {
 					...fields,
 					...renderPost(fields.body),
 					updatedAt: now,
 				};
+
 				if (id === undefined) {
 					const created = yield* db
 						.insert(Posts)
 						.values(values)
 						.returning()
 						.pipe(Effect.orDie);
+
 					return yield* Effect.fromNullishOr(created[0]).pipe(Effect.orDie);
 				}
+
 				// The check sits in the WHERE clause, so no write can land between it
 				// and this one. `updatedAt` counts seconds: two saves inside the
 				// same second look alike, which one author can live with.
@@ -128,15 +136,19 @@ export class AdminPosts extends Context.Service<AdminPosts>()(
 					)
 					.returning()
 					.pipe(Effect.orDie);
+
 				const [row] = updated;
+
 				if (row !== undefined) {
 					return row;
 				}
+
 				// Nothing matched: either the post is gone or it moved on.
 				const exists = yield* db.query.Posts.findFirst({
 					columns: { id: true },
 					where: { id },
 				}).pipe(Effect.orDie);
+
 				return yield* exists === undefined
 					? new PostIdNotFound({ id })
 					: new PostChanged({ id });
@@ -164,6 +176,7 @@ export class AdminPosts extends Context.Service<AdminPosts>()(
 						publishedAt: Posts.publishedAt,
 					})
 					.pipe(Effect.orDie);
+
 				return yield* onlyRow(updated, id);
 			});
 
@@ -183,6 +196,7 @@ export class AdminPosts extends Context.Service<AdminPosts>()(
 					.where(eq(Posts.id, id))
 					.returning({ id: Posts.id })
 					.pipe(Effect.orDie);
+
 				return yield* onlyRow(deleted, id);
 			});
 

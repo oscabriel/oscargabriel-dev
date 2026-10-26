@@ -13,6 +13,7 @@ export const Route = createFileRoute("/api/rpc/$")({
 					prefix: "/api/rpc",
 					context: {},
 				});
+
 				return response ?? new Response("Not found", { status: 404 });
 			},
 		},

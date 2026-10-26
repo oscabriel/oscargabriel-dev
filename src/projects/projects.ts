@@ -43,6 +43,7 @@ export class Projects extends Context.Service<Projects>()("app/Projects", {
 					),
 				{ concurrency: "unbounded" }
 			);
+
 			// The most recently worked on comes first, so the order follows the pushes.
 			return Arr.sort(projects, newestFirst);
 		});

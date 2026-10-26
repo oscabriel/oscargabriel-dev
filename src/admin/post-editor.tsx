@@ -34,7 +34,9 @@ import { adminOrpc } from "@/rpc/admin-client";
 import type { adminRouter } from "@/rpc/admin-router";
 
 type SaveInput = InferRouterInputs<typeof adminRouter>["posts"]["save"];
+
 type EditablePost = InferRouterOutputs<typeof adminRouter>["posts"]["byId"];
+
 type DraftFields = Omit<SaveInput, "id" | "baseUpdatedAt">;
 
 const DRAFT_KEYS = [
@@ -63,6 +65,7 @@ const EMPTY_DRAFT: DraftFields = {
 function toDraft(post: DraftFields): DraftFields {
 	const { slug, title, summary, body, headerImageId, headerImageCaption } =
 		post;
+
 	return { slug, title, summary, body, headerImageId, headerImageCaption };
 }
 
@@ -76,9 +79,11 @@ function resolveHeaderImage(
 	if (id === null) {
 		return undefined;
 	}
+
 	if (saved?.id === id) {
 		return saved;
 	}
+
 	return library?.find((file) => file.id === id);
 }
 
@@ -94,9 +99,11 @@ function slugProblem(slug: string): string | undefined {
 	if (slug === "") {
 		return "Add a slug. It becomes the post’s URL.";
 	}
+
 	if (!SLUG.test(slug)) {
 		return "Use lowercase letters, numbers and single hyphens, like my-first-post.";
 	}
+
 	return undefined;
 }
 
@@ -117,7 +124,9 @@ function useSaveShortcut(form: React.RefObject<HTMLFormElement | null>) {
 				form.current?.requestSubmit();
 			}
 		}
+
 		window.addEventListener("keydown", onKeyDown);
+
 		return () => {
 			window.removeEventListener("keydown", onKeyDown);
 		};
@@ -134,9 +143,11 @@ function currentActivity(
 	if (saving) {
 		return "saving";
 	}
+
 	if (publishing) {
 		return "publishing";
 	}
+
 	return unpublishing ? "unpublishing" : undefined;
 }
 
@@ -144,6 +155,7 @@ function describeStatus(post: EditablePost | undefined): string {
 	if (post === undefined) {
 		return "New draft";
 	}
+
 	return post.status === "published" ? "Published" : "Draft";
 }
 
@@ -155,17 +167,21 @@ function describeSaveState(
 	if (activity === "saving") {
 		return "Saving…";
 	}
+
 	if (activity === "publishing") {
 		return "Publishing…";
 	}
+
 	if (activity === "unpublishing") {
 		return "Unpublishing…";
 	}
+
 	if (dirty) {
 		return post?.status === "published"
 			? "Unsaved changes. Saving updates the live post."
 			: "Unsaved changes";
 	}
+
 	return post === undefined ? "Not saved yet" : "All changes saved";
 }
 
@@ -177,15 +193,19 @@ function describeFailure(
 	if (save instanceof ORPCError && save.code === "PRECONDITION_FAILED") {
 		return "The post didn’t save: it changed somewhere else since you opened it, maybe from the terminal. Copy your text, reload the page and paste it back in.";
 	}
+
 	if (save !== null) {
 		return `The post didn’t save: ${save.message}. Your text is still here; try saving again.`;
 	}
+
 	if (publish !== null) {
 		return `The post didn’t publish: ${publish.message}.`;
 	}
+
 	if (unpublish !== null) {
 		return `The post is still live; unpublishing failed: ${unpublish.message}.`;
 	}
+
 	return undefined;
 }
 
@@ -393,25 +413,31 @@ export function PostEditor({ post }: { post?: EditablePost }) {
 	const [baseline, setBaseline] = useState(() =>
 		post === undefined ? EMPTY_DRAFT : toDraft(post)
 	);
+
 	const [draft, setDraft] = useState(baseline);
+
 	// The version this editor last loaded or saved. Saves send it, so one made
 	// over a newer edit (say, an agent's) fails instead of erasing it.
 	const [baseUpdatedAt, setBaseUpdatedAt] = useState(() =>
 		post === undefined ? undefined : unixSeconds(post.updatedAt)
 	);
+
 	// A new post's slug follows its title until the slug is edited by hand.
 	const [slugEdited, setSlugEdited] = useState(post !== undefined);
 	const [showErrors, setShowErrors] = useState(false);
+
 	// Open by default only where it fits beside the text; on narrower screens
 	// it replaces the text instead.
 	const [previewOpen, setPreviewOpen] = useState(
 		() => window.matchMedia(SIDE_BY_SIDE).matches
 	);
+
 	const [confirmingDelete, setConfirmingDelete] = useState(false);
 
 	const dirty = !sameDraft(draft, baseline);
 	const errors = validate(draft);
 	const media = useQuery(adminOrpc.media.list.queryOptions());
+
 	const headerImage = resolveHeaderImage(
 		draft.headerImageId,
 		post?.headerImage,
@@ -429,6 +455,7 @@ export function PostEditor({ post }: { post?: EditablePost }) {
 				setBaseUpdatedAt(unixSeconds(saved.updatedAt));
 				setShowErrors(false);
 				await refreshPosts();
+
 				if (post === undefined) {
 					// The blocker still sees the pre-save state here, so skip it.
 					await navigate({
@@ -441,12 +468,15 @@ export function PostEditor({ post }: { post?: EditablePost }) {
 			},
 		})
 	);
+
 	const publish = useMutation(
 		adminOrpc.posts.publish.mutationOptions({ onSuccess: refreshPosts })
 	);
+
 	const unpublish = useMutation(
 		adminOrpc.posts.unpublish.mutationOptions({ onSuccess: refreshPosts })
 	);
+
 	const remove = useMutation(
 		adminOrpc.posts.delete.mutationOptions({
 			onSuccess: async ({ id }) => {
@@ -465,6 +495,7 @@ export function PostEditor({ post }: { post?: EditablePost }) {
 		publish.isPending,
 		unpublish.isPending
 	);
+
 	const busy = activity !== undefined || remove.isPending;
 
 	const blocker = useBlocker({
@@ -479,11 +510,14 @@ export function PostEditor({ post }: { post?: EditablePost }) {
 		save.error instanceof ORPCError &&
 		save.error.code === "CONFLICT" &&
 		save.variables?.slug === draft.slug;
+
 	const titleError = showErrors ? errors.title : undefined;
 	let slugError = showErrors ? errors.slug : undefined;
+
 	if (slugTaken) {
 		slugError = "Another post already uses this slug.";
 	}
+
 	const failure = describeFailure(
 		slugTaken ? null : save.error,
 		publish.error,
@@ -504,13 +538,16 @@ export function PostEditor({ post }: { post?: EditablePost }) {
 		if (errors.title === undefined && errors.slug === undefined) {
 			return true;
 		}
+
 		setShowErrors(true);
 		(errors.title === undefined ? slugRef : titleRef).current?.focus();
+
 		return false;
 	}
 
 	function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
+
 		if (checkDraft()) {
 			save.mutate(
 				post === undefined ? draft : { ...draft, id: post.id, baseUpdatedAt }
@@ -523,6 +560,7 @@ export function PostEditor({ post }: { post?: EditablePost }) {
 		if (!checkDraft()) {
 			return;
 		}
+
 		if (dirty) {
 			try {
 				await save.mutateAsync({ ...draft, id, baseUpdatedAt });
@@ -531,6 +569,7 @@ export function PostEditor({ post }: { post?: EditablePost }) {
 				return;
 			}
 		}
+
 		publish.mutate({ id });
 	}
 

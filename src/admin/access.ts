@@ -44,13 +44,17 @@ const keySets = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
 
 function keySetFor(teamDomain: string): ReturnType<typeof createRemoteJWKSet> {
 	const cached = keySets.get(teamDomain);
+
 	if (cached !== undefined) {
 		return cached;
 	}
+
 	const keySet = createRemoteJWKSet(
 		new URL("/cdn-cgi/access/certs", teamDomain)
 	);
+
 	keySets.set(teamDomain, keySet);
+
 	return keySet;
 }
 
@@ -60,17 +64,20 @@ export const verifyAdmin = Effect.fn("verifyAdmin")(function* (
 	headers: Headers
 ) {
 	const dev = readDevAccess();
+
 	if (Option.isSome(dev)) {
 		return dev.value;
 	}
 
 	const teamDomain = env.ACCESS_TEAM_DOMAIN;
 	const audience = env.ACCESS_AUD;
+
 	if (teamDomain === "" || audience === "") {
 		return yield* new AccessDenied({ reason: "Access is not configured" });
 	}
 
 	const token = headers.get("cf-access-jwt-assertion");
+
 	if (token === null) {
 		return yield* new AccessDenied({ reason: "Missing Access token" });
 	}
@@ -83,22 +90,29 @@ export const verifyAdmin = Effect.fn("verifyAdmin")(function* (
 			}),
 		catch: () => new AccessDenied({ reason: "Invalid Access token" }),
 	});
+
 	const person = Schema.decodeUnknownOption(PersonClaims)(payload);
+
 	if (Option.isSome(person)) {
 		if (person.value.email !== env.ADMIN_EMAIL) {
 			return yield* new AccessDenied({ reason: "Not the admin" });
 		}
+
 		return { kind: "author", email: person.value.email } as const;
 	}
 
 	const service = Schema.decodeUnknownOption(ServiceTokenClaims)(payload);
+
 	if (Option.isNone(service)) {
 		return yield* new AccessDenied({ reason: "Token names no one" });
 	}
+
 	// Empty outside prod, where no agent token exists, so this fails closed.
 	const agentClientId = env.ACCESS_AGENT_CLIENT_ID;
+
 	if (agentClientId === "" || service.value.common_name !== agentClientId) {
 		return yield* new AccessDenied({ reason: "Not the agent token" });
 	}
+
 	return { kind: "agent", clientId: agentClientId } as const;
 });

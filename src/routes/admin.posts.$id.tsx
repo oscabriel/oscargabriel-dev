@@ -15,15 +15,18 @@ export const Route = createFileRoute("/admin/posts/$id")({
 		if (!Number.isInteger(params.id)) {
 			throw notFound();
 		}
+
 		try {
 			const post = await context.queryClient.query(
 				adminOrpc.posts.byId.queryOptions({ input: { id: params.id } })
 			);
+
 			return { title: post.title };
 		} catch (error) {
 			if (error instanceof ORPCError && error.code === "NOT_FOUND") {
 				throw notFound();
 			}
+
 			throw error;
 		}
 	},
@@ -36,9 +39,11 @@ export const Route = createFileRoute("/admin/posts/$id")({
 
 function EditPost() {
 	const { id } = Route.useParams();
+
 	const { data: post } = useSuspenseQuery(
 		adminOrpc.posts.byId.queryOptions({ input: { id } })
 	);
+
 	// Keyed by id so switching posts starts a fresh editor instead of carrying
 	// one post's unsaved text into another.
 	return <PostEditor key={post.id} post={post} />;

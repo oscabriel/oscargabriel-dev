@@ -10,12 +10,14 @@ export const router = {
 	projects: {
 		list: pub.effect(function* () {
 			const projects = yield* Projects;
+
 			return yield* projects.list();
 		}),
 	},
 	posts: {
 		list: pub.effect(function* () {
 			const posts = yield* Posts;
+
 			return yield* posts.listPublished();
 		}),
 		bySlug: pub
@@ -23,6 +25,7 @@ export const router = {
 			.input(Schema.Struct({ slug: Schema.String }))
 			.effect(function* ({ input, errors }) {
 				const posts = yield* Posts;
+
 				return yield* posts
 					.bySlug(input.slug)
 					.pipe(
@@ -37,6 +40,7 @@ export const router = {
 		list: pub.effect(function* () {
 			return yield* Effect.gen(function* () {
 				const letterboxd = yield* Letterboxd;
+
 				return yield* letterboxd.diary();
 			}).pipe(Effect.provide(Letterboxd.layer));
 		}),

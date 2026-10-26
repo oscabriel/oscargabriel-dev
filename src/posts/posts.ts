@@ -27,9 +27,11 @@ export class Posts extends Context.Service<Posts>()("app/Posts", {
 				where: { slug, status: "published" },
 				with: { headerImage: true },
 			}).pipe(Effect.orDie);
+
 			if (post === undefined) {
 				return yield* new PostNotFound({ slug });
 			}
+
 			return post;
 		});
 

@@ -16,6 +16,7 @@ interface PostPreviewProps {
 // preview opens, so the rest of the admin never pays for them.
 async function loadRenderer() {
 	const renderer = await import("@/posts/render");
+
 	return renderer.renderPost;
 }
 
@@ -23,17 +24,22 @@ function useRenderer() {
 	const [render, setRender] = useState<typeof renderPost>();
 	useEffect(() => {
 		let mounted = true;
+
 		async function load() {
 			const loaded = await loadRenderer();
+
 			if (mounted) {
 				setRender(() => loaded);
 			}
 		}
+
 		void load();
+
 		return () => {
 			mounted = false;
 		};
 	}, []);
+
 	return render;
 }
 
@@ -48,6 +54,7 @@ export function PostPreview({
 }: PostPreviewProps) {
 	const render = useRenderer();
 	const deferredBody = useDeferredValue(body);
+
 	const html = useMemo(
 		() => render?.(deferredBody).html,
 		[render, deferredBody]
