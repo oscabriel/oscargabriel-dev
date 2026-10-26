@@ -27,10 +27,15 @@ function useActiveHeading(toc: readonly TocEntry[]): string | undefined {
 	const [activeId, setActiveId] = useState<string>();
 
 	useEffect(() => {
-		const headings = toc
-			.filter((entry) => entry.level <= 3)
-			.map((entry) => document.querySelector(`#${CSS.escape(entry.id)}`))
-			.filter((heading) => heading !== null);
+		const headings = toc.flatMap((entry) => {
+			if (entry.level > 3) {
+				return [];
+			}
+
+			const heading = document.querySelector(`#${CSS.escape(entry.id)}`);
+
+			return heading === null ? [] : [heading];
+		});
 
 		function update() {
 			const { scrollHeight } = document.documentElement;

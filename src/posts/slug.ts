@@ -11,9 +11,9 @@ const EDGE_HYPHENS = /^-+|-+$/gu;
 export function slugify(title: string): string {
 	return title
 		.normalize("NFKD")
-		.replace(COMBINING_MARKS, "")
-		.replace(APOSTROPHES, "")
+		.replaceAll(COMBINING_MARKS, "")
+		.replaceAll(APOSTROPHES, "")
 		.toLowerCase()
-		.replace(NON_SLUG, "-")
-		.replace(EDGE_HYPHENS, "");
+		.replaceAll(NON_SLUG, "-")
+		.replaceAll(EDGE_HYPHENS, "");
 }

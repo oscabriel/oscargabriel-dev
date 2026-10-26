@@ -1,6 +1,6 @@
-import "@orpc/experimental-effect/extensions/effect";
-import "@orpc/experimental-effect/extensions/input-output";
-import { middlewareGen } from "@orpc/experimental-effect";
+import "@orpc/effect/extensions/effect";
+import "@orpc/effect/extensions/input-output";
+import { middlewareGen } from "@orpc/effect";
 import { ORPCError, os } from "@orpc/server";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -22,6 +22,7 @@ function provideLayer<ROut, E>(layer: Layer.Layer<ROut, E>) {
 		return yield* Effect.scoped(
 			Effect.gen(function* () {
 				const services = yield* Layer.build(layer);
+
 				return yield* next({ context: { "effect/context": services } });
 			})
 		);
@@ -36,6 +37,7 @@ const requireAdmin = middlewareGen<
 	const admin = yield* verifyAdmin(context.headers).pipe(
 		Effect.mapError(() => new ORPCError("UNAUTHORIZED"))
 	);
+
 	return yield* next({ context: { admin } });
 });
 

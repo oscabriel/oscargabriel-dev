@@ -149,7 +149,7 @@ function readHead(head: string): Map<string, string> {
 }
 
 function parseFile(text: string, where: string): PostFile {
-	const normalized = text.replace(CRLF, "\n");
+	const normalized = text.replaceAll(CRLF, "\n");
 	const match = FRONTMATTER.exec(normalized);
 	if (match === null) {
 		throw new UsageError(

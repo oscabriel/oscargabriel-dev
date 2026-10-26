@@ -491,7 +491,7 @@ export function PostEditor({ post }: { post?: EditablePost }) {
 	);
 
 	function handleTitle(typed: string) {
-		const title = typed.replace(LINE_BREAKS, " ");
+		const title = typed.replaceAll(LINE_BREAKS, " ");
 		setDraft((current) => ({
 			...current,
 			title,
