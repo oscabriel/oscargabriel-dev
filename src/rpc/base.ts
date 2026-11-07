@@ -1,5 +1,5 @@
 import "@orpc/effect/extensions/effect";
-import "@orpc/effect/extensions/input-output";
+import "@orpc/effect/extensions/schema";
 import { middlewareGen } from "@orpc/effect";
 import { ORPCError, os } from "@orpc/server";
 import * as Effect from "effect/Effect";
